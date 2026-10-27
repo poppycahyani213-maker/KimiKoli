@@ -1,0 +1,47 @@
+[
+  {
+    "id": "water",
+    "name": "Air (H₂O)",
+    "formula": "H₂O",
+    "normalBoilingPoint": 100.0,
+    "normalFreezingPoint": 0.0,
+    "kb": 0.52,
+    "kf": 1.86,
+    "density": 1.0,
+    "vaporPressure25C": 23.76
+  },
+  {
+    "id": "benzene",
+    "name": "Benzena (C₆H₆)",
+    "formula": "C₆H₆",
+    "normalBoilingPoint": 80.1,
+    "normalFreezingPoint": 5.5,
+    "kb": 2.53,
+    "kf": 5.12,
+    "density": 0.876,
+    "vaporPressure25C": 95.1
+  },
+  {
+    "id": "acetic-acid",
+    "name": "Asam Asetat (CH₃COOH)",
+    "formula": "CH₃COOH",
+    "normalBoilingPoint": 117.9,
+    "normalFreezingPoint": 16.6,
+    "kb": 3.07,
+    "kf": 3.90,
+    "density": 1.05,
+    "vaporPressure25C": 15.7
+  },
+  {
+    "id": "camphor",
+    "name": "Kamfer (C₁₀H₁₆O)",
+    "formula": "C₁₀H₁₆O",
+    "normalBoilingPoint": 207.4,
+    "normalFreezingPoint": 178.4,
+    "kb": 5.95,
+    "kf": 39.7,
+    "density": 0.99,
+    "vaporPressure25C": 0.65
+  }
+]
+

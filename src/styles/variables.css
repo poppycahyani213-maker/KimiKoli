@@ -1,0 +1,60 @@
+:root {
+  /* Clean Academic Light Mode Palette */
+  --bg-primary: #F8FAFC;
+  --bg-surface: #FFFFFF;
+  --bg-subtle: #F1F5F9;
+  --bg-alt: #E2E8F0;
+
+  /* Primary Accent: Chemistry Blue */
+  --primary-50: #EFF6FF;
+  --primary-100: #DBEAFE;
+  --primary-200: #BFDBFE;
+  --primary-500: #3B82F6;
+  --primary-600: #0284C7;
+  --primary-700: #1D4ED8;
+  --primary-dark: #0369A1;
+
+  /* Scientific Accents */
+  --color-solvent: #06B6D4;      /* Cyan - Pelarut / Molekul air */
+  --color-solvent-light: #ECFEFF;
+  --color-solute: #F59E0B;       /* Amber - Zat terlarut */
+  --color-solute-light: #FFFBEB;
+  --color-success: #10B981;      /* Emerald - Benar / Selesai */
+  --color-success-light: #ECFDF5;
+  --color-heat: #EF4444;         /* Rose - Titik didih / Panas */
+  --color-heat-light: #FEF2F2;
+  --color-cold: #3B82F6;         /* Cold Blue - Titik beku */
+
+  /* Neutral Text Colors */
+  --text-main: #0F172A;
+  --text-muted: #475569;
+  --text-light: #94A3B8;
+  --text-inverse: #FFFFFF;
+
+  /* Borders & Dividers */
+  --border-light: #E2E8F0;
+  --border-focus: #0284C7;
+
+  /* Shadows */
+  --shadow-sm: 0 1px 2px 0 rgba(15, 23, 42, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(15, 23, 42, 0.08), 0 2px 4px -2px rgba(15, 23, 42, 0.05);
+  --shadow-lg: 0 10px 15px -3px rgba(15, 23, 42, 0.08), 0 4px 6px -4px rgba(15, 23, 42, 0.04);
+  --shadow-card: 0 2px 8px rgba(15, 23, 42, 0.06);
+
+  /* Radii */
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 16px;
+  --radius-full: 9999px;
+
+  /* Typography */
+  --font-sans: 'Plus Jakarta Sans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: 'JetBrains Mono', Consolas, Monaco, monospace;
+
+  /* Layout */
+  --sidebar-width: 280px;
+  --header-height: 68px;
+  --max-content-width: 1200px;
+  --transition-speed: 0.2s;
+}
+

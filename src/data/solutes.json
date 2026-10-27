@@ -1,0 +1,57 @@
+[
+  {
+    "id": "glucose",
+    "name": "Glukosa",
+    "formula": "C₆H₁₂O₆",
+    "mr": 180,
+    "type": "non-electrolyte",
+    "ions": 1,
+    "description": "Zat nonelektrolit (tidak terionisasi dalam air, i = 1)."
+  },
+  {
+    "id": "urea",
+    "name": "Urea",
+    "formula": "CO(NH₂)₂",
+    "mr": 60,
+    "type": "non-electrolyte",
+    "ions": 1,
+    "description": "Zat nonelektrolit umum yang banyak digunakan dalam pupuk dan praktikum kimia."
+  },
+  {
+    "id": "sucrose",
+    "name": "Sukrosa (Gula Pasir)",
+    "formula": "C₁₂H₂₂O₁₁",
+    "mr": 342,
+    "type": "non-electrolyte",
+    "ions": 1,
+    "description": "Disakarida nonelektrolit, i = 1."
+  },
+  {
+    "id": "nacl",
+    "name": "Natrium Klorida (Garam Dapur)",
+    "formula": "NaCl",
+    "mr": 58.5,
+    "type": "strong-electrolyte",
+    "ions": 2,
+    "description": "Elektrolit kuat biner (Na⁺ dan Cl⁻), terionisasi sempurna (α ≈ 1, n = 2)."
+  },
+  {
+    "id": "cacl2",
+    "name": "Kalsium Klorida",
+    "formula": "CaCl₂",
+    "mr": 111,
+    "type": "strong-electrolyte",
+    "ions": 3,
+    "description": "Elektrolit kuat terner (Ca²⁺ dan 2Cl⁻), terionisasi sempurna (α ≈ 1, n = 3)."
+  },
+  {
+    "id": "ch3cooh",
+    "name": "Asam Asetat (Cuka)",
+    "formula": "CH₃COOH",
+    "mr": 60,
+    "type": "weak-electrolyte",
+    "ions": 2,
+    "description": "Elektrolit lemah biner (CH₃COO⁻ dan H⁺), terionisasi sebagian (0 < α < 1)."
+  }
+]
+

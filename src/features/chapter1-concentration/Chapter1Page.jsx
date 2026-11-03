@@ -127,7 +127,7 @@ export default function Chapter1Page({ onComplete, isCompleted }) {
           variant={isCompleted ? 'success' : 'primary'}
           onClick={onComplete}
         >
-          {isCompleted ? '✓ Bab Ini Telah Selesai' : 'Tandai Selesai & Lanjut Bab 2 →'}
+          {isCompleted ? '✓ Modul 1 Telah Selesai Dipelajari' : 'Tandai Modul 1 Selesai'}
         </Button>
       </div>
     </div>

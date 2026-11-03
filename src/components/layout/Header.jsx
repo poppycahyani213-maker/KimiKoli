@@ -1,51 +1,78 @@
 import React from 'react';
-import Badge from '../common/Badge';
 
-export default function Header({ currentChapterNumber, totalChapters = 6 }) {
+/**
+ * Komponen Navbar KoligatifLab 11
+ * 
+ * Sesuai desain acuan:
+ * - Logo & Nama Platform
+ * - Pill Tabs: Beranda, Materi, Lab Virtual, Kuis
+ * - Avatar Inisial Siswa (tanpa meminta data pribadi)
+ */
+export default function Header({ currentView = 'home', onSelectTab }) {
   return (
-    <header style={{
-      background: 'var(--bg-surface)',
-      borderBottom: '1px solid var(--border-light)',
-      height: 'var(--header-height)',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'space-between',
-      padding: '0 2rem',
-      position: 'sticky',
-      top: 0,
-      zIndex: 50
-    }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-        <div style={{
-          width: 38,
-          height: 38,
-          borderRadius: 8,
-          background: 'linear-gradient(135deg, var(--primary-600), var(--color-solvent))',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          color: '#FFF',
-          fontWeight: 'bold',
-          fontSize: '1.2rem'
-        }}>
-          🧪
-        </div>
-        <div>
-          <h1 style={{ fontSize: '1.15rem', margin: 0, fontWeight: 700, letterSpacing: '-0.02em' }}>
-            Koligatif<span style={{ color: 'var(--primary-600)' }}>Lab 11</span>
-          </h1>
-          <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
-            Fase F Kimia SMA Kelas 11 • Kurikulum Merdeka
+    <header className="navbar-wrapper">
+      <div className="navbar-container">
+        {/* 1. Logo Brand */}
+        <div 
+          className="brand-link" 
+          onClick={() => onSelectTab && onSelectTab('home')}
+          title="Menuju Beranda KoligatifLab 11"
+        >
+          <div className="brand-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M10 2v5.5L4.5 18a2 2 0 0 0 1.7 3h11.6a2 2 0 0 0 1.7-3L14 7.5V2"/>
+              <path d="M8.5 2h7"/>
+              <path d="M7 15h10"/>
+            </svg>
+          </div>
+          <span className="brand-text">
+            Koligatif<span>Lab 11</span>
           </span>
         </div>
-      </div>
 
-      <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-        <Badge variant="blue">
-          Bab {currentChapterNumber} dari {totalChapters}
-        </Badge>
+        {/* 2. Nav Pills (Beranda, Materi, Lab Virtual, Kuis) */}
+        <nav className="nav-pills">
+          <button
+            type="button"
+            className={`nav-pill-btn ${currentView === 'home' ? 'active' : ''}`}
+            onClick={() => onSelectTab && onSelectTab('home')}
+          >
+            Beranda
+          </button>
+          <button
+            type="button"
+            className={`nav-pill-btn ${currentView === 'chapter1' ? 'active' : ''}`}
+            onClick={() => onSelectTab && onSelectTab('chapter1')}
+          >
+            Materi
+          </button>
+          <button
+            type="button"
+            className="nav-pill-btn"
+            onClick={() => onSelectTab && onSelectTab('chapter1')}
+            title="Laboratorium Virtual Larutan"
+          >
+            Lab Virtual
+          </button>
+          <button
+            type="button"
+            className="nav-pill-btn"
+            onClick={() => alert("Kuis komprehensif akan terbuka otomatis setelah Anda menuntaskan misi lab.")}
+          >
+            Kuis
+          </button>
+        </nav>
+
+        {/* 3. User Avatar Chip */}
+        <div className="user-chip" title="Mode Siswa Mandiri">
+          <div className="user-avatar-circle">
+            NS
+          </div>
+          <span className="user-name-text">
+            [Siswa Tamu]
+          </span>
+        </div>
       </div>
     </header>
   );
 }
-

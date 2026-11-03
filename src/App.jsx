@@ -1,18 +1,19 @@
 import React, { useState, useEffect } from 'react';
 import Header from './components/layout/Header';
-import { KIMIKOLI_MODULES } from './data/courseChapters';
 import { getCourseProgress, saveCourseProgress } from './utils/storage';
 
 // Komponen Halaman
 import HomePage from './features/home/HomePage';
+import PretestPage from './features/pretest/PretestPage';
 import Chapter1Page from './features/chapter1-concentration/Chapter1Page';
 
 /**
  * Komponen Utama App
  * 
  * Mengatur alur:
- * - 'home'     : Beranda interaktif KoligatifLab 11 (Hero, Peta Misi 6 Tahap, Teka-Teki)
- * - 'chapter1' : Misi 1 (Konsentrasi Larutan & Simulator Lab Virtual)
+ * - 'home'     : Beranda interaktif KoligatifLab 11 (Hero, Peta Misi, Gamifikasi)
+ * - 'pretest'  : Soal Pretest Prasyarat (8 soal pilihan ganda interaktif)
+ * - 'chapter1' : Misi 1 (Materi Konsentrasi Larutan & Simulator Lab Virtual)
  */
 export default function App() {
   const [currentView, setCurrentView] = useState('home');
@@ -47,14 +48,22 @@ export default function App() {
 
       {/* 2. Konten Utama */}
       <main className="content-area" style={{ width: '100%', maxWidth: '1240px', margin: '0 auto', padding: '1.5rem 1.25rem' }}>
-        {/* Tampilan 1: Beranda KoligatifLab 11 Sesuai Desain Acuan */}
+        {/* Tampilan 1: Beranda KoligatifLab 11 */}
         {currentView === 'home' && (
           <HomePage
-            onStartMission1={() => setCurrentView('chapter1')}
+            onStartMission1={() => setCurrentView('pretest')}
           />
         )}
 
-        {/* Tampilan 2: Misi 1 (Konsentrasi & Lab Virtual) */}
+        {/* Tampilan 2: Soal Pretest Interaktif */}
+        {currentView === 'pretest' && (
+          <PretestPage
+            onBackToHome={() => setCurrentView('home')}
+            onGoToChapter1={() => setCurrentView('chapter1')}
+          />
+        )}
+
+        {/* Tampilan 3: Misi 1 (Konsentrasi & Lab Virtual) */}
         {currentView === 'chapter1' && (
           <div>
             <div style={{ marginBottom: '1.25rem', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
@@ -65,6 +74,14 @@ export default function App() {
                 style={{ padding: '0.45rem 1rem', fontSize: '0.85rem' }}
               >
                 ← Kembali ke Peta Misi
+              </button>
+              <button
+                type="button"
+                onClick={() => setCurrentView('pretest')}
+                className="btn btn-outline"
+                style={{ padding: '0.45rem 1rem', fontSize: '0.85rem' }}
+              >
+                📝 Buka Kembali Pretest
               </button>
               <span style={{ fontSize: '0.85rem', color: '#64748B', fontWeight: 600 }}>
                 Misi 1 dari 6: Konsentrasi Larutan & Sifat Koligatif

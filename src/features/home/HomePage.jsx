@@ -3,13 +3,19 @@ import React, { useState } from 'react';
 /**
  * Komponen HomePage (Beranda KoligatifLab 11)
  * 
- * Direkonstruksi secara presisi sesuai referensi visual:
- * - Hero interaktif dengan CTA "Mulai Misi 1"
- * - Widget Gamifikasi (Level Peneliti Pemula, XP, dan 4 Slot Lencana)
- * - Peta Misi 6 Tahapan (Misi 1 aktif, Misi 2-6 status terkunci)
- * - Banner Teka-Teki Pembuka interaktif ("Garam vs Gula")
+ * Dinamis mengikuti progres belajar:
+ * - Jika pretest belum selesai: Menampilkan CTA Mulai Pretest.
+ * - Jika pretest SUDAH selesai:
+ *   - Misi 1 bertanda "✓ Selesai" (+20 XP).
+ *   - Step materi selanjutnya otomatis TERBUKA (Unlocked) dan bisa diklik!
+ *   - Hero CTA berubah menjadi "Lanjut ke Materi Konsentrasi & Lab Virtual".
+ *   - Widget gamifikasi otomatis bertambah (1/6 misi, 20 XP).
  */
-export default function HomePage({ onStartMission1 }) {
+export default function HomePage({ 
+  isPretestDone = false, 
+  onStartPretest, 
+  onGoToChapter1 
+}) {
   // State interaktif untuk teka-teki pembuka
   const [selectedGuess, setSelectedGuess] = useState(null);
 
@@ -43,17 +49,31 @@ export default function HomePage({ onStartMission1 }) {
             </h1>
 
             <p className="hero-desc">
-              Setiap misi membuka satu fenomena: kenapa es puter butuh garam, kenapa infus harus pas kadarnya. Kumpulkan XP dan lencana di setiap langkah.
+              {isPretestDone 
+                ? "Hebat! Kamu telah menuntaskan pretest. Sekarang lanjutkan eksplorasi ke materi konsentrasi larutan, hitung molalitas, dan amati partikel di lab virtual."
+                : "Setiap misi membuka satu fenomena: kenapa es puter butuh garam, kenapa infus harus pas kadarnya. Kumpulkan XP dan lencana di setiap langkah."}
             </p>
 
             <div className="hero-cta-group">
-              <button
-                type="button"
-                className="btn btn-primary"
-                onClick={onStartMission1}
-              >
-                Mulai Misi 1: Pretest & Konsentrasi →
-              </button>
+              {!isPretestDone ? (
+                <button
+                  type="button"
+                  className="btn btn-primary"
+                  onClick={onStartPretest}
+                >
+                  Mulai Misi 1: Pretest & Konsentrasi →
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  className="btn btn-primary"
+                  onClick={onGoToChapter1}
+                  style={{ background: '#10B981', boxShadow: '0 4px 14px rgba(16, 185, 129, 0.3)' }}
+                >
+                  Lanjut ke Materi Konsentrasi & Lab Virtual →
+                </button>
+              )}
+
               <button
                 type="button"
                 className="btn btn-secondary"
@@ -64,30 +84,40 @@ export default function HomePage({ onStartMission1 }) {
             </div>
 
             <span className="hero-subinfo">
-              Pretest ±10 menit · tidak memengaruhi nilai rapor
+              {!isPretestDone 
+                ? "Pretest ±10 menit · tidak memengaruhi nilai rapor"
+                : "✓ Pretest telah selesai · Misi selanjutnya telah terbuka"}
             </span>
           </div>
 
           {/* Kolom Kanan: Gamification Progress Card */}
           <div className="gamify-card">
             <div className="gamify-header">
-              <div className="progress-circle">
-                <span className="count">0/6</span>
+              <div className="progress-circle" style={{ borderColor: isPretestDone ? '#10B981' : '#0284C7' }}>
+                <span className="count">{isPretestDone ? '1/6' : '0/6'}</span>
                 <span className="label">misi</span>
               </div>
               <div>
                 <div className="gamify-info-sub">Progres kamu</div>
-                <h3 className="gamify-rank-title">Peneliti Pemula</h3>
-                <div className="gamify-xp-text">0 XP · 100 XP lagi ke level berikutnya</div>
+                <h3 className="gamify-rank-title">
+                  {isPretestDone ? 'Peneliti Aktif' : 'Peneliti Pemula'}
+                </h3>
+                <div className="gamify-xp-text" style={{ color: isPretestDone ? '#10B981' : '#0284C7' }}>
+                  {isPretestDone ? '20 XP · 80 XP lagi ke level berikutnya' : '0 XP · 100 XP lagi ke level berikutnya'}
+                </div>
               </div>
             </div>
 
             <div className="badges-unlock-container">
               <div className="badges-unlock-label">Lencana yang bisa kamu buka</div>
               <div className="badge-slots-row">
-                <div className="badge-slot-box" title="Lencana Penurunan Tekanan Uap">
-                  <span className="icon">↓</span>
-                  <span className="title">Uap</span>
+                <div 
+                  className="badge-slot-box" 
+                  title="Lencana Penurunan Tekanan Uap"
+                  style={{ background: isPretestDone ? '#ECFDF5' : '#F8FAFC', borderColor: isPretestDone ? '#10B981' : '#CBD5E1' }}
+                >
+                  <span className="icon" style={{ color: isPretestDone ? '#10B981' : '#64748B' }}>↓</span>
+                  <span className="title" style={{ color: isPretestDone ? '#065F46' : '#475569' }}>Uap</span>
                 </div>
                 <div className="badge-slot-box" title="Lencana Kenaikan Titik Didih">
                   <span className="icon">💧</span>
@@ -114,7 +144,11 @@ export default function HomePage({ onStartMission1 }) {
         <div className="mission-header-row">
           <div className="mission-title-group">
             <h2>Peta Misi</h2>
-            <p>Ikuti urutannya. Misi berikutnya terbuka setelah misi sebelumnya selesai.</p>
+            <p>
+              {isPretestDone 
+                ? "Pretest selesai! Langkah berikutnya kini siap dipelajari."
+                : "Ikuti urutannya. Misi berikutnya terbuka setelah misi sebelumnya selesai."}
+            </p>
           </div>
           <div className="mission-duration-tag">
             Total ±3 JP
@@ -122,45 +156,81 @@ export default function HomePage({ onStartMission1 }) {
         </div>
 
         <div className="mission-card-grid">
-          {/* Misi 1 (Aktif & Bisa Diklik) */}
+          {/* Misi 1 (Pretest) */}
           <div 
-            className="mission-card active-card"
-            onClick={onStartMission1}
-            title="Klik untuk memulai Misi 1"
+            className={`mission-card ${isPretestDone ? 'active-card' : 'active-card'}`}
+            onClick={onStartPretest}
+            style={{ borderColor: isPretestDone ? '#10B981' : '#0284C7' }}
+            title="Klik untuk melihat atau mengulang Pretest"
           >
             <div>
               <div className="mission-top-bar">
-                <div className="mission-number-circle active-badge">1</div>
-                <span className="tag-start-here">Mulai di sini</span>
+                <div 
+                  className="mission-number-circle active-badge"
+                  style={{ background: isPretestDone ? '#10B981' : '#0284C7' }}
+                >
+                  {isPretestDone ? '✓' : '1'}
+                </div>
+                {isPretestDone ? (
+                  <span className="tag-start-here" style={{ background: '#ECFDF5', color: '#065F46' }}>
+                    ✓ Selesai
+                  </span>
+                ) : (
+                  <span className="tag-start-here">Mulai di sini</span>
+                )}
               </div>
-              <h4 className="mission-card-title">Pretest & Konsentrasi</h4>
+              <h4 className="mission-card-title">Pretest Prasyarat</h4>
               <p className="mission-card-desc">
-                Cek bekal awalmu: mol, molalitas, fraksi mol, elektrolit.
+                Bekal awal: mol, molalitas, fraksi mol, elektrolit.
               </p>
             </div>
             <div className="mission-card-footer">
-              <span className="xp-badge">+20 XP</span>
+              <span className="xp-badge" style={{ color: isPretestDone ? '#10B981' : '#0284C7' }}>
+                {isPretestDone ? '✓ +20 XP Diraih' : '+20 XP'}
+              </span>
             </div>
           </div>
 
-          {/* Misi 2 (Terkunci) */}
-          <div className="mission-card locked-card">
+          {/* Misi 2 (Materi Konsentrasi & Lab Virtual) - TERBUKA OTOMATIS JIKA PRETEST SELESAI */}
+          <div 
+            className={`mission-card ${isPretestDone ? 'active-card' : 'locked-card'}`}
+            onClick={isPretestDone ? onGoToChapter1 : undefined}
+            style={{ 
+              borderColor: isPretestDone ? '#0284C7' : '#E2E8F0',
+              cursor: isPretestDone ? 'pointer' : 'default',
+              boxShadow: isPretestDone ? '0 4px 16px rgba(2, 132, 199, 0.15)' : 'none'
+            }}
+            title={isPretestDone ? "Klik untuk mempelajari Materi Konsentrasi & Lab Virtual" : "Selesaikan Pretest terlebih dahulu"}
+          >
             <div>
               <div className="mission-top-bar">
-                <div className="mission-number-circle locked-badge">2</div>
-                <span className="icon-lock">🔒</span>
+                <div 
+                  className={`mission-number-circle ${isPretestDone ? 'active-badge' : 'locked-badge'}`}
+                  style={{ background: isPretestDone ? '#0284C7' : '#E2E8F0', color: isPretestDone ? '#FFF' : '#64748B' }}
+                >
+                  2
+                </div>
+                {isPretestDone ? (
+                  <span className="tag-start-here" style={{ background: '#EFF6FF', color: '#0284C7' }}>
+                    Siap Dipelajari
+                  </span>
+                ) : (
+                  <span className="icon-lock">🔒</span>
+                )}
               </div>
-              <h4 className="mission-card-title">Penurunan Tekanan Uap</h4>
+              <h4 className="mission-card-title">Materi & Lab Konsentrasi</h4>
               <p className="mission-card-desc">
-                Kenapa air laut lebih lambat kering?
+                Hitung molalitas, fraksi mol, dan racik larutan virtual.
               </p>
             </div>
             <div className="mission-card-footer">
-              <span className="xp-badge" style={{ color: '#94A3B8' }}>+30 XP</span>
+              <span className="xp-badge" style={{ color: isPretestDone ? '#0284C7' : '#94A3B8' }}>
+                +30 XP
+              </span>
             </div>
           </div>
 
-          {/* Misi 3 (Terkunci) */}
+          {/* Misi 3 (Penurunan Tekanan Uap & Titik Didih) */}
           <div className="mission-card locked-card">
             <div>
               <div className="mission-top-bar">
@@ -169,7 +239,7 @@ export default function HomePage({ onStartMission1 }) {
               </div>
               <h4 className="mission-card-title">Kenaikan Titik Didih</h4>
               <p className="mission-card-desc">
-                Air bergaram mendidih lebih lama?
+                Air bergaram mendidih lebih tinggi?
               </p>
             </div>
             <div className="mission-card-footer">
@@ -177,7 +247,7 @@ export default function HomePage({ onStartMission1 }) {
             </div>
           </div>
 
-          {/* Misi 4 (Terkunci) */}
+          {/* Misi 4 (Penurunan Titik Beku) */}
           <div className="mission-card locked-card">
             <div>
               <div className="mission-top-bar">
@@ -194,7 +264,7 @@ export default function HomePage({ onStartMission1 }) {
             </div>
           </div>
 
-          {/* Misi 5 (Terkunci) */}
+          {/* Misi 5 (Tekanan Osmotik) */}
           <div className="mission-card locked-card">
             <div>
               <div className="mission-top-bar">
@@ -211,7 +281,7 @@ export default function HomePage({ onStartMission1 }) {
             </div>
           </div>
 
-          {/* Misi 6 (Terkunci) */}
+          {/* Misi 6 (Posttest & Sertifikat) */}
           <div className="mission-card locked-card">
             <div>
               <div className="mission-top-bar">

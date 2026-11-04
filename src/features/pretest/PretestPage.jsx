@@ -10,6 +10,7 @@ import { PRETEST_QUESTIONS } from '../../data/pretestQuestions';
  * - Jika SALAH: Munculkan tanda salah, kunci jawaban yang benar, dan pembahasannya.
  * - Jika BENAR: Munculkan tanda benar, apresiasi, dan alasan ilmiah mengapa jawaban tersebut tepat.
  * - Siswa TIDAK BISA KELUAR atau pindah fitur lain sebelum 8 soal selesai dikerjakan.
+ * - Setelah pretest tuntas, otomatis membuka step materi berikutnya di beranda!
  */
 export default function PretestPage({ onBackToHome, onGoToChapter1, onFinishPretest }) {
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -60,7 +61,7 @@ export default function PretestPage({ onBackToHome, onGoToChapter1, onFinishPret
     }));
   };
 
-  // Navigasi ke soal berikutnya
+  // Navigasi ke soal berikutnya atau selesaikan pretest
   const handleNextQuestion = () => {
     if (currentIndex < totalQuestions - 1) {
       const nextIndex = currentIndex + 1;
@@ -76,9 +77,11 @@ export default function PretestPage({ onBackToHome, onGoToChapter1, onFinishPret
         setIsSubmitted(false);
       }
     } else {
+      // Selesai soal 8: Tuntaskan pretest dan buka akses fitur lain
       setIsFinished(true);
       if (onFinishPretest) {
-        onFinishPretest(); // Buka kunci navigasi
+        const finalCorrect = Object.values(history).filter(h => h.isCorrect).length;
+        onFinishPretest({ score: finalCorrect, total: totalQuestions });
       }
     }
   };
@@ -108,7 +111,7 @@ export default function PretestPage({ onBackToHome, onGoToChapter1, onFinishPret
     return (
       <div className="quiz-container fade-in" style={{ padding: '1.5rem 0 3rem' }}>
         <div className="quiz-summary-card">
-          <div style={{ fontSize: '3rem', marginBottom: '0.5rem' }}>🎯</div>
+          <div style={{ fontSize: '3.2rem', marginBottom: '0.5rem' }}>🎉</div>
           
           <div style={{
             display: 'inline-flex',
@@ -119,20 +122,20 @@ export default function PretestPage({ onBackToHome, onGoToChapter1, onFinishPret
             border: '1px solid #A7F3D0',
             padding: '0.35rem 0.85rem',
             borderRadius: 'var(--radius-full)',
-            fontSize: '0.8rem',
+            fontSize: '0.85rem',
             fontWeight: 700,
-            marginBottom: '0.75rem'
+            marginBottom: '0.85rem'
           }}>
             <span>🔓</span>
-            <span>Pretest Tuntas • Akses Fitur Lain Terbuka</span>
+            <span>Pretest Tuntas • Materi & Misi Selanjutnya Terbuka!</span>
           </div>
 
-          <h2 style={{ fontSize: '1.8rem', fontWeight: 800, margin: '0 0 0.5rem', color: '#0F172A' }}>
-            Pretest Selesai! Bekal Awal Terpetakan
+          <h2 style={{ fontSize: '1.85rem', fontWeight: 800, margin: '0 0 0.5rem', color: '#0F172A' }}>
+            Selamat! Bekal Prasyarat Selesai Diuji
           </h2>
           
-          <p style={{ color: '#64748B', maxWidth: '520px', margin: '0 auto 1.75rem', lineHeight: 1.6 }}>
-            Luar biasa! Kamu telah menuntaskan seluruh 8 soal prasyarat. Sekarang kamu siap mengeksplorasi materi inti dan laboratorium virtual.
+          <p style={{ color: '#64748B', maxWidth: '540px', margin: '0 auto 1.75rem', lineHeight: 1.6, fontSize: '0.98rem' }}>
+            Kamu telah menuntaskan seluruh 8 soal prasyarat. Status di beranda telah diperbarui, dan kamu kini siap mempelajari <strong>Materi Konsentrasi Larutan & Simulasi Lab Virtual</strong>.
           </p>
 
           {/* Kotak Hasil Skor */}
@@ -144,25 +147,27 @@ export default function PretestPage({ onBackToHome, onGoToChapter1, onFinishPret
             border: '1.5px solid #E2E8F0',
             borderRadius: 'var(--radius-lg)',
             padding: '1.25rem 2.25rem',
-            marginBottom: '2rem'
+            marginBottom: '2rem',
+            flexWrap: 'wrap',
+            justifyContent: 'center'
           }}>
             <div>
-              <div style={{ fontSize: '0.8rem', color: '#64748B', fontWeight: 600 }}>Jawaban Benar</div>
+              <div style={{ fontSize: '0.825rem', color: '#64748B', fontWeight: 600 }}>Jawaban Benar</div>
               <div style={{ fontSize: '2rem', fontWeight: 800, color: '#10B981' }}>
                 {correctCount} <span style={{ fontSize: '1rem', color: '#94A3B8' }}>/ {totalQuestions}</span>
               </div>
             </div>
             <div style={{ width: 1, height: 40, background: '#CBD5E1' }}></div>
             <div>
-              <div style={{ fontSize: '0.8rem', color: '#64748B', fontWeight: 600 }}>Skor Penguasaan</div>
+              <div style={{ fontSize: '0.825rem', color: '#64748B', fontWeight: 600 }}>Skor Penguasaan</div>
               <div style={{ fontSize: '2rem', fontWeight: 800, color: '#0284C7' }}>
                 {scorePercentage}%
               </div>
             </div>
             <div style={{ width: 1, height: 40, background: '#CBD5E1' }}></div>
             <div>
-              <div style={{ fontSize: '0.8rem', color: '#64748B', fontWeight: 600 }}>Reward Misi 1</div>
-              <div style={{ fontSize: '1.35rem', fontWeight: 800, color: '#F59E0B', marginTop: '0.2rem' }}>
+              <div style={{ fontSize: '0.825rem', color: '#64748B', fontWeight: 600 }}>Reward Misi 1</div>
+              <div style={{ fontSize: '1.4rem', fontWeight: 800, color: '#F59E0B', marginTop: '0.15rem' }}>
                 +20 XP ⭐
               </div>
             </div>
@@ -174,14 +179,15 @@ export default function PretestPage({ onBackToHome, onGoToChapter1, onFinishPret
               type="button"
               className="btn btn-secondary"
               onClick={onBackToHome}
+              style={{ padding: '0.8rem 1.6rem', fontSize: '0.98rem' }}
             >
-              ← Kembali ke Peta Misi
+              ← Kembali ke Peta Misi (Beranda)
             </button>
             <button
               type="button"
               className="btn btn-primary"
               onClick={onGoToChapter1}
-              style={{ padding: '0.8rem 1.8rem' }}
+              style={{ padding: '0.8rem 2rem', fontSize: '1rem', background: '#0284C7' }}
             >
               Lanjut ke Materi Konsentrasi & Lab Virtual →
             </button>
@@ -215,10 +221,10 @@ export default function PretestPage({ onBackToHome, onGoToChapter1, onFinishPret
             marginBottom: '0.5rem'
           }}>
             <span>🔒</span>
-            <span>Ujian Terkunci • Selesaikan 8 Soal</span>
+            <span>Ujian Terkunci • Selesaikan 8 Soal untuk Buka Materi</span>
           </div>
 
-          <div style={{ fontSize: '0.92rem', fontWeight: 800, color: '#0F172A' }}>
+          <div style={{ fontSize: '0.95rem', fontWeight: 800, color: '#0F172A' }}>
             Pretest Bekal Prasyarat: <span style={{ color: '#0284C7' }}>Soal {currentIndex + 1} dari {totalQuestions}</span>
           </div>
         </div>
@@ -363,7 +369,7 @@ export default function PretestPage({ onBackToHome, onGoToChapter1, onFinishPret
               onClick={handleNextQuestion}
               style={{ padding: '0.75rem 1.8rem', background: '#0F172A' }}
             >
-              {currentIndex < totalQuestions - 1 ? 'Soal Berikutnya →' : 'Lihat Hasil Pretest 🎉'}
+              {currentIndex < totalQuestions - 1 ? 'Soal Berikutnya →' : 'Selesaikan Pretest & Lanjut ke Materi →'}
             </button>
           )}
         </div>

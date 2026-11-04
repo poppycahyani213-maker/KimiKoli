@@ -13,12 +13,18 @@ html, body {
   padding: 0;
   background-color: var(--bg-primary);
   min-height: 100vh;
+  font-family: 'Times New Roman', Times, serif;
+}
+
+button, input, select, textarea {
+  font-family: 'Times New Roman', Times, serif;
 }
 
 #root {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
+  font-family: 'Times New Roman', Times, serif;
 }
 
 /* Base App Layout */

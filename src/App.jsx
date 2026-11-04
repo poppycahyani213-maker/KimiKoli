@@ -12,12 +12,15 @@ import Chapter1Page from './features/chapter1-concentration/Chapter1Page';
  * 
  * Mengatur alur:
  * - 'home'     : Beranda interaktif KoligatifLab 11 (Hero, Peta Misi, Gamifikasi)
- * - 'pretest'  : Soal Pretest Prasyarat (8 soal pilihan ganda interaktif)
+ * - 'pretest'  : Soal Pretest Prasyarat (Mode Ujian Terkunci Wajib Selesai)
  * - 'chapter1' : Misi 1 (Materi Konsentrasi Larutan & Simulator Lab Virtual)
  */
 export default function App() {
   const [currentView, setCurrentView] = useState('home');
   const [completedChapters, setCompletedChapters] = useState([]);
+  
+  // State penguncian pretest: bernilai true saat pretest berlangsung
+  const [isPretestLocked, setIsPretestLocked] = useState(false);
 
   // Ambil progres tersimpan di peramban
   useEffect(() => {
@@ -26,6 +29,15 @@ export default function App() {
       setCompletedChapters(saved.completedChapters);
     }
   }, []);
+
+  const handleStartPretest = () => {
+    setCurrentView('pretest');
+    setIsPretestLocked(true); // Kunci navigasi keluar
+  };
+
+  const handleFinishPretest = () => {
+    setIsPretestLocked(false); // Buka kunci navigasi setelah soal 8 selesai
+  };
 
   const handleCompleteMission1 = () => {
     if (!completedChapters.includes('chapter1')) {
@@ -40,10 +52,15 @@ export default function App() {
 
   return (
     <div className="app-container">
-      {/* 1. Navbar Bersih KoligatifLab 11 */}
+      {/* 1. Navbar KoligatifLab 11 dengan Proteksi Mode Ujian */}
       <Header
         currentView={currentView}
-        onSelectTab={(tabId) => setCurrentView(tabId)}
+        onSelectTab={(tabId) => {
+          if (!isPretestLocked) {
+            setCurrentView(tabId);
+          }
+        }}
+        isExamLocked={isPretestLocked}
       />
 
       {/* 2. Konten Utama */}
@@ -51,15 +68,22 @@ export default function App() {
         {/* Tampilan 1: Beranda KoligatifLab 11 */}
         {currentView === 'home' && (
           <HomePage
-            onStartMission1={() => setCurrentView('pretest')}
+            onStartMission1={handleStartPretest}
           />
         )}
 
-        {/* Tampilan 2: Soal Pretest Interaktif */}
+        {/* Tampilan 2: Soal Pretest Interaktif (Mode Ujian Terkunci) */}
         {currentView === 'pretest' && (
           <PretestPage
-            onBackToHome={() => setCurrentView('home')}
-            onGoToChapter1={() => setCurrentView('chapter1')}
+            onBackToHome={() => {
+              setIsPretestLocked(false);
+              setCurrentView('home');
+            }}
+            onGoToChapter1={() => {
+              setIsPretestLocked(false);
+              setCurrentView('chapter1');
+            }}
+            onFinishPretest={handleFinishPretest}
           />
         )}
 
@@ -77,7 +101,7 @@ export default function App() {
               </button>
               <button
                 type="button"
-                onClick={() => setCurrentView('pretest')}
+                onClick={handleStartPretest}
                 className="btn btn-outline"
                 style={{ padding: '0.45rem 1rem', fontSize: '0.85rem' }}
               >

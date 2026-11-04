@@ -1,22 +1,27 @@
 /* Scientific Typography & Equations */
+body, button, input, select, textarea {
+  font-family: 'Times New Roman', Times, serif;
+}
+
 body {
-  font-family: var(--font-sans);
+  font-family: 'Times New Roman', Times, serif;
   color: var(--text-main);
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
 }
 
 h1, h2, h3, h4, h5, h6 {
+  font-family: 'Times New Roman', Times, serif;
   color: var(--text-main);
   font-weight: 700;
   line-height: 1.25;
   margin-top: 0;
 }
 
-h1 { font-size: 2rem; }
-h2 { font-size: 1.5rem; }
-h3 { font-size: 1.25rem; }
-h4 { font-size: 1.1rem; }
+h1 { font-size: 2.1rem; }
+h2 { font-size: 1.6rem; }
+h3 { font-size: 1.3rem; }
+h4 { font-size: 1.15rem; }
 
 p {
   margin-top: 0;
@@ -47,8 +52,8 @@ sub {
   border-radius: var(--radius-md);
   padding: 1rem 1.25rem;
   margin: 1.25rem 0;
-  font-family: var(--font-sans);
-  font-size: 1.15rem;
+  font-family: 'Times New Roman', Times, serif;
+  font-size: 1.18rem;
   font-weight: 600;
   color: var(--primary-dark);
   display: flex;
@@ -59,12 +64,12 @@ sub {
 }
 
 .formula-symbol {
-  font-family: var(--font-mono);
+  font-family: 'Times New Roman', Times, serif;
   background: #FFFFFF;
   padding: 0.2rem 0.5rem;
   border-radius: var(--radius-sm);
   border: 1px solid var(--border-light);
-  font-size: 0.95em;
+  font-size: 1em;
 }
 
 .text-muted {
@@ -74,4 +79,3 @@ sub {
 .text-science-blue {
   color: var(--primary-600);
 }
-

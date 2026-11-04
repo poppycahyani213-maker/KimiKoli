@@ -1,16 +1,17 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { PRETEST_QUESTIONS } from '../../data/pretestQuestions';
 
 /**
  * Komponen PretestPage
  * 
- * Aturan Pengerjaan:
+ * Aturan Pengerjaan & Mode Ujian Terkunci:
  * - Kunci jawaban TIDAK dimunculkan di awal.
  * - Siswa memilih opsi A, B, C, D, atau E lalu menekan "Periksa Jawaban".
  * - Jika SALAH: Munculkan tanda salah, kunci jawaban yang benar, dan pembahasannya.
  * - Jika BENAR: Munculkan tanda benar, apresiasi, dan alasan ilmiah mengapa jawaban tersebut tepat.
+ * - Siswa TIDAK BISA KELUAR atau pindah fitur lain sebelum 8 soal selesai dikerjakan.
  */
-export default function PretestPage({ onBackToHome, onGoToChapter1 }) {
+export default function PretestPage({ onBackToHome, onGoToChapter1, onFinishPretest }) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [selectedOption, setSelectedOption] = useState(null);
   const [isSubmitted, setIsSubmitted] = useState(false);
@@ -22,9 +23,25 @@ export default function PretestPage({ onBackToHome, onGoToChapter1 }) {
   const currentQ = PRETEST_QUESTIONS[currentIndex];
   const totalQuestions = PRETEST_QUESTIONS.length;
 
+  // Proteksi: Mencegah siswa menutup tab/refresh peramban saat pretest sedang berjalan
+  useEffect(() => {
+    const handleBeforeUnload = (e) => {
+      if (!isFinished) {
+        e.preventDefault();
+        e.returnValue = 'Pretest sedang berlangsung. Progres Anda akan hilang jika keluar sekarang.';
+        return e.returnValue;
+      }
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+    };
+  }, [isFinished]);
+
   // Pilih jawaban
   const handleSelectOption = (key) => {
-    if (isSubmitted) return; // Jika sudah diperiksa, jangan ubah lagi sebelum lanjut
+    if (isSubmitted) return; // Jika sudah diperiksa, kunci pilihan sebelum lanjut
     setSelectedOption(key);
   };
 
@@ -60,6 +77,9 @@ export default function PretestPage({ onBackToHome, onGoToChapter1 }) {
       }
     } else {
       setIsFinished(true);
+      if (onFinishPretest) {
+        onFinishPretest(); // Buka kunci navigasi
+      }
     }
   };
 
@@ -78,10 +98,9 @@ export default function PretestPage({ onBackToHome, onGoToChapter1 }) {
 
   // Hitung skor total
   const correctCount = Object.values(history).filter(h => h.isCorrect).length;
-  const attemptedCount = Object.keys(history).length;
 
   // =========================================================
-  // TAMPILAN 1: RINGKASAN AKHIR PRETEST
+  // TAMPILAN 1: RINGKASAN AKHIR PRETEST (KUNCI TERBUKA)
   // =========================================================
   if (isFinished) {
     const scorePercentage = Math.round((correctCount / totalQuestions) * 100);
@@ -91,12 +110,29 @@ export default function PretestPage({ onBackToHome, onGoToChapter1 }) {
         <div className="quiz-summary-card">
           <div style={{ fontSize: '3rem', marginBottom: '0.5rem' }}>🎯</div>
           
+          <div style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '0.4rem',
+            background: '#ECFDF5',
+            color: '#065F46',
+            border: '1px solid #A7F3D0',
+            padding: '0.35rem 0.85rem',
+            borderRadius: 'var(--radius-full)',
+            fontSize: '0.8rem',
+            fontWeight: 700,
+            marginBottom: '0.75rem'
+          }}>
+            <span>🔓</span>
+            <span>Pretest Tuntas • Akses Fitur Lain Terbuka</span>
+          </div>
+
           <h2 style={{ fontSize: '1.8rem', fontWeight: 800, margin: '0 0 0.5rem', color: '#0F172A' }}>
             Pretest Selesai! Bekal Awal Terpetakan
           </h2>
           
           <p style={{ color: '#64748B', maxWidth: '520px', margin: '0 auto 1.75rem', lineHeight: 1.6 }}>
-            Terima kasih telah mencoba mengukur pemahaman awalmu. Pretest ini dirancang untuk mendiagnosis konsep prasyarat dan tidak memengaruhi nilai rapor.
+            Luar biasa! Kamu telah menuntaskan seluruh 8 soal prasyarat. Sekarang kamu siap mengeksplorasi materi inti dan laboratorium virtual.
           </p>
 
           {/* Kotak Hasil Skor */}
@@ -156,10 +192,9 @@ export default function PretestPage({ onBackToHome, onGoToChapter1 }) {
   }
 
   // =========================================================
-  // TAMPILAN 2: LEMBAR SOAL PRETEST BERJALAN
+  // TAMPILAN 2: LEMBAR SOAL PRETEST BERJALAN (TERKUNCI)
   // =========================================================
   const isCorrect = isSubmitted && selectedOption === currentQ.correctKey;
-  const isWrong = isSubmitted && selectedOption !== currentQ.correctKey;
   const correctOptionObj = currentQ.options.find(o => o.key === currentQ.correctKey);
 
   return (
@@ -167,15 +202,23 @@ export default function PretestPage({ onBackToHome, onGoToChapter1 }) {
       {/* 1. Header & Stepper Soal */}
       <div className="quiz-header-card">
         <div>
-          <button
-            type="button"
-            className="btn btn-secondary"
-            onClick={onBackToHome}
-            style={{ padding: '0.4rem 0.85rem', fontSize: '0.825rem', marginBottom: '0.4rem' }}
-          >
-            ← Keluar ke Peta Misi
-          </button>
-          <div style={{ fontSize: '0.88rem', fontWeight: 700, color: '#0F172A' }}>
+          <div style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '0.35rem',
+            background: '#FEF3C7',
+            color: '#B45309',
+            padding: '0.25rem 0.65rem',
+            borderRadius: 'var(--radius-full)',
+            fontSize: '0.78rem',
+            fontWeight: 700,
+            marginBottom: '0.5rem'
+          }}>
+            <span>🔒</span>
+            <span>Ujian Terkunci • Selesaikan 8 Soal</span>
+          </div>
+
+          <div style={{ fontSize: '0.92rem', fontWeight: 800, color: '#0F172A' }}>
             Pretest Bekal Prasyarat: <span style={{ color: '#0284C7' }}>Soal {currentIndex + 1} dari {totalQuestions}</span>
           </div>
         </div>
@@ -328,4 +371,3 @@ export default function PretestPage({ onBackToHome, onGoToChapter1 }) {
     </div>
   );
 }
-

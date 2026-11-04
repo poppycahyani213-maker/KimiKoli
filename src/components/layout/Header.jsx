@@ -3,11 +3,22 @@ import React from 'react';
 /**
  * Komponen Navbar KoligatifLab 11
  * 
- * Mendukung Mode Ujian Terfokus (isExamLocked):
- * - Jika aktif, seluruh tombol navigasi dinonaktifkan agar siswa fokus
- *   menyelesaikan pretest hingga tuntas.
+ * Menampilkan:
+ * - Logo & Nama Platform
+ * - Pill Tabs Navigasi
+ * - Chip Pengguna (Siswa: Nama & Kelas; Guru: Tombol Panel Guru & Nama)
+ * - Tombol Keluar (Logout)
  */
-export default function Header({ currentView = 'home', onSelectTab, isExamLocked = false }) {
+export default function Header({ 
+  currentView = 'home', 
+  onSelectTab, 
+  isExamLocked = false,
+  currentUser = null,
+  onLogout,
+  onOpenTeacherPanel
+}) {
+  const isTeacher = currentUser?.role === 'teacher';
+
   const handleNavClick = (tabId) => {
     if (isExamLocked) {
       alert("🔒 Mode Ujian Terfokus Aktif: Harap selesaikan seluruh soal pretest terlebih dahulu untuk membuka fitur lainnya.");
@@ -16,6 +27,13 @@ export default function Header({ currentView = 'home', onSelectTab, isExamLocked
     if (onSelectTab) {
       onSelectTab(tabId);
     }
+  };
+
+  const getInitials = (name) => {
+    if (!name) return 'U';
+    const parts = name.trim().split(' ');
+    if (parts.length >= 2) return `${parts[0][0]}${parts[1][0]}`.toUpperCase();
+    return name.slice(0, 2).toUpperCase();
   };
 
   return (
@@ -83,7 +101,7 @@ export default function Header({ currentView = 'home', onSelectTab, isExamLocked
           </button>
         </nav>
 
-        {/* 3. Status Chip / Mode Ujian Indikator */}
+        {/* 3. Status Chip / Pengguna & Tombol Keluar */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
           {isExamLocked ? (
             <div style={{
@@ -102,13 +120,59 @@ export default function Header({ currentView = 'home', onSelectTab, isExamLocked
               <span>Mode Pretest Terkunci</span>
             </div>
           ) : (
-            <div className="user-chip" title="Mode Siswa Mandiri">
-              <div className="user-avatar-circle">
-                NS
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
+              {/* Tombol Khusus Guru untuk Buka Panel Rekap */}
+              {isTeacher && (
+                <button
+                  type="button"
+                  onClick={onOpenTeacherPanel}
+                  className="btn btn-secondary"
+                  style={{
+                    padding: '0.35rem 0.85rem',
+                    fontSize: '0.825rem',
+                    background: currentView === 'teacher-dashboard' ? '#0F172A' : '#EFF6FF',
+                    color: currentView === 'teacher-dashboard' ? '#FFF' : '#0284C7',
+                    borderColor: '#38BDF8'
+                  }}
+                  title="Lihat Rekapitulasi Nilai & Progres Siswa"
+                >
+                  📊 Panel Rekap Siswa
+                </button>
+              )}
+
+              {/* Chip Avatar Pengguna */}
+              <div className="user-chip" title={isTeacher ? "Akun Guru" : `Siswa: ${currentUser?.name} (${currentUser?.className})`}>
+                <div 
+                  className="user-avatar-circle"
+                  style={{ background: isTeacher ? '#0F172A' : '#F59E0B' }}
+                >
+                  {isTeacher ? '🔬' : getInitials(currentUser?.name)}
+                </div>
+                <div style={{ display: 'flex', flexDirection: 'column', lineHeight: 1.1 }}>
+                  <span className="user-name-text" style={{ fontSize: '0.85rem' }}>
+                    {currentUser?.name || '[Siswa Tamu]'}
+                  </span>
+                  <span style={{ fontSize: '0.72rem', color: '#64748B' }}>
+                    {isTeacher ? 'Guru Kimia' : currentUser?.className || 'Kelas XI'}
+                  </span>
+                </div>
               </div>
-              <span className="user-name-text">
-                [Siswa Tamu]
-              </span>
+
+              {/* Tombol Keluar / Ganti Akun */}
+              <button
+                type="button"
+                onClick={onLogout}
+                className="btn btn-outline"
+                style={{
+                  padding: '0.35rem 0.65rem',
+                  fontSize: '0.8rem',
+                  borderColor: '#E2E8F0',
+                  color: '#64748B'
+                }}
+                title="Keluar / Ganti Akun"
+              >
+                Keluar 🚪
+              </button>
             </div>
           )}
         </div>

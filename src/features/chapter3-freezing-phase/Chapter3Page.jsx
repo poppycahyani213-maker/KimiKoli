@@ -14,20 +14,20 @@ export default function Chapter3Page({ onComplete, isCompleted }) {
   const { deltaTf, freezingPoint } = calculateFreezingPointDepression(water.kf, molality, 1, water.normalFreezingPoint);
 
   return (
-    <div className="fade-in">
+    <div className="fade-in" style={{ fontFamily: "'Times New Roman', Times, serif" }}>
       <div style={{ marginBottom: '1.5rem' }}>
-        <Badge variant="blue">Bab 3</Badge>
-        <h2 style={{ marginTop: '0.5rem', marginBottom: '0.25rem' }}>
+        <Badge variant="blue">Bab 3 • Titik Beku & Diagram Fase</Badge>
+        <h2 style={{ marginTop: '0.5rem', marginBottom: '0.25rem', fontSize: '1.8rem', fontWeight: 800 }}>
           Penurunan Titik Beku & Diagram Fase
         </h2>
-        <p className="text-muted">
+        <p className="text-muted" style={{ fontSize: '1.05rem' }}>
           Mengapa penambahan garam dapat mencairkan salju atau membuat es krim membeku lebih padat?
         </p>
       </div>
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '1.5rem' }}>
         <Card title="Prinsip Penurunan Titik Beku">
-          <p>
+          <p style={{ lineHeight: 1.7, fontSize: '1rem' }}>
             Molekul zat terlarut merusak susunan kristal rapi pelarut padat (es). Agar dapat membeku menjadi kisi padat, energi kinetik molekul harus diturunkan lebih jauh ke suhu yang lebih dingin.
           </p>
           <FormulaRenderer
@@ -42,7 +42,7 @@ export default function Chapter3Page({ onComplete, isCompleted }) {
 
         <Card title="Simulasi Titik Beku Larutan Air" subtitle="Tetapan Kf Air = 1,86 °C/m, Titik Beku Normal = 0,00 °C">
           <div className="control-group">
-            <div className="control-label">
+            <div className="control-label" style={{ fontWeight: 700 }}>
               <span>Konsentrasi Molalitas (m):</span>
               <strong>{molality} molal</strong>
             </div>
@@ -67,14 +67,14 @@ export default function Chapter3Page({ onComplete, isCompleted }) {
             gap: '1rem'
           }}>
             <div>
-              <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Penurunan Titik Beku (ΔTf)</div>
-              <div style={{ fontSize: '1.3rem', fontWeight: 700, color: 'var(--primary-600)' }}>
+              <div style={{ fontSize: '0.825rem', color: 'var(--text-muted)' }}>Penurunan Titik Beku (ΔTf)</div>
+              <div style={{ fontSize: '1.35rem', fontWeight: 800, color: 'var(--primary-600)' }}>
                 {formatIndonesianNumber(deltaTf, 2)} °C
               </div>
             </div>
             <div>
-              <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Titik Beku Larutan (Tf)</div>
-              <div style={{ fontSize: '1.3rem', fontWeight: 700, color: 'var(--color-cold)' }}>
+              <div style={{ fontSize: '0.825rem', color: 'var(--text-muted)' }}>Titik Beku Larutan (Tf)</div>
+              <div style={{ fontSize: '1.35rem', fontWeight: 800, color: 'var(--color-cold)' }}>
                 {formatIndonesianNumber(freezingPoint, 2)} °C
               </div>
             </div>
@@ -82,15 +82,42 @@ export default function Chapter3Page({ onComplete, isCompleted }) {
         </Card>
       </div>
 
-      <div style={{ marginTop: '2rem', display: 'flex', justifyContent: 'flex-end' }}>
+      {/* Tombol Lanjut ke Bab 4 */}
+      <div style={{
+        marginTop: '2.5rem',
+        padding: '1.5rem',
+        background: '#FFFFFF',
+        border: '1px solid #E2E8F0',
+        borderRadius: 'var(--radius-lg)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        flexWrap: 'wrap',
+        gap: '1rem',
+        boxShadow: '0 2px 8px rgba(15, 23, 42, 0.04)'
+      }}>
+        <div>
+          <span style={{ fontSize: '0.85rem', color: '#10B981', fontWeight: 700 }}>
+            {isCompleted ? '✓ Materi Bab 3 Selesai' : 'Siap Lanjut ke Tahap Selanjutnya?'}
+          </span>
+          <h4 style={{ margin: '0.2rem 0 0', color: '#0F172A', fontSize: '1.1rem' }}>
+            Bab 4: Tekanan Osmotik & Membran Semipermeabel
+          </h4>
+        </div>
+
         <Button
-          variant={isCompleted ? 'success' : 'primary'}
+          variant="primary"
           onClick={onComplete}
+          style={{
+            padding: '0.85rem 1.8rem',
+            fontSize: '1.05rem',
+            background: '#0284C7',
+            boxShadow: '0 4px 14px rgba(2, 132, 199, 0.25)'
+          }}
         >
-          {isCompleted ? '✓ Bab Ini Telah Selesai' : 'Tandai Selesai & Lanjut Bab 4 →'}
+          Selesaikan Bab 3 & Buka Bab 4 →
         </Button>
       </div>
     </div>
   );
 }
-

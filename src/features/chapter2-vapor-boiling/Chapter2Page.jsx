@@ -3,7 +3,7 @@ import Card from '../../components/common/Card';
 import Button from '../../components/common/Button';
 import Badge from '../../components/common/Badge';
 import { FormulaRenderer } from '../../components/chemistry/FormulaRenderer';
-import { calculateMolality, calculateBoilingPointElevation, calculateVaporPressureLowering } from '../../utils/colligative';
+import { calculateBoilingPointElevation, calculateVaporPressureLowering } from '../../utils/colligative';
 import { formatIndonesianNumber } from '../../utils/formatNumber';
 import solventsData from '../../data/solvents.json';
 
@@ -15,25 +15,24 @@ export default function Chapter2Page({ onComplete, isCompleted }) {
   const { deltaTb, boilingPoint } = calculateBoilingPointElevation(water.kb, molality, 1, water.normalBoilingPoint);
 
   // Vapor pressure calculation (assuming 25°C where P0 = 23.76 mmHg)
-  // For 1 molal aqueous solution: approx Xt = 1 / (1 + 55.5) = 0.0177
   const approximateXt = molality / (molality + 55.5);
   const { deltaP, pSolution } = calculateVaporPressureLowering(water.vaporPressure25C, approximateXt);
 
   return (
-    <div className="fade-in">
+    <div className="fade-in" style={{ fontFamily: "'Times New Roman', Times, serif" }}>
       <div style={{ marginBottom: '1.5rem' }}>
-        <Badge variant="blue">Bab 2</Badge>
-        <h2 style={{ marginTop: '0.5rem', marginBottom: '0.25rem' }}>
+        <Badge variant="blue">Bab 2 • Tekanan Uap & Titik Didih</Badge>
+        <h2 style={{ marginTop: '0.5rem', marginBottom: '0.25rem', fontSize: '1.8rem', fontWeight: 800 }}>
           Penurunan Tekanan Uap & Kenaikan Titik Didih
         </h2>
-        <p className="text-muted">
+        <p className="text-muted" style={{ fontSize: '1.05rem' }}>
           Bagaimana partikel zat terlarut menghalangi molekul pelarut untuk lepas menguap ke udara?
         </p>
       </div>
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '1.5rem' }}>
         <Card title="Hukum Raoult & Kenaikan Titik Didih">
-          <p>
+          <p style={{ lineHeight: 1.7, fontSize: '1rem' }}>
             Molekul terlarut memenuhi sebagian permukaan larutan, menurunkan laju penguapan molekul pelarut. Akibatnya, dibutuhkan suhu lebih tinggi agar tekanan uap larutan mencapai tekanan atmosfer (titik didih naik).
           </p>
           <FormulaRenderer
@@ -48,7 +47,7 @@ export default function Chapter2Page({ onComplete, isCompleted }) {
 
         <Card title="Laboratorium Termometer & Tekanan Uap" subtitle="Simulasi pada Pelarut Air (Kb = 0,52 °C/m, P° = 23,76 mmHg pada 25°C)">
           <div className="control-group">
-            <div className="control-label">
+            <div className="control-label" style={{ fontWeight: 700 }}>
               <span>Konsentrasi Zat Terlarut:</span>
               <strong>{molality} molal</strong>
             </div>
@@ -73,20 +72,20 @@ export default function Chapter2Page({ onComplete, isCompleted }) {
             gap: '1rem'
           }}>
             <div>
-              <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Kenaikan Titik Didih (ΔTb)</div>
-              <div style={{ fontSize: '1.3rem', fontWeight: 700, color: 'var(--color-heat)' }}>
+              <div style={{ fontSize: '0.825rem', color: 'var(--text-muted)' }}>Kenaikan Titik Didih (ΔTb)</div>
+              <div style={{ fontSize: '1.35rem', fontWeight: 800, color: 'var(--color-heat)' }}>
                 +{formatIndonesianNumber(deltaTb, 2)} °C
               </div>
-              <div style={{ fontSize: '0.8rem', marginTop: '0.35rem' }}>
+              <div style={{ fontSize: '0.825rem', marginTop: '0.35rem' }}>
                 Titik Didih Larutan: <strong>{formatIndonesianNumber(boilingPoint, 2)} °C</strong>
               </div>
             </div>
             <div>
-              <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Penurunan Tekanan Uap (ΔP)</div>
-              <div style={{ fontSize: '1.3rem', fontWeight: 700, color: 'var(--primary-600)' }}>
+              <div style={{ fontSize: '0.825rem', color: 'var(--text-muted)' }}>Penurunan Tekanan Uap (ΔP)</div>
+              <div style={{ fontSize: '1.35rem', fontWeight: 800, color: 'var(--primary-600)' }}>
                 -{formatIndonesianNumber(deltaP, 2)} mmHg
               </div>
-              <div style={{ fontSize: '0.8rem', marginTop: '0.35rem' }}>
+              <div style={{ fontSize: '0.825rem', marginTop: '0.35rem' }}>
                 Tekanan Uap Larutan: <strong>{formatIndonesianNumber(pSolution, 2)} mmHg</strong>
               </div>
             </div>
@@ -94,15 +93,42 @@ export default function Chapter2Page({ onComplete, isCompleted }) {
         </Card>
       </div>
 
-      <div style={{ marginTop: '2rem', display: 'flex', justifyContent: 'flex-end' }}>
+      {/* Tombol Lanjut ke Bab 3 */}
+      <div style={{
+        marginTop: '2.5rem',
+        padding: '1.5rem',
+        background: '#FFFFFF',
+        border: '1px solid #E2E8F0',
+        borderRadius: 'var(--radius-lg)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        flexWrap: 'wrap',
+        gap: '1rem',
+        boxShadow: '0 2px 8px rgba(15, 23, 42, 0.04)'
+      }}>
+        <div>
+          <span style={{ fontSize: '0.85rem', color: '#10B981', fontWeight: 700 }}>
+            {isCompleted ? '✓ Materi Bab 2 Selesai' : 'Siap Lanjut ke Tahap Selanjutnya?'}
+          </span>
+          <h4 style={{ margin: '0.2rem 0 0', color: '#0F172A', fontSize: '1.1rem' }}>
+            Bab 3: Penurunan Titik Beku & Diagram Fase P–T
+          </h4>
+        </div>
+
         <Button
-          variant={isCompleted ? 'success' : 'primary'}
+          variant="primary"
           onClick={onComplete}
+          style={{
+            padding: '0.85rem 1.8rem',
+            fontSize: '1.05rem',
+            background: '#0284C7',
+            boxShadow: '0 4px 14px rgba(2, 132, 199, 0.25)'
+          }}
         >
-          {isCompleted ? '✓ Bab Ini Telah Selesai' : 'Tandai Selesai & Lanjut Bab 3 →'}
+          Selesaikan Bab 2 & Buka Bab 3 →
         </Button>
       </div>
     </div>
   );
 }
-

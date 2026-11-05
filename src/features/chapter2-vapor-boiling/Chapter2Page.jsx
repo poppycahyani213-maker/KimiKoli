@@ -3,6 +3,8 @@ import Card from '../../components/common/Card';
 import Button from '../../components/common/Button';
 import Badge from '../../components/common/Badge';
 import TripleRepresentation from '../../components/chemistry/TripleRepresentation';
+import PrerequisiteRefresher from '../../components/chemistry/PrerequisiteRefresher';
+import MisconceptionCard from '../../components/chemistry/MisconceptionCard';
 import { FormulaRenderer } from '../../components/chemistry/FormulaRenderer';
 import { calculateBoilingPointElevation, calculateVaporPressureLowering } from '../../utils/colligative';
 import { formatIndonesianNumber } from '../../utils/formatNumber';
@@ -31,6 +33,17 @@ export default function Chapter2Page({ onComplete, isCompleted }) {
           Bagaimana partikel zat terlarut menghalangi molekul pelarut untuk lepas menguap ke udara?
         </p>
       </div>
+
+      {/* D.1: MODUL PENYEGAR PRASYARAT (MOLALITAS, MOLARITAS, FRAKSI MOL) DENGAN 3 SOAL LATIHAN */}
+      <PrerequisiteRefresher isOpenDefault={false} />
+
+      {/* D.4: KOTAK MISKONSEPSI UMUM BAB 2 */}
+      <MisconceptionCard
+        badge="Miskonsepsi Bab 2"
+        myth="Menambahkan garam ke dalam air saat memasak membuat air mendidih lebih cepat."
+        fact="SALAH! Penambahan garam justru MENAIKKAN titik didih air (di atas 100°C), sehingga air membutuhkan waktu pemanasan dan kalor lebih banyak untuk mulai mendidih."
+        explanation="Mengapa sayuran/makanan lebih cepat matang? Karena saat mendidih, suhu air garam tersebut lebih panas daripada 100°C (misal 102°C - 105°C). Makanan matang lebih cepat berkat suhu rebusan yang lebih tinggi, bukan karena air mendidih lebih awal!"
+      />
 
       {/* C. PEDAGOGIS: TIGA LEVEL REPRESENTASI KIMIA (BAB 2) */}
       <TripleRepresentation
@@ -134,6 +147,78 @@ export default function Chapter2Page({ onComplete, isCompleted }) {
             </div>
           </div>
         </Card>
+      </div>
+
+      {/* D.3: PENJELASAN AWAL FAKTOR VAN 'T HOFF & PERBANDINGAN ELEKTROLIT DI BAB 2 */}
+      <div style={{
+        marginTop: '2rem',
+        background: '#FFFFFF',
+        border: '1.5px solid #E0E7FF',
+        borderRadius: '16px',
+        padding: '1.5rem',
+        boxShadow: '0 4px 14px rgba(99, 102, 241, 0.08)'
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem', marginBottom: '0.75rem' }}>
+          <span style={{ fontSize: '1.4rem' }}>⚡</span>
+          <div>
+            <span style={{ fontSize: '0.78rem', fontWeight: 800, color: '#4F46E5', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+              Jembatan Konsep: Elektrolit vs Nonelektrolit
+            </span>
+            <h4 style={{ margin: 0, fontSize: '1.2rem', fontWeight: 800, color: '#1E1B4B' }}>
+              Faktor van 't Hoff (i): Mengapa Garam Dapur Menaikkan Titik Didih Lebih Tinggi?
+            </h4>
+          </div>
+        </div>
+
+        <p style={{ fontSize: '0.94rem', color: '#475569', lineHeight: 1.6, marginBottom: '1rem' }}>
+          Ingat bahwa sifat koligatif <strong>hanya memedulikan jumlah partikel bebas</strong>. Senyawa nonelektrolit (seperti glukosa) tidak terurai saat dilarutkan (1 molekul tetap 1 partikel). Namun senyawa ionik elektrolit (seperti NaCl dan CaCl₂) terurai menjadi kation dan anion bebas, sehingga jumlah partikel pelipatgandanya dinyatakan dengan <strong>Faktor van 't Hoff (i)</strong>:
+        </p>
+
+        {/* Tabel Perbandingan 0.1 m Glukosa, NaCl, dan CaCl2 */}
+        <div style={{ overflowX: 'auto', borderRadius: '12px', border: '1px solid #E2E8F0', marginBottom: '1rem' }}>
+          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.88rem' }}>
+            <thead>
+              <tr style={{ background: '#EEF2FF', borderBottom: '1px solid #C7D2FE' }}>
+                <th style={{ padding: '0.6rem 0.8rem', textAlign: 'left', color: '#3730A3' }}>Zat Terlarut (0,1 m)</th>
+                <th style={{ padding: '0.6rem 0.8rem', textAlign: 'left', color: '#3730A3' }}>Jenis & Penguraian Ion</th>
+                <th style={{ padding: '0.6rem 0.8rem', textAlign: 'center', color: '#3730A3' }}>Faktor i</th>
+                <th style={{ padding: '0.6rem 0.8rem', textAlign: 'right', color: '#3730A3' }}>Rumus ΔTb</th>
+                <th style={{ padding: '0.6rem 0.8rem', textAlign: 'right', color: '#3730A3' }}>Kenaikan Titik Didih (ΔTb)</th>
+                <th style={{ padding: '0.6rem 0.8rem', textAlign: 'right', color: '#3730A3' }}>Titik Didih Larutan (Tb)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr style={{ borderBottom: '1px solid #F1F5F9' }}>
+                <td style={{ padding: '0.65rem 0.8rem', fontWeight: 800, color: '#0F172A' }}>Glukosa (C₆H₁₂O₆)</td>
+                <td style={{ padding: '0.65rem 0.8rem', color: '#475569' }}>Nonelektrolit (tetap 1 molekul utuh)</td>
+                <td style={{ padding: '0.65rem 0.8rem', textAlign: 'center', fontWeight: 800, color: '#0284C7' }}>1</td>
+                <td style={{ padding: '0.65rem 0.8rem', textAlign: 'right', fontFamily: 'monospace' }}>0,1 × 0,52 × 1</td>
+                <td style={{ padding: '0.65rem 0.8rem', textAlign: 'right', fontWeight: 700, color: '#B45309' }}>+0,052 °C</td>
+                <td style={{ padding: '0.65rem 0.8rem', textAlign: 'right', fontWeight: 800, color: '#0F172A' }}>100,052 °C</td>
+              </tr>
+              <tr style={{ borderBottom: '1px solid #F1F5F9', background: '#F8FAFC' }}>
+                <td style={{ padding: '0.65rem 0.8rem', fontWeight: 800, color: '#0F172A' }}>Garam Dapur (NaCl)</td>
+                <td style={{ padding: '0.65rem 0.8rem', color: '#475569' }}>Elektrolit biner → Na⁺ + Cl⁻ (2 ion)</td>
+                <td style={{ padding: '0.65rem 0.8rem', textAlign: 'center', fontWeight: 800, color: '#0284C7' }}>2</td>
+                <td style={{ padding: '0.65rem 0.8rem', textAlign: 'right', fontFamily: 'monospace' }}>0,1 × 0,52 × 2</td>
+                <td style={{ padding: '0.65rem 0.8rem', textAlign: 'right', fontWeight: 700, color: '#B45309' }}>+0,104 °C (2× lipat!)</td>
+                <td style={{ padding: '0.65rem 0.8rem', textAlign: 'right', fontWeight: 800, color: '#0F172A' }}>100,104 °C</td>
+              </tr>
+              <tr>
+                <td style={{ padding: '0.65rem 0.8rem', fontWeight: 800, color: '#0F172A' }}>Kalsium Klorida (CaCl₂)</td>
+                <td style={{ padding: '0.65rem 0.8rem', color: '#475569' }}>Elektrolit terner → Ca²⁺ + 2Cl⁻ (3 ion)</td>
+                <td style={{ padding: '0.65rem 0.8rem', textAlign: 'center', fontWeight: 800, color: '#0284C7' }}>3</td>
+                <td style={{ padding: '0.65rem 0.8rem', textAlign: 'right', fontFamily: 'monospace' }}>0,1 × 0,52 × 3</td>
+                <td style={{ padding: '0.65rem 0.8rem', textAlign: 'right', fontWeight: 700, color: '#B45309' }}>+0,156 °C (3× lipat!)</td>
+                <td style={{ padding: '0.65rem 0.8rem', textAlign: 'right', fontWeight: 800, color: '#0F172A' }}>100,156 °C</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div style={{ fontSize: '0.86rem', color: '#4338CA', background: '#EEF2FF', padding: '0.6rem 0.85rem', borderRadius: '8px' }}>
+          💡 <strong>Kesimpulan Awal:</strong> Meski sama-sama berkonsentrasi 0,1 molal, larutan CaCl₂ menghasilkan kenaikan titik didih 3 kali lipat lebih besar daripada glukosa karena menghasilkan 3 partikel per molekul. Konsep ini akan kamu eksplorasi lebih dalam di Bab 5!
+        </div>
       </div>
 
       {/* Tombol Lanjut ke Bab 3 */}

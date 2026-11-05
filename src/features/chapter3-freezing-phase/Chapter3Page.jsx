@@ -3,6 +3,7 @@ import Card from '../../components/common/Card';
 import Button from '../../components/common/Button';
 import Badge from '../../components/common/Badge';
 import TripleRepresentation from '../../components/chemistry/TripleRepresentation';
+import MisconceptionCard from '../../components/chemistry/MisconceptionCard';
 import { FormulaRenderer } from '../../components/chemistry/FormulaRenderer';
 import { calculateFreezingPointDepression } from '../../utils/colligative';
 import { formatIndonesianNumber } from '../../utils/formatNumber';
@@ -26,6 +27,14 @@ export default function Chapter3Page({ onComplete, isCompleted }) {
           Mengapa penambahan garam dapat mencairkan salju atau membuat es krim membeku pada suhu di bawah 0°C?
         </p>
       </div>
+
+      {/* D.4: KOTAK MISKONSEPSI UMUM BAB 3 */}
+      <MisconceptionCard
+        badge="Miskonsepsi Bab 3"
+        myth="Garam membuat es batu cepat mencair karena garam menghasilkan sifat panas atau menghangatkan es."
+        fact="SALAH! Garam justru MENURUNKAN titik beku air. Campuran es dan garam melebur pada suhu di bawah 0°C sambil menyerap kalor dari sekitarnya, sehingga suhu larutan anjlok drastis mencapai -5°C hingga -10°C!"
+        explanation="Suhu super dingin di bawah titik beku normal inilah yang menyerap panas dari adonan es puter di dalam tabung logam, memungkinkan adonan membeku padat menjadi es krim lezat tanpa bantuan freezer listrik."
+      />
 
       {/* C. PEDAGOGIS: TIGA LEVEL REPRESENTASI KIMIA (BAB 3) */}
       <TripleRepresentation

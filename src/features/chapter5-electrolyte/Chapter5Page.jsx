@@ -3,6 +3,7 @@ import Card from '../../components/common/Card';
 import Button from '../../components/common/Button';
 import Badge from '../../components/common/Badge';
 import TripleRepresentation from '../../components/chemistry/TripleRepresentation';
+import MisconceptionCard from '../../components/chemistry/MisconceptionCard';
 import { FormulaRenderer } from '../../components/chemistry/FormulaRenderer';
 import { calculateVantHoffFactor } from '../../utils/vantHoff';
 import { calculateBoilingPointElevation } from '../../utils/colligative';
@@ -31,6 +32,14 @@ export default function Chapter5Page({ onComplete, isCompleted }) {
           Karena zat elektrolit terurai menjadi beberapa ion, jumlah partikel bebas menjadi berlipat ganda!
         </p>
       </div>
+
+      {/* D.4: KOTAK MISKONSEPSI UMUM BAB 5 */}
+      <MisconceptionCard
+        badge="Miskonsepsi Bab 5"
+        myth="Semua larutan elektrolit selalu memiliki faktor van 't Hoff i = 2."
+        fact="SALAH! Nilai faktor van 't Hoff (i) dihitung dengan i = 1 + (n - 1)α, sehingga bergantung pada jumlah ion per unit molekul (n) dan derajat ionisasinya (α)."
+        explanation="Untuk kalsium klorida CaCl2 (Ca²⁺ + 2Cl⁻), nilai n = 3 sehingga i ≈ 3. Sedangkan untuk elektrolit lemah seperti asam cuka CH3COOH yang hanya terionisasi sebagian (misal α = 0,05), nilai i adalah pecahan 1,05 (bukan 2)."
+      />
 
       {/* C. PEDAGOGIS: TIGA LEVEL REPRESENTASI KIMIA (BAB 5) */}
       <TripleRepresentation

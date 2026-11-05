@@ -3,6 +3,7 @@ import Card from '../../components/common/Card';
 import Button from '../../components/common/Button';
 import Badge from '../../components/common/Badge';
 import TripleRepresentation from '../../components/chemistry/TripleRepresentation';
+import MisconceptionCard from '../../components/chemistry/MisconceptionCard';
 import { FormulaRenderer } from '../../components/chemistry/FormulaRenderer';
 import { calculateMolality, calculateMoleFractions } from '../../utils/colligative';
 import { formatIndonesianNumber } from '../../utils/formatNumber';
@@ -33,6 +34,68 @@ export default function Chapter1Page({ onComplete, isCompleted }) {
           Pelajari bagaimana rasio jumlah partikel zat terlarut terhadap pelarut menentukan sifat larutan.
         </p>
       </div>
+
+      {/* D.2: TES DIAGNOSTIK SINGKAT PRASYARAT SEBELUM BAB 1 */}
+      <div style={{
+        background: '#F8FAFC',
+        border: '1.5px solid #CBD5E1',
+        borderRadius: '16px',
+        padding: '1.25rem',
+        marginBottom: '1.75rem',
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '0.75rem'
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.5rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <span style={{ fontSize: '1.3rem' }}>📋</span>
+            <strong style={{ fontSize: '1.05rem', color: '#0F172A' }}>
+              Hasil Cek Diagnostik Prasyarat Kimia
+            </strong>
+          </div>
+          <span style={{ fontSize: '0.8rem', background: '#ECFDF5', color: '#065F46', padding: '0.2rem 0.6rem', borderRadius: '12px', fontWeight: 700 }}>
+            ✓ Terverifikasi Pretest
+          </span>
+        </div>
+
+        <p style={{ margin: 0, fontSize: '0.9rem', color: '#475569', lineHeight: 1.5 }}>
+          Sebelum mempelajari sifat koligatif, pastikan 4 bekal konsep prasyaratmu sudah aman:
+        </p>
+
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '0.75rem' }}>
+          <div style={{ background: '#FFFFFF', padding: '0.7rem', borderRadius: '10px', border: '1px solid #E2E8F0', fontSize: '0.85rem' }}>
+            <div style={{ fontWeight: 700, color: '#0F172A' }}>1. Konsep Mol & Mr</div>
+            <div style={{ color: '#10B981', fontWeight: 600 }}>✓ Dikuasai (n = m/Mr)</div>
+            <div style={{ fontSize: '0.78rem', color: '#64748B', marginTop: '0.2rem' }}>Pondasi menghitung jumlah partikel zat.</div>
+          </div>
+
+          <div style={{ background: '#FFFFFF', padding: '0.7rem', borderRadius: '10px', border: '1px solid #E2E8F0', fontSize: '0.85rem' }}>
+            <div style={{ fontWeight: 700, color: '#0F172A' }}>2. Pelarut vs Terlarut</div>
+            <div style={{ color: '#10B981', fontWeight: 600 }}>✓ Dikuasai (Air = pelarut)</div>
+            <div style={{ fontSize: '0.78rem', color: '#64748B', marginTop: '0.2rem' }}>Zat terlarut bersifat nonvolatil.</div>
+          </div>
+
+          <div style={{ background: '#FFFFFF', padding: '0.7rem', borderRadius: '10px', border: '1px solid #E2E8F0', fontSize: '0.85rem' }}>
+            <div style={{ fontWeight: 700, color: '#0F172A' }}>3. Satuan Konsentrasi</div>
+            <div style={{ color: '#0284C7', fontWeight: 600 }}>🔍 Pelajari di Bab 1 Ini</div>
+            <div style={{ fontSize: '0.78rem', color: '#64748B', marginTop: '0.2rem' }}>Fokus pada Molalitas (m) & Fraksi Mol (X).</div>
+          </div>
+
+          <div style={{ background: '#FFFFFF', padding: '0.7rem', borderRadius: '10px', border: '1px solid #E2E8F0', fontSize: '0.85rem' }}>
+            <div style={{ fontWeight: 700, color: '#0F172A' }}>4. Ionisasi Elektrolit</div>
+            <div style={{ color: '#64748B', fontWeight: 600 }}>⏳ Lanjutan di Bab 2 & 5</div>
+            <div style={{ fontSize: '0.78rem', color: '#64748B', marginTop: '0.2rem' }}>Pengaruh jumlah partikel ion terurai.</div>
+          </div>
+        </div>
+      </div>
+
+      {/* D.4: KOTAK MISKONSEPSI UMUM BAB 1 */}
+      <MisconceptionCard
+        badge="Miskonsepsi Bab 1"
+        myth="Sifat koligatif larutan bergantung pada apakah zat terlarut itu molekul besar atau kecil, manis, asin, atau beracun."
+        fact="Sifat koligatif HANYA bergantung pada KUANTITAS (jumlah partikel) zat terlarut di dalam pelarut, dan SAMA SEKALI TIDAK dipengaruhi oleh rasa, warna, ukuran massa molekul, ataupun jenis zat terlarut tersebut."
+        explanation="100 butir molekul glukosa (gula manis) dan 100 butir molekul urea (zat pupuk) dalam 1 liter air murni akan menghasilkan penurunan tekanan uap dan penurunan titik beku yang PERSIS SAMA karena jumlah partikel penghalangnya identik."
+      />
 
       {/* C. PEDAGOGIS: TIGA LEVEL REPRESENTASI KIMIA (BAB 1) */}
       <TripleRepresentation

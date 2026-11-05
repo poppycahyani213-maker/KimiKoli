@@ -3,6 +3,7 @@ import Card from '../../components/common/Card';
 import Button from '../../components/common/Button';
 import Badge from '../../components/common/Badge';
 import TripleRepresentation from '../../components/chemistry/TripleRepresentation';
+import MisconceptionCard from '../../components/chemistry/MisconceptionCard';
 import { FormulaRenderer } from '../../components/chemistry/FormulaRenderer';
 import { calculateOsmoticPressure } from '../../utils/colligative';
 import { formatIndonesianNumber } from '../../utils/formatNumber';
@@ -25,6 +26,14 @@ export default function Chapter4Page({ onComplete, isCompleted }) {
           Pergerakan spontan molekul pelarut murni menuju larutan yang lebih pekat melalui membran semipermeabel.
         </p>
       </div>
+
+      {/* D.4: KOTAK MISKONSEPSI UMUM BAB 4 */}
+      <MisconceptionCard
+        badge="Miskonsepsi Bab 4"
+        myth="Pada peristiwa osmosis, partikel zat terlarut (garam atau gula) yang berpindah menembus dinding sel."
+        fact="SALAH! Itu adalah definisi DIFUSI zat terlarut. Pada OSMOSIS, yang berpindah menembus membran semipermeabel adalah molekul PELARUT (air murni), mengalir dari larutan encer (hipotonik) menuju larutan yang lebih pekat (hipertonik)."
+        explanation="Membran semipermeabel bersifat sangat selektif: pori-porinya hanya cukup untuk dilalui molekul air kecil, sementara ion atau molekul zat terlarut yang lebih besar tertahan tidak dapat lewat."
+      />
 
       {/* C. PEDAGOGIS: TIGA LEVEL REPRESENTASI KIMIA (BAB 4) */}
       <TripleRepresentation

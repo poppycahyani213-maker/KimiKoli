@@ -1,8 +1,11 @@
 import React, { useState } from 'react';
-import imgTitikBeku from '../../assets/fenomena-titik-beku.jpg';
+import imgTekananUap from '../../assets/fenomena-tekanan-uap.jpg';
 import imgTitikDidih from '../../assets/fenomena-titik-didih.jpg';
+import imgTitikBeku from '../../assets/fenomena-titik-beku.jpg';
 import imgRadiator from '../../assets/fenomena-radiator.jpg';
 import imgMentimun from '../../assets/fenomena-mentimun.jpg';
+import imgDesalinasi from '../../assets/fenomena-desalinasi.jpg';
+import imgElektrolit from '../../assets/fenomena-elektrolit.jpg';
 
 /**
  * Komponen HomePage (Beranda KimiKoli)

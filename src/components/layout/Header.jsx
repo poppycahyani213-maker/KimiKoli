@@ -26,23 +26,18 @@ export default function Header({
       alert("🔒 Mode Ujian Terfokus Aktif: Harap selesaikan seluruh soal pretest terlebih dahulu untuk membuka fitur lainnya.");
       return;
     }
-    if (tabId === 'lab-virtual') {
-      if (!isAllMaterialCompleted) {
-        alert("🔒 Laboratorium Virtual Terkunci: Harap selesaikan seluruh materi (Bab 1 sampai Bab 5) terlebih dahulu sebelum dapat mengakses Lab Virtual.");
-        return;
-      }
+    
+    // Guru memiliki akses bebas ke seluruh fitur
+    if (isTeacher) {
+      if (tabId === 'quiz') tabId = 'chapter6';
+      if (onSelectTab) onSelectTab(tabId);
+      return;
     }
+
     if (tabId === 'quiz') {
-      if (!isAllMaterialCompleted) {
-        alert("🔒 Kuis Akhir Terkunci: Harap selesaikan seluruh materi (Bab 1 sampai Bab 5) dan kegiatan di Lab Virtual terlebih dahulu.");
-        return;
-      }
-      if (!isLabVirtualCompleted) {
-        alert("🔒 Kuis Akhir Terkunci: Kamu harus menyelesaikan seluruh kegiatan di Laboratorium Virtual terlebih dahulu untuk membuka akses Kuis Evaluasi Akhir.");
-        return;
-      }
       tabId = 'chapter6';
     }
+
     if (onSelectTab) {
       onSelectTab(tabId);
     }
@@ -103,9 +98,9 @@ export default function Header({
               cursor: isExamLocked ? 'not-allowed' : 'pointer',
               color: !isAllMaterialCompleted ? '#94A3B8' : undefined
             }}
-            title={isAllMaterialCompleted ? "Laboratorium Virtual (Terbuka)" : "🔒 Selesaikan Bab 1-5 untuk membuka"}
+            title={(isAllMaterialCompleted || isTeacher) ? "Laboratorium Virtual (Terbuka)" : "🔒 Selesaikan Bab 1-5 untuk membuka"}
           >
-            {!isAllMaterialCompleted ? '🔒 Lab Virtual' : '🔬 Lab Virtual'}
+            {(!isAllMaterialCompleted && !isTeacher) ? '🔒 Lab Virtual' : '🔬 Lab Virtual'}
           </button>
           <button
             type="button"
@@ -113,11 +108,11 @@ export default function Header({
             onClick={() => handleNavClick('quiz')}
             style={{ 
               cursor: isExamLocked ? 'not-allowed' : 'pointer',
-              color: !isLabVirtualCompleted ? '#94A3B8' : undefined
+              color: (!isLabVirtualCompleted && !isTeacher) ? '#94A3B8' : undefined
             }}
-            title={isLabVirtualCompleted ? "Kuis Evaluasi Akhir (Terbuka)" : "🔒 Selesaikan Lab Virtual untuk membuka"}
+            title={(isLabVirtualCompleted || isTeacher) ? "Kuis Evaluasi Akhir (Terbuka)" : "🔒 Selesaikan Lab Virtual untuk membuka"}
           >
-            {!isLabVirtualCompleted ? '🔒 Kuis' : '🏆 Kuis'}
+            {(!isLabVirtualCompleted && !isTeacher) ? '🔒 Kuis' : '🏆 Kuis'}
           </button>
         </nav>
 

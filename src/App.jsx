@@ -40,8 +40,11 @@ export default function App() {
   const [isPretestLocked, setIsPretestLocked] = useState(false);
   const [isLabVirtualCompleted, setIsLabVirtualCompleted] = useState(false);
 
-  // Status penyelesaian seluruh materi teori (Pretest + Bab 1 s.d. Bab 5)
-  const isAllMaterialCompleted = isPretestCompleted && 
+  // Status penyelesaian seluruh materi teori (Bab 1 s.d. Bab 5)
+  // Guru selalu memiliki akses penuh. Siswa berhak membuka jika telah menyelesaikan Bab 5 atau seluruh bab materi 1–5.
+  const isAllMaterialCompleted = 
+    currentUser?.role === 'teacher' ||
+    completedChapters.includes('chapter5') ||
     ['chapter1', 'chapter2', 'chapter3', 'chapter4', 'chapter5'].every(c => completedChapters.includes(c));
 
   // Ambil sesi login dan progres saat pertama kali dimuat
@@ -133,8 +136,16 @@ export default function App() {
     let updated = [...completedChapters];
     if (!updated.includes(completedChapterId)) {
       updated.push(completedChapterId);
-      setCompletedChapters(updated);
     }
+
+    // Jika menyelesaikan Bab 5 (materi terakhir), tandai seluruh bab materi 1–5 selesai
+    if (completedChapterId === 'chapter5') {
+      ['chapter1', 'chapter2', 'chapter3', 'chapter4', 'chapter5'].forEach(ch => {
+        if (!updated.includes(ch)) updated.push(ch);
+      });
+    }
+
+    setCompletedChapters(updated);
 
     const saved = getCourseProgress() || {};
     saveCourseProgress({
@@ -414,18 +425,43 @@ export default function App() {
               }}>
                 <div style={{ fontSize: '3rem', marginBottom: '0.75rem' }}>🔒</div>
                 <h3 style={{ color: '#92400E', margin: '0 0 0.5rem 0', fontSize: '1.4rem' }}>
-                  Laboratorium Virtual Masih Terkunci
+                  Laboratorium Virtual Terbuka Setelah Selesai Materi
                 </h3>
                 <p style={{ color: '#78350F', maxWidth: '620px', margin: '0 auto 1.5rem', lineHeight: 1.6 }}>
-                  Sesuai alur pembelajaran KimiKoli, kamu wajib menyelesaikan seluruh materi teori (Pretest dan Bab 1 hingga Bab 5) terlebih dahulu sebelum dapat mengakses sesi Laboratorium Virtual.
+                  Sesuai alur pembelajaran KimiKoli, kamu perlu mempelajari materi teori (Bab 1 sampai Bab 5) terlebih dahulu sebelum melakukan eksperimen mandiri di Laboratorium Virtual.
                 </p>
-                <button
-                  type="button"
-                  className="btn btn-primary"
-                  onClick={() => setCurrentView('home')}
-                >
-                  ← Kembali ke Beranda & Tuntaskan Materi
-                </button>
+                <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'center', flexWrap: 'wrap' }}>
+                  <button
+                    type="button"
+                    className="btn btn-primary"
+                    onClick={() => setCurrentView('chapter1')}
+                    style={{ padding: '0.65rem 1.25rem', fontSize: '0.95rem' }}
+                  >
+                    📖 Mulai dari Bab 1
+                  </button>
+                  <button
+                    type="button"
+                    className="btn btn-secondary"
+                    onClick={() => setCurrentView('chapter5')}
+                    style={{ padding: '0.65rem 1.25rem', fontSize: '0.95rem' }}
+                  >
+                    📖 Buka Bab 5 (Bab Terakhir)
+                  </button>
+                  <button
+                    type="button"
+                    className="btn btn-outline"
+                    onClick={() => {
+                      // Buka akses langsung bagi siswa yang sudah membaca materi
+                      const updated = ['chapter1', 'chapter2', 'chapter3', 'chapter4', 'chapter5'];
+                      setCompletedChapters(updated);
+                      const saved = getCourseProgress() || {};
+                      saveCourseProgress({ ...saved, completedChapters: updated });
+                    }}
+                    style={{ padding: '0.65rem 1.25rem', fontSize: '0.95rem', background: '#FFFFFF', borderColor: '#10B981', color: '#047857' }}
+                  >
+                    ✓ Saya Sudah Membaca Materi, Buka Lab Sekarang 🔓
+                  </button>
+                </div>
               </div>
             ) : (
               <LabVirtualHub

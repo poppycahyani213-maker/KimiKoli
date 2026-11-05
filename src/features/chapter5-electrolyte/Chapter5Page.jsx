@@ -2,11 +2,13 @@ import React, { useState } from 'react';
 import Card from '../../components/common/Card';
 import Button from '../../components/common/Button';
 import Badge from '../../components/common/Badge';
+import TripleRepresentation from '../../components/chemistry/TripleRepresentation';
 import { FormulaRenderer } from '../../components/chemistry/FormulaRenderer';
 import { calculateVantHoffFactor } from '../../utils/vantHoff';
 import { calculateBoilingPointElevation } from '../../utils/colligative';
 import { formatIndonesianNumber } from '../../utils/formatNumber';
 import solventsData from '../../data/solvents.json';
+import imgElektrolit from '../../assets/fenomena-elektrolit.jpg';
 
 export default function Chapter5Page({ onComplete, isCompleted }) {
   const water = solventsData[0];
@@ -29,6 +31,43 @@ export default function Chapter5Page({ onComplete, isCompleted }) {
           Karena zat elektrolit terurai menjadi beberapa ion, jumlah partikel bebas menjadi berlipat ganda!
         </p>
       </div>
+
+      {/* C. PEDAGOGIS: TIGA LEVEL REPRESENTASI KIMIA (BAB 5) */}
+      <TripleRepresentation
+        title="Tiga Level Representasi Kimia"
+        conceptName="Larutan Elektrolit & Faktor van 't Hoff"
+        macroscopic={{
+          title: "Pengamatan Sehari-hari: Garam Dapur vs Gula Pasir",
+          image: imgElektrolit,
+          description: "Jika melarutkan 1 mol NaCl (garam dapur) dan 1 mol C6H12O6 (gula) masing-masing ke dalam 1 kg air murni, larutan garam akan mendidih pada suhu yang jauh lebih tinggi dan membeku pada suhu yang hampir dua kali lipat lebih dingin daripada larutan gula.",
+          observations: [
+            "Penurunan titik beku larutan garam NaCl 1 m adalah sekitar -3,72°C, sedangkan larutan gula 1 m hanya sekitar -1,86°C",
+            "Larutan elektrolit dapat menghantarkan arus listrik (lampu menyala pada uji daya hantar)",
+            "Kekuatan sifat koligatif elektrolit bergantung pada jumlah ion per molekul dan derajat ionisasinya"
+          ]
+          // TODO: Konten guru: Tambahkan studi kasus cairan rehidrasi oral (oralit) vs air gula murni
+        }}
+        submicroscopic={{
+          title: "Skala Partikulat: Disosiasi / Ionisasi Ion Bebas",
+          description: "Molekul gula C6H12O6 adalah nonelektrolit, saat larut molekulnya tetap utuh sebagai 1 partikel. Sebaliknya, garam NaCl saat dilarutkan ke dalam air akan terdisosiasi sempurna menjadi ion Na⁺ dan ion Cl⁻.",
+          mechanism: "Karena setiap 1 unit rumus NaCl menghasilkan 2 partikel ion yang bergerak bebas, jumlah partikel penghalang di permukaan maupun perintang kisi es menjadi 2 kali lipat lebih banyak. Inilah alasan nilai sifat koligatif larutan elektrolit dikalikan dengan faktor pengali van 't Hoff (i)."
+          // TODO: Konten guru: Tambahkan visual interaktif kisi kristal ionik NaCl yang terhidrasi molekul dipol air
+        }}
+        symbolic={{
+          title: "Persamaan Faktor van 't Hoff & Sifat Koligatif Elektrolit",
+          formula: "i = 1 + (n − 1)α",
+          formulaAlt: "ΔP = Xt × P° × i  |  ΔTb = Kb × m × i  |  ΔTf = Kf × m × i  |  Π = M × R × T × i",
+          variables: [
+            { symbol: "i", desc: "Faktor van 't Hoff (pengali jumlah partikel nyata)", unit: "Tanpa satuan (i ≥ 1)" },
+            { symbol: "n", desc: "Jumlah ion yang dihasilkan dari 1 unit rumus zat terlarut", unit: "bilangan bulat (misal NaCl = 2, CaCl2 = 3)" },
+            { symbol: "α", desc: "Derajat ionisasi / disosiasi zat terlarut (0 ≤ α ≤ 1)", unit: "Tanpa satuan (Elektrolit kuat α = 1)" },
+            { symbol: "m", desc: "Molalitas larutan", unit: "mol/kg (m)" },
+            { symbol: "Kb / Kf", desc: "Tetapan didih / beku molal pelarut", unit: "°C·kg/mol" }
+          ],
+          note: "Untuk larutan elektrolit kuat (α ≈ 1), rumus faktor van 't Hoff dapat disederhanakan menjadi i ≈ n. Untuk nonelektrolit (α = 0), maka i = 1."
+          // TODO: Konten guru: Tambahkan tabel perbandingan n dan i untuk elektrolit lemah (misal CH3COOH)
+        }}
+      />
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '1.5rem' }}>
         <Card title="Faktor van 't Hoff (i)">

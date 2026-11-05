@@ -2,11 +2,13 @@ import React, { useState } from 'react';
 import Card from '../../components/common/Card';
 import Button from '../../components/common/Button';
 import Badge from '../../components/common/Badge';
+import TripleRepresentation from '../../components/chemistry/TripleRepresentation';
 import { FormulaRenderer } from '../../components/chemistry/FormulaRenderer';
 import { calculateMolality, calculateMoleFractions } from '../../utils/colligative';
 import { formatIndonesianNumber } from '../../utils/formatNumber';
 import solutesData from '../../data/solutes.json';
 import solventsData from '../../data/solvents.json';
+import imgTekananUap from '../../assets/fenomena-tekanan-uap.jpg';
 
 export default function Chapter1Page({ onComplete, isCompleted }) {
   const [selectedSoluteId, setSelectedSoluteId] = useState(solutesData[0].id);
@@ -31,6 +33,44 @@ export default function Chapter1Page({ onComplete, isCompleted }) {
           Pelajari bagaimana rasio jumlah partikel zat terlarut terhadap pelarut menentukan sifat larutan.
         </p>
       </div>
+
+      {/* C. PEDAGOGIS: TIGA LEVEL REPRESENTASI KIMIA (BAB 1) */}
+      <TripleRepresentation
+        title="Tiga Level Representasi Kimia"
+        conceptName="Konsentrasi & Partikel Koligatif"
+        macroscopic={{
+          title: "Pengamatan Sehari-hari: Rasa & Kepekatan",
+          image: imgTekananUap,
+          description: "Ketika melarutkan 1 sendok vs 5 sendok gula ke dalam segelas air teh, warna dan rasa manisnya berubah nyata. Semakin banyak gula yang larut, larutan semakin pekat.",
+          observations: [
+            "Wujud fisik berubah homogen (gula padat larut sempurna dalam air cair)",
+            "Larutan yang lebih pekat memiliki kekentalan dan massa jenis yang lebih tinggi",
+            "Massa total larutan bertambah, tetapi volume akhir tidak selalu merupakan penjumlahan langsung (akibat celah antarmolekul)"
+          ]
+          // TODO: Konten guru: Tambahkan studi kasus makroskopik minuman isotonik atau sirup lokal di sini
+        }}
+        submicroscopic={{
+          title: "Skala Partikulat: Sebaran Molekul Terlarut",
+          description: "Molekul zat terlarut (glukosa/urea) terlepas dari kristalnya dan dikelilingi oleh molekul-molekul pelarut air (proses hidrasi/solvasi).",
+          mechanism: "Hakikat sifat koligatif: 100 partikel glukosa memberikan dampak koligatif yang PERSIS SAMA dengan 100 partikel urea. Yang dihitung adalah kuantitas partikel bebas per satuan massa pelarut, bukan ukuran atau massa molekulnya."
+          // TODO: Konten guru: Tambahkan visual interaktif solvasi molekul air (ikatan hidrogen)
+        }}
+        symbolic={{
+          title: "Persamaan Konsentrasi: Molalitas & Fraksi Mol",
+          formula: "m = (massa / Mr) × (1000 / p)",
+          formulaAlt: "Xt = nt / (nt + np)  |  Xp = np / (nt + np)",
+          variables: [
+            { symbol: "m", desc: "Molalitas larutan", unit: "mol/kg (m)" },
+            { symbol: "massa", desc: "Massa zat terlarut yang ditimbang", unit: "gram (g)" },
+            { symbol: "Mr", desc: "Massa molar zat terlarut", unit: "g/mol" },
+            { symbol: "p", desc: "Massa pelarut murni", unit: "gram (g)" },
+            { symbol: "Xt", desc: "Fraksi mol zat terlarut", unit: "Tanpa satuan (0 ≤ Xt ≤ 1)" },
+            { symbol: "Xp", desc: "Fraksi mol pelarut (Xt + Xp = 1)", unit: "Tanpa satuan" }
+          ],
+          note: "Molalitas (m) dipilih dalam perhitungan sifat koligatif karena nilainya TIDAK bergantung pada perubahan suhu (berbasis massa pelarut, bukan volume larutan)."
+          // TODO: Konten guru: Tambahkan latihan konversi Molaritas (M) ke Molalitas (m)
+        }}
+      />
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '1.5rem' }}>
         {/* Concept Card */}

@@ -2,10 +2,12 @@ import React, { useState } from 'react';
 import Card from '../../components/common/Card';
 import Button from '../../components/common/Button';
 import Badge from '../../components/common/Badge';
+import TripleRepresentation from '../../components/chemistry/TripleRepresentation';
 import { FormulaRenderer } from '../../components/chemistry/FormulaRenderer';
 import { calculateFreezingPointDepression } from '../../utils/colligative';
 import { formatIndonesianNumber } from '../../utils/formatNumber';
 import solventsData from '../../data/solvents.json';
+import imgTitikBeku from '../../assets/fenomena-titik-beku.jpg';
 
 export default function Chapter3Page({ onComplete, isCompleted }) {
   const water = solventsData[0]; // Air: Kf = 1.86, normal freezing = 0.0°C
@@ -21,9 +23,47 @@ export default function Chapter3Page({ onComplete, isCompleted }) {
           Penurunan Titik Beku & Diagram Fase
         </h2>
         <p className="text-muted" style={{ fontSize: '1.05rem' }}>
-          Mengapa penambahan garam dapat mencairkan salju atau membuat es krim membeku lebih padat?
+          Mengapa penambahan garam dapat mencairkan salju atau membuat es krim membeku pada suhu di bawah 0°C?
         </p>
       </div>
+
+      {/* C. PEDAGOGIS: TIGA LEVEL REPRESENTASI KIMIA (BAB 3) */}
+      <TripleRepresentation
+        title="Tiga Level Representasi Kimia"
+        conceptName="Penurunan Titik Beku (ΔTf)"
+        macroscopic={{
+          title: "Pengamatan Sehari-hari: Gerobak Es Puter & Salju",
+          image: imgTitikBeku,
+          description: "Penjual es puter memutar adonan santan dalam tabung baja yang dikelilingi campuran es batu dan garam krosok. Campuran tersebut meleleh namun suhunya anjlok hingga mencapai -5°C sampai -10°C.",
+          observations: [
+            "Es batu yang ditaburi garam kasar mencair dengan cepat, tetapi cairan yang terbentuk terasa jauh lebih dingin",
+            "Adonan es di dalam tabung logam membeku sempurna tanpa bantuan mesin pendingin listrik / freezer",
+            "Di negara 4 musim, garam NaCl/CaCl2 ditaburkan ke jalan raya bersalju agar es meleleh pada suhu di bawah 0°C dan jalan tidak licin"
+          ]
+          // TODO: Konten guru: Tambahkan studi kasus salju di negara subtropis
+        }}
+        submicroscopic={{
+          title: "Skala Partikulat: Runtuhnya Kisi Kristal Es",
+          description: "Air murni membeku menjadi es ketika molekul-molekul H2O menata diri menjadi kisi kristal heksagonal yang sangat teratur melalui ikatan hidrogen.",
+          mechanism: "Kehadiran partikel zat terlarut (seperti ion Na⁺, Cl⁻, atau molekul gula) bertindak sebagai pengotor mekanis yang menyusup di antara molekul air. Partikel ini merusak kestabilan kisi kristal es. Agar molekul air tetap dapat mengatasi gangguan ini dan membentuk ikatan padat, energi kinetik molekul harus diperlambat lebih jauh lagi melalui pendinginan ke suhu yang lebih rendah (Tf < 0°C)."
+          // TODO: Konten guru: Tambahkan animasi perbandingan kisi kristal es murni vs larutan terganggu
+        }}
+        symbolic={{
+          title: "Persamaan Penurunan Titik Beku & Suhu Beku",
+          formula: "ΔTf = Kf × m × i",
+          formulaAlt: "Tf = Tf° − ΔTf   (untuk air: Tf = 0°C − ΔTf)",
+          variables: [
+            { symbol: "ΔTf", desc: "Penurunan titik beku larutan (selalu positif)", unit: "°C atau Kelvin" },
+            { symbol: "Kf", desc: "Tetapan penurunan titik beku molal pelarut (Air = 1,86)", unit: "°C·kg/mol (°C/m)" },
+            { symbol: "m", desc: "Molalitas larutan", unit: "mol/kg (m)" },
+            { symbol: "i", desc: "Faktor van 't Hoff (i = 1 untuk nonelektrolit)", unit: "Tanpa satuan" },
+            { symbol: "Tf°", desc: "Titik beku pelarut murni (Air = 0,00°C)", unit: "°C" },
+            { symbol: "Tf", desc: "Titik beku larutan yang terukur (selalu lebih rendah dari Tf°)", unit: "°C" }
+          ],
+          note: "Nilai Kf air (1,86 °C/m) jauh lebih besar daripada Kb air (0,52 °C/m), sehingga efek penurunan titik beku selalu tampak lebih signifikan dibandingkan kenaikan titik didih pada konsentrasi yang sama."
+          // TODO: Konten guru: Tambahkan diagram fase P-T interaktif kurva pelarut vs larutan
+        }}
+      />
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '1.5rem' }}>
         <Card title="Prinsip Penurunan Titik Beku">

@@ -2,10 +2,12 @@ import React, { useState } from 'react';
 import Card from '../../components/common/Card';
 import Button from '../../components/common/Button';
 import Badge from '../../components/common/Badge';
+import TripleRepresentation from '../../components/chemistry/TripleRepresentation';
 import { FormulaRenderer } from '../../components/chemistry/FormulaRenderer';
 import { calculateBoilingPointElevation, calculateVaporPressureLowering } from '../../utils/colligative';
 import { formatIndonesianNumber } from '../../utils/formatNumber';
 import solventsData from '../../data/solvents.json';
+import imgTitikDidih from '../../assets/fenomena-titik-didih.jpg';
 
 export default function Chapter2Page({ onComplete, isCompleted }) {
   const water = solventsData[0]; // Air: Kb = 0.52, normal boiling = 100°C
@@ -29,6 +31,47 @@ export default function Chapter2Page({ onComplete, isCompleted }) {
           Bagaimana partikel zat terlarut menghalangi molekul pelarut untuk lepas menguap ke udara?
         </p>
       </div>
+
+      {/* C. PEDAGOGIS: TIGA LEVEL REPRESENTASI KIMIA (BAB 2) */}
+      <TripleRepresentation
+        title="Tiga Level Representasi Kimia"
+        conceptName="Tekanan Uap (ΔP) & Titik Didih (ΔTb)"
+        macroscopic={{
+          title: "Pengamatan Sehari-hari: Air Mendidih di Dapur",
+          image: imgTitikDidih,
+          description: "Saat memasak sayur atau sup, air yang sudah diberi garam dapur butuh waktu pemanasan lebih lama untuk mendidih dibandingkan air murni, dan suhunya terukur di atas 100°C.",
+          observations: [
+            "Gelembung uap air pada air garam terbentuk pada suhu lebih tinggi (> 100°C pada 1 atm)",
+            "Pemanasan yang lebih panas membuat bahan makanan di dalam kuah matang lebih cepat dan empuk",
+            "Saat tutup panci dibuka, uap air yang mengembun di tutup panci adalah air murni (garam tetap berada di dalam panci)"
+          ]
+          // TODO: Konten guru: Masukkan studi kasus titik didih air di dataran tinggi vs pantai
+        }}
+        submicroscopic={{
+          title: "Skala Partikulat: Hambatan Permukaan Cairan",
+          description: "Pada pelarut murni, seluruh permukaan cairan terbuka untuk penguapan molekul air. Namun pada larutan, sebagian luas permukaan ditempati oleh molekul zat terlarut nonvolatil.",
+          mechanism: "Partikel zat terlarut yang sukar menguap menghalangi molekul air untuk meloncat lepas ke fase gas. Akibatnya, tekanan uap jenuh larutan menurun. Agar tekanan uap larutan dapat menyamai tekanan udara luar (syarat mendidih), energi kinetik rata-rata partikel harus dinaikkan dengan menaikkan suhu ke titik yang lebih tinggi (ΔTb naik)."
+          // TODO: Konten guru: Tambahkan visual interaktif molekul uap yang lepas vs terpantul kembali
+        }}
+        symbolic={{
+          title: "Persamaan Hukum Raoult & Kenaikan Titik Didih",
+          formula: "ΔP = Xt × P°   |   P = Xp × P°",
+          formulaAlt: "ΔTb = Kb × m × i   |   Tb = Tb° + ΔTb",
+          variables: [
+            { symbol: "ΔP", desc: "Penurunan tekanan uap jenuh", unit: "mmHg atau atm" },
+            { symbol: "P°", desc: "Tekanan uap jenuh pelarut murni", unit: "mmHg atau atm" },
+            { symbol: "P", desc: "Tekanan uap jenuh larutan (P < P°)", unit: "mmHg atau atm" },
+            { symbol: "Xt", desc: "Fraksi mol zat terlarut", unit: "Tanpa satuan" },
+            { symbol: "ΔTb", desc: "Kenaikan titik didih larutan", unit: "°C atau Kelvin" },
+            { symbol: "Kb", desc: "Tetapan kenaikan titik didih molal pelarut (Air = 0,52)", unit: "°C·kg/mol (°C/m)" },
+            { symbol: "m", desc: "Molalitas larutan", unit: "mol/kg (m)" },
+            { symbol: "i", desc: "Faktor van 't Hoff (i = 1 untuk nonelektrolit)", unit: "Tanpa satuan" },
+            { symbol: "Tb", desc: "Titik didih larutan (Tb° = 100°C untuk air)", unit: "°C" }
+          ],
+          note: "Hukum Raoult ΔP = Xt × P° berlaku ketat untuk zat terlarut nonvolatil (sukar menguap). Nilai Kb hanya bergantung pada jenis pelarut, bukan jenis zat terlarut."
+          // TODO: Konten guru: Tambahkan contoh tabel tetapan Kb berbagai pelarut organik (benzena, kamfer)
+        }}
+      />
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '1.5rem' }}>
         <Card title="Hukum Raoult & Kenaikan Titik Didih">

@@ -70,7 +70,7 @@ export default function Header({
           </button>
           <button
             type="button"
-            className={`nav-pill-btn ${currentView === 'chapter1' ? 'active' : ''}`}
+            className={`nav-pill-btn ${currentView.startsWith('chapter') ? 'active' : ''}`}
             onClick={() => handleNavClick('chapter1')}
             style={{ cursor: isExamLocked ? 'not-allowed' : 'pointer' }}
           >

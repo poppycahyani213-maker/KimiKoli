@@ -2,9 +2,11 @@ import React, { useState } from 'react';
 import Card from '../../components/common/Card';
 import Button from '../../components/common/Button';
 import Badge from '../../components/common/Badge';
+import TripleRepresentation from '../../components/chemistry/TripleRepresentation';
 import { FormulaRenderer } from '../../components/chemistry/FormulaRenderer';
 import { calculateOsmoticPressure } from '../../utils/colligative';
 import { formatIndonesianNumber } from '../../utils/formatNumber';
+import imgMentimun from '../../assets/fenomena-mentimun.jpg';
 
 export default function Chapter4Page({ onComplete, isCompleted }) {
   const [molarity, setMolarity] = useState(0.2); // 0.2 M
@@ -23,6 +25,43 @@ export default function Chapter4Page({ onComplete, isCompleted }) {
           Pergerakan spontan molekul pelarut murni menuju larutan yang lebih pekat melalui membran semipermeabel.
         </p>
       </div>
+
+      {/* C. PEDAGOGIS: TIGA LEVEL REPRESENTASI KIMIA (BAB 4) */}
+      <TripleRepresentation
+        title="Tiga Level Representasi Kimia"
+        conceptName="Tekanan Osmotik (Π) & Osmosis Balik"
+        macroscopic={{
+          title: "Pengamatan Sehari-hari: Acar Mentimun & Infus Medis",
+          image: imgMentimun,
+          description: "Potongan mentimun segar yang direndam dalam larutan garam pekat akan berkerut dan kehilangan air, menghasilkan acar yang kenyal renyah. Dalam medis, cairan infus ke pembuluh darah harus bersifat isotonik (setara 0,9% NaCl) agar sel darah merah tidak pecah ataupun mengerut.",
+          observations: [
+            "Sel mentimun kehilangan turgor/air dan berkerut (krenasi jaringan)",
+            "Cairan infus isotonik menjaga volume dan bentuk sel eritrosit darah tetap normal",
+            "Pada teknologi desalinasi air laut, air laut dialirkan ke tabung bertekanan tinggi untuk menghasilkan air tawar minum bersih"
+          ]
+          // TODO: Konten guru: Tambahkan studi kasus lisis eritrosit pada larutan hipotonik vs hipertonik
+        }}
+        submicroscopic={{
+          title: "Skala Partikulat: Seleksi Pori-Pori Membran Semipermeabel",
+          description: "Membran semipermeabel memiliki ukuran pori-pori mikroskopis selektif yang hanya cukup dilewati oleh molekul kecil pelarut (H2O), tetapi menahan molekul atau ion terlarut yang lebih besar atau terhidrasi.",
+          mechanism: "Secara alami, laju molekul air yang masuk dari sisi encer ke sisi pekat lebih besar daripada sebaliknya (osmosis alami). Namun, jika diberikan tekanan luar hidrostatik yang lebih besar daripada tekanan osmotik (Pluar > Π), molekul air murni dipaksa mengalir melawan gradien konsentrasi menuju sisi air murni (inilah prinsip Osmosis Balik / Reverse Osmosis)."
+          // TODO: Konten guru: Tambahkan simulasi partikel menembus pori membran semipermeabel
+        }}
+        symbolic={{
+          title: "Persamaan van 't Hoff untuk Tekanan Osmotik",
+          formula: "Π = M × R × T × i",
+          formulaAlt: "Π = (n / V) × R × T × i   (atau M = mol terlarut / Liter larutan)",
+          variables: [
+            { symbol: "Π", desc: "Tekanan osmotik larutan", unit: "atmosfer (atm)" },
+            { symbol: "M", desc: "Molaritas larutan (konsentrasi)", unit: "mol/L (M)" },
+            { symbol: "R", desc: "Konstanta gas universal (0,08206)", unit: "L·atm/(mol·K)" },
+            { symbol: "T", desc: "Suhu mutlak larutan (Kelvin = °C + 273)", unit: "Kelvin (K)" },
+            { symbol: "i", desc: "Faktor van 't Hoff (i = 1 untuk nonelektrolit)", unit: "Tanpa satuan" }
+          ],
+          note: "Tekanan osmotik merupakan sifat koligatif yang paling sensitif untuk mengukur massa molar (Mr) makromolekul biologis berbobot besar (seperti protein dan polimer)."
+          // TODO: Konten guru: Tambahkan kalkulator penentuan Mr protein dari nilai tekanan osmotik
+        }}
+      />
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '1.5rem' }}>
         <Card title="Prinsip Tekanan Osmotik">

@@ -46,14 +46,17 @@ export default function HomePage({
 
   const currentXp = (isPretestDone ? 20 : 0) + (completedChapters.length * 30);
 
+  const isAllMissionsDone = isPretestDone && isCh1Completed && isCh2Completed && isCh3Completed && isCh4Completed && isCh5Completed;
+
   // Menentukan materi tujuan untuk tombol Hero utama
   const getNextAvailableView = () => {
-    if (!isPretestDone) return { label: 'Mulai Misi 1: Pretest Prasyarat →', action: onStartPretest };
-    if (!isCh1Completed) return { label: 'Lanjut Misi: Bab 1 Konsentrasi Larutan →', action: () => onGoToChapter('chapter1') };
-    if (!isCh2Completed) return { label: 'Lanjut Misi: Bab 2 Tekanan Uap & Titik Didih →', action: () => onGoToChapter('chapter2') };
-    if (!isCh3Completed) return { label: 'Lanjut Misi: Bab 3 Penurunan Titik Beku →', action: () => onGoToChapter('chapter3') };
-    if (!isCh4Completed) return { label: 'Lanjut Misi: Bab 4 Tekanan Osmotik →', action: () => onGoToChapter('chapter4') };
-    return { label: 'Lanjut Misi: Bab 5 Larutan Elektrolit →', action: () => onGoToChapter('chapter5') };
+    if (!isPretestDone) return { label: 'Mulai Misi 1: Pretest Prasyarat →', action: onStartPretest, isAllDone: false };
+    if (!isCh1Completed) return { label: 'Lanjut Misi: Bab 1 Konsentrasi Larutan →', action: () => onGoToChapter('chapter1'), isAllDone: false };
+    if (!isCh2Completed) return { label: 'Lanjut Misi: Bab 2 Tekanan Uap & Titik Didih →', action: () => onGoToChapter('chapter2'), isAllDone: false };
+    if (!isCh3Completed) return { label: 'Lanjut Misi: Bab 3 Penurunan Titik Beku →', action: () => onGoToChapter('chapter3'), isAllDone: false };
+    if (!isCh4Completed) return { label: 'Lanjut Misi: Bab 4 Tekanan Osmotik →', action: () => onGoToChapter('chapter4'), isAllDone: false };
+    if (!isCh5Completed) return { label: 'Lanjut Misi: Bab 5 Larutan Elektrolit →', action: () => onGoToChapter('chapter5'), isAllDone: false };
+    return { label: '🏆 Lihat Capaian & Evaluasi Akhir →', action: () => onGoToChapter('chapter6'), isAllDone: true };
   };
 
   const nextAction = getNextAvailableView();
@@ -88,13 +91,19 @@ export default function HomePage({
             </div>
 
             <h1 className="hero-title" style={{ fontFamily: "'Times New Roman', Times, serif" }}>
-              Selesaikan 6 misi lab, bongkar rahasia <span className="highlight-blue">larutan</span>.
+              {isAllMissionsDone ? (
+                <>🎉 Selamat! Kamu telah menguasai seluruh <span className="highlight-blue">6 Misi KimiKoli</span>.</>
+              ) : (
+                <>Selesaikan 6 misi lab, bongkar rahasia <span className="highlight-blue">larutan</span>.</>
+              )}
             </h1>
 
             <p className="hero-desc" style={{ fontSize: '1.05rem', lineHeight: 1.65 }}>
-              {totalMissionsDone > 0 
-                ? `Progres luar biasa! Kamu telah menuntaskan ${totalMissionsDone} misi belajar. Terus lanjutkan untuk membuka fenomena koligatif berikutnya.`
-                : "Setiap misi membuka satu fenomena: kenapa es puter butuh garam, kenapa infus harus pas kadarnya. Kumpulkan XP dan lencana di setiap langkah."}
+              {isAllMissionsDone
+                ? "Luar biasa! Seluruh konsep sifat koligatif larutan (penurunan tekanan uap, kenaikan titik didih, penurunan titik beku, tekanan osmotik, hingga faktor van 't Hoff larutan elektrolit) telah berhasil kamu selesaikan dengan tuntas. Buka evaluasi akhir atau eksplorasi laboratorium secara mandiri."
+                : (totalMissionsDone > 0 
+                  ? `Progres luar biasa! Kamu telah menuntaskan ${totalMissionsDone} misi belajar. Terus lanjutkan untuk membuka fenomena koligatif berikutnya.`
+                  : "Setiap misi membuka satu fenomena nyata: kenapa es puter butuh garam kasar, kenapa cairan radiator mobil tidak mendidih, hingga desalinasi air laut. Kumpulkan XP dan lencana di setiap langkah.")}
             </p>
 
             <div className="hero-cta-group">
@@ -103,8 +112,8 @@ export default function HomePage({
                 className="btn btn-primary"
                 onClick={nextAction.action}
                 style={{
-                  background: totalMissionsDone > 0 ? '#10B981' : '#0284C7',
-                  boxShadow: totalMissionsDone > 0 ? '0 4px 14px rgba(16, 185, 129, 0.3)' : '0 4px 14px rgba(2, 132, 199, 0.3)',
+                  background: isAllMissionsDone ? '#10B981' : (totalMissionsDone > 0 ? '#0284C7' : '#0284C7'),
+                  boxShadow: isAllMissionsDone ? '0 4px 14px rgba(16, 185, 129, 0.35)' : '0 4px 14px rgba(2, 132, 199, 0.3)',
                   padding: '0.85rem 1.8rem',
                   fontSize: '1.05rem'
                 }}
@@ -112,85 +121,220 @@ export default function HomePage({
                 {nextAction.label}
               </button>
 
-              <button
-                type="button"
-                className="btn btn-secondary"
-                onClick={scrollToMissions}
-                style={{ padding: '0.85rem 1.5rem', fontSize: '1rem' }}
-              >
-                Lihat peta misi
-              </button>
+              {isAllMissionsDone ? (
+                <button
+                  type="button"
+                  className="btn btn-secondary"
+                  onClick={onStartPretest}
+                  style={{ padding: '0.85rem 1.5rem', fontSize: '1rem' }}
+                  title="Uji kembali pemahaman awal kamu"
+                >
+                  🔄 Ulangi Pretest / Kuis
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  className="btn btn-secondary"
+                  onClick={scrollToMissions}
+                  style={{ padding: '0.85rem 1.5rem', fontSize: '1rem' }}
+                >
+                  Lihat peta misi
+                </button>
+              )}
             </div>
 
             <span className="hero-subinfo">
-              {totalMissionsDone > 0 
-                ? `✓ ${totalMissionsDone} dari 6 misi telah berhasil dituntaskan`
-                : "Pretest ±10 menit · tidak memengaruhi nilai rapor"}
+              {isAllMissionsDone
+                ? "✓ 6 dari 6 misi telah berhasil dituntaskan dengan sempurna"
+                : (totalMissionsDone > 0 
+                  ? `✓ ${totalMissionsDone} dari 6 misi telah berhasil dituntaskan`
+                  : "Pretest ±10 menit · tidak memengaruhi nilai rapor")}
             </span>
           </div>
 
           {/* Kolom Kanan: Gamification Progress Card */}
           <div className="gamify-card">
             <div className="gamify-header">
-              <div className="progress-circle" style={{ borderColor: totalMissionsDone > 0 ? '#10B981' : '#0284C7' }}>
+              <div className="progress-circle" style={{ borderColor: isAllMissionsDone ? '#10B981' : (totalMissionsDone > 0 ? '#0284C7' : '#94A3B8') }}>
                 <span className="count">{totalMissionsDone}/6</span>
                 <span className="label">misi</span>
               </div>
               <div>
                 <div className="gamify-info-sub">Progres kamu</div>
                 <h3 className="gamify-rank-title" style={{ fontFamily: "'Times New Roman', Times, serif" }}>
-                  {totalMissionsDone >= 4 ? 'Ahli Koligatif' : (totalMissionsDone >= 1 ? 'Peneliti Aktif' : 'Peneliti Pemula')}
+                  {totalMissionsDone >= 5 ? 'Ahli Koligatif' : (totalMissionsDone >= 2 ? 'Peneliti Aktif' : 'Peneliti Pemula')}
                 </h3>
-                <div className="gamify-xp-text" style={{ color: totalMissionsDone > 0 ? '#10B981' : '#0284C7' }}>
-                  {currentXp} XP · {Math.max(0, 100 - currentXp)} XP lagi ke level berikutnya
+                <div className="gamify-xp-text" style={{ color: isAllMissionsDone ? '#10B981' : '#0284C7' }}>
+                  {currentXp} XP · {isAllMissionsDone ? 'Level Maksimal Tercapai' : `${Math.max(0, 170 - currentXp)} XP lagi ke level berikutnya`}
                 </div>
               </div>
             </div>
 
+            {/* B.2 & B.3: Lencana Penguasaan Konsep dengan Status Terbuka / Terkunci yang Jelas */}
             <div className="badges-unlock-container">
-              <div className="badges-unlock-label">Lencana yang bisa kamu buka</div>
-              <div className="badge-slots-row">
+              <div className="badges-unlock-label" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <span>Lencana Penguasaan Konsep</span>
+                <span style={{ fontSize: '0.78rem', color: '#64748B' }}>5 Lencana Kompetensi</span>
+              </div>
+              <div className="badge-slots-row" style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '0.4rem' }}>
+                {/* Lencana 1: Tekanan Uap */}
                 <div 
                   className="badge-slot-box" 
-                  title="Lencana Penurunan Tekanan Uap"
-                  style={{ background: isCh1Completed ? '#ECFDF5' : '#F8FAFC', borderColor: isCh1Completed ? '#10B981' : '#CBD5E1' }}
+                  title={isCh1Completed ? "✓ Dikuasai: Paham Hukum Raoult & fraksi mol (Bab 1 & 2)" : "🔒 Terkunci: Tuntaskan Bab 1 & 2 untuk menguasai Hukum Raoult"}
+                  style={{
+                    background: isCh1Completed ? '#ECFDF5' : '#F8FAFC',
+                    borderColor: isCh1Completed ? '#10B981' : '#CBD5E1',
+                    borderStyle: isCh1Completed ? 'solid' : 'dashed',
+                    boxShadow: isCh1Completed ? '0 2px 8px rgba(16, 185, 129, 0.18)' : 'none'
+                  }}
                 >
-                  <span className="icon" style={{ color: isCh1Completed ? '#10B981' : '#64748B' }}>↓</span>
-                  <span className="title" style={{ color: isCh1Completed ? '#065F46' : '#475569' }}>Uap</span>
+                  <span className="icon" style={{ color: isCh1Completed ? '#10B981' : '#94A3B8' }}>{isCh1Completed ? '↓' : '🔒'}</span>
+                  <span className="title" style={{ color: isCh1Completed ? '#065F46' : '#64748B' }}>Uap</span>
                 </div>
+
+                {/* Lencana 2: Titik Didih */}
                 <div 
                   className="badge-slot-box" 
-                  title="Lencana Kenaikan Titik Didih"
-                  style={{ background: isCh2Completed ? '#ECFDF5' : '#F8FAFC', borderColor: isCh2Completed ? '#10B981' : '#CBD5E1' }}
+                  title={isCh2Completed ? "✓ Dikuasai: Paham Kenaikan Titik Didih ΔTb (Bab 2)" : "🔒 Terkunci: Tuntaskan perhitungan & lab virtual Bab 2"}
+                  style={{
+                    background: isCh2Completed ? '#ECFDF5' : '#F8FAFC',
+                    borderColor: isCh2Completed ? '#10B981' : '#CBD5E1',
+                    borderStyle: isCh2Completed ? 'solid' : 'dashed',
+                    boxShadow: isCh2Completed ? '0 2px 8px rgba(16, 185, 129, 0.18)' : 'none'
+                  }}
                 >
-                  <span className="icon" style={{ color: isCh2Completed ? '#10B981' : '#64748B' }}>💧</span>
+                  <span className="icon" style={{ color: isCh2Completed ? '#10B981' : '#94A3B8' }}>{isCh2Completed ? '💧' : '🔒'}</span>
                   <span className="title" style={{ color: isCh2Completed ? '#065F46' : '#475569' }}>Didih</span>
                 </div>
+
+                {/* Lencana 3: Titik Beku */}
                 <div 
                   className="badge-slot-box" 
-                  title="Lencana Penurunan Titik Beku"
-                  style={{ background: isCh3Completed ? '#ECFDF5' : '#F8FAFC', borderColor: isCh3Completed ? '#10B981' : '#CBD5E1' }}
+                  title={isCh3Completed ? "✓ Dikuasai: Paham Penurunan Titik Beku ΔTf & Diagram Fase (Bab 3)" : "🔒 Terkunci: Tuntaskan kurva pendinginan Bab 3"}
+                  style={{
+                    background: isCh3Completed ? '#ECFDF5' : '#F8FAFC',
+                    borderColor: isCh3Completed ? '#10B981' : '#CBD5E1',
+                    borderStyle: isCh3Completed ? 'solid' : 'dashed',
+                    boxShadow: isCh3Completed ? '0 2px 8px rgba(16, 185, 129, 0.18)' : 'none'
+                  }}
                 >
-                  <span className="icon" style={{ color: isCh3Completed ? '#10B981' : '#64748B' }}>❄️</span>
+                  <span className="icon" style={{ color: isCh3Completed ? '#10B981' : '#94A3B8' }}>{isCh3Completed ? '❄️' : '🔒'}</span>
                   <span className="title" style={{ color: isCh3Completed ? '#065F46' : '#475569' }}>Beku</span>
                 </div>
+
+                {/* Lencana 4: Tekanan Osmotik */}
                 <div 
                   className="badge-slot-box" 
-                  title="Lencana Tekanan Osmotik"
-                  style={{ background: isCh4Completed ? '#ECFDF5' : '#F8FAFC', borderColor: isCh4Completed ? '#10B981' : '#CBD5E1' }}
+                  title={isCh4Completed ? "✓ Dikuasai: Paham Tekanan Osmotik Π & Sel Semipermeabel (Bab 4)" : "🔒 Terkunci: Tuntaskan simulasi osmosis Bab 4"}
+                  style={{
+                    background: isCh4Completed ? '#ECFDF5' : '#F8FAFC',
+                    borderColor: isCh4Completed ? '#10B981' : '#CBD5E1',
+                    borderStyle: isCh4Completed ? 'solid' : 'dashed',
+                    boxShadow: isCh4Completed ? '0 2px 8px rgba(16, 185, 129, 0.18)' : 'none'
+                  }}
                 >
-                  <span className="icon" style={{ color: isCh4Completed ? '#10B981' : '#64748B' }}>➕</span>
+                  <span className="icon" style={{ color: isCh4Completed ? '#10B981' : '#94A3B8' }}>{isCh4Completed ? '➕' : '🔒'}</span>
                   <span className="title" style={{ color: isCh4Completed ? '#065F46' : '#475569' }}>Osmosis</span>
+                </div>
+
+                {/* Lencana 5: Larutan Elektrolit */}
+                <div 
+                  className="badge-slot-box" 
+                  title={isCh5Completed ? "✓ Dikuasai: Paham Faktor van 't Hoff i & Disosiasi Ion (Bab 5)" : "🔒 Terkunci: Tuntaskan perhitungan faktor van 't Hoff Bab 5"}
+                  style={{
+                    background: isCh5Completed ? '#ECFDF5' : '#F8FAFC',
+                    borderColor: isCh5Completed ? '#10B981' : '#CBD5E1',
+                    borderStyle: isCh5Completed ? 'solid' : 'dashed',
+                    boxShadow: isCh5Completed ? '0 2px 8px rgba(16, 185, 129, 0.18)' : 'none'
+                  }}
+                >
+                  <span className="icon" style={{ color: isCh5Completed ? '#10B981' : '#94A3B8' }}>{isCh5Completed ? '⚡' : '🔒'}</span>
+                  <span className="title" style={{ color: isCh5Completed ? '#065F46' : '#475569' }}>Elektrolit</span>
                 </div>
               </div>
             </div>
+
+            {/* B.4: Progres Penguasaan per 5 Konsep Utama Sifat Koligatif */}
+            <div style={{ marginTop: '1.2rem', paddingTop: '0.9rem', borderTop: '1px solid #E2E8F0' }}>
+              <div style={{ fontSize: '0.82rem', fontWeight: 700, color: '#334155', marginBottom: '0.5rem', display: 'flex', justifyContent: 'space-between' }}>
+                <span>Indikator Penguasaan Konsep</span>
+                <span style={{ color: '#0284C7', fontWeight: 800 }}>{completedChapters.length}/5 Tuntas</span>
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
+                {/* 1. Tekanan Uap */}
+                <div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.78rem', marginBottom: '0.15rem' }}>
+                    <span style={{ color: isCh1Completed ? '#065F46' : '#64748B', fontWeight: isCh1Completed ? 700 : 500 }}>
+                      {isCh1Completed ? '✓' : '○'} Penurunan Tekanan Uap (ΔP)
+                    </span>
+                    <span style={{ fontWeight: 700, color: isCh1Completed ? '#10B981' : '#94A3B8' }}>{isCh1Completed ? '100%' : '0%'}</span>
+                  </div>
+                  <div style={{ height: 5, background: '#F1F5F9', borderRadius: 4, overflow: 'hidden' }}>
+                    <div style={{ width: isCh1Completed ? '100%' : '0%', height: '100%', background: '#10B981', transition: 'width 0.4s' }}></div>
+                  </div>
+                </div>
+
+                {/* 2. Titik Didih */}
+                <div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.78rem', marginBottom: '0.15rem' }}>
+                    <span style={{ color: isCh2Completed ? '#065F46' : '#64748B', fontWeight: isCh2Completed ? 700 : 500 }}>
+                      {isCh2Completed ? '✓' : '○'} Kenaikan Titik Didih (ΔTb)
+                    </span>
+                    <span style={{ fontWeight: 700, color: isCh2Completed ? '#10B981' : '#94A3B8' }}>{isCh2Completed ? '100%' : '0%'}</span>
+                  </div>
+                  <div style={{ height: 5, background: '#F1F5F9', borderRadius: 4, overflow: 'hidden' }}>
+                    <div style={{ width: isCh2Completed ? '100%' : '0%', height: '100%', background: '#10B981', transition: 'width 0.4s' }}></div>
+                  </div>
+                </div>
+
+                {/* 3. Titik Beku */}
+                <div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.78rem', marginBottom: '0.15rem' }}>
+                    <span style={{ color: isCh3Completed ? '#065F46' : '#64748B', fontWeight: isCh3Completed ? 700 : 500 }}>
+                      {isCh3Completed ? '✓' : '○'} Penurunan Titik Beku (ΔTf)
+                    </span>
+                    <span style={{ fontWeight: 700, color: isCh3Completed ? '#10B981' : '#94A3B8' }}>{isCh3Completed ? '100%' : '0%'}</span>
+                  </div>
+                  <div style={{ height: 5, background: '#F1F5F9', borderRadius: 4, overflow: 'hidden' }}>
+                    <div style={{ width: isCh3Completed ? '100%' : '0%', height: '100%', background: '#10B981', transition: 'width 0.4s' }}></div>
+                  </div>
+                </div>
+
+                {/* 4. Tekanan Osmotik */}
+                <div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.78rem', marginBottom: '0.15rem' }}>
+                    <span style={{ color: isCh4Completed ? '#065F46' : '#64748B', fontWeight: isCh4Completed ? 700 : 500 }}>
+                      {isCh4Completed ? '✓' : '○'} Tekanan Osmotik (Π)
+                    </span>
+                    <span style={{ fontWeight: 700, color: isCh4Completed ? '#10B981' : '#94A3B8' }}>{isCh4Completed ? '100%' : '0%'}</span>
+                  </div>
+                  <div style={{ height: 5, background: '#F1F5F9', borderRadius: 4, overflow: 'hidden' }}>
+                    <div style={{ width: isCh4Completed ? '100%' : '0%', height: '100%', background: '#10B981', transition: 'width 0.4s' }}></div>
+                  </div>
+                </div>
+
+                {/* 5. Larutan Elektrolit */}
+                <div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.78rem', marginBottom: '0.15rem' }}>
+                    <span style={{ color: isCh5Completed ? '#065F46' : '#64748B', fontWeight: isCh5Completed ? 700 : 500 }}>
+                      {isCh5Completed ? '✓' : '○'} Faktor van 't Hoff Larutan Elektrolit (i)
+                    </span>
+                    <span style={{ fontWeight: 700, color: isCh5Completed ? '#10B981' : '#94A3B8' }}>{isCh5Completed ? '100%' : '0%'}</span>
+                  </div>
+                  <div style={{ height: 5, background: '#F1F5F9', borderRadius: 4, overflow: 'hidden' }}>
+                    <div style={{ width: isCh5Completed ? '100%' : '0%', height: '100%', background: '#10B981', transition: 'width 0.4s' }}></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
           </div>
         </div>
       </section>
 
       {/* =========================================================
           2. FENOMENA SIFAT KOLIGATIF DALAM KEHIDUPAN NYATA
-             (Ilustrasi Cat Air Disematkan Langsung ke Tiap Narasi)
+             (Urutan Berurutan Bab 1 - 5, Seluruh Gambar Utuh Tidak Terpotong)
           ========================================================= */}
       <section style={{
         background: 'rgba(255, 255, 255, 0.94)',
@@ -204,80 +348,84 @@ export default function HomePage({
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1.5rem', flexWrap: 'wrap', gap: '0.75rem' }}>
           <div>
             <span style={{ fontSize: '0.85rem', fontWeight: 700, color: '#0284C7', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-              🎨 Ilustrasi & Penerapan Kehidupan Nyata
+              🎨 Ilustrasi & Fenomena Kehidupan Nyata (Lengkap Bab 1 – 5)
             </span>
             <h2 style={{ fontSize: '1.65rem', fontWeight: 800, margin: '0.25rem 0 0', color: '#0F172A', fontFamily: "'Times New Roman', Times, serif" }}>
               Fenomena Sifat Koligatif dalam Kehidupan Nyata
             </h2>
           </div>
           <span style={{ fontSize: '0.9rem', color: '#0369A1', background: '#F0F9FF', padding: '0.45rem 1rem', borderRadius: '20px', border: '1px solid #BAE6FD', fontWeight: 600 }}>
-            💡 Klik kartu untuk langsung menuju laboratorium materinya
+            💡 Disusun berurutan sesuai bab pembelajaran
           </span>
         </div>
 
-        {/* Grid 4 Kartu Fenomena (Tiap Kartu Berisi Ilustrasi Cat Air Langsung) */}
+        {/* B.5: Grid 6 Kartu Fenomena (Sesuai Urutan Kurikulum Bab 1 s.d. Bab 5) */}
         <div style={{
           display: 'grid',
           gridTemplateColumns: 'repeat(auto-fit, minmax(360px, 1fr))',
           gap: '1.25rem'
         }}>
-          {/* Kartu 1: Penurunan Titik Beku (Es Krim Puter) */}
+          {/* KARTU 1 (Bab 1 & 2): Penurunan Tekanan Uap (ΔP) */}
           <div 
-            onClick={isCh3Unlocked ? () => onGoToChapter('chapter3') : undefined}
+            onClick={isCh1Unlocked ? () => onGoToChapter('chapter1') : undefined}
             style={{
               padding: '1.25rem',
               borderRadius: '18px',
               background: 'rgba(255, 255, 255, 0.98)',
-              border: isCh3Completed ? '2px solid #10B981' : (isCh3Unlocked ? '2px solid #0284C7' : '1.5px solid #E2E8F0'),
-              boxShadow: isCh3Unlocked ? '0 6px 20px rgba(2, 132, 199, 0.08)' : 'none',
-              cursor: isCh3Unlocked ? 'pointer' : 'default',
+              border: isCh1Completed ? '2px solid #10B981' : (isCh1Unlocked ? '2px solid #0284C7' : '1.5px solid #E2E8F0'),
+              boxShadow: isCh1Unlocked ? '0 6px 20px rgba(2, 132, 199, 0.08)' : 'none',
+              cursor: isCh1Unlocked ? 'pointer' : 'default',
               transition: 'all 0.2s ease',
               display: 'flex',
               flexDirection: 'column',
               gap: '1rem'
             }}
-            title={isCh3Unlocked ? "Klik untuk mempelajari Bab 3: Penurunan Titik Beku" : "Selesaikan bab sebelumnya untuk membuka"}
+            title={isCh1Unlocked ? "Klik untuk menuju Bab 1: Konsentrasi & Hakikat Koligatif" : "Selesaikan Pretest untuk membuka"}
           >
             <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+              {/* Container gambar rapi dengan object-fit: contain agar utuh */}
               <div style={{
                 width: '135px',
-                height: '105px',
+                height: '110px',
                 borderRadius: '14px',
                 overflow: 'hidden',
                 flexShrink: 0,
-                border: '1.5px solid #FECACA',
-                background: '#FFF',
-                boxShadow: '0 4px 10px rgba(239, 68, 68, 0.1)'
+                border: '1.5px solid #BAE6FD',
+                background: '#F8FAFC',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                padding: '4px'
               }}>
                 <img 
-                  src={imgTitikBeku} 
-                  alt="Ilustrasi Penurunan Titik Beku (Es Krim)" 
-                  style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                  src={imgTekananUap} 
+                  alt="Ilustrasi Penurunan Tekanan Uap Larutan" 
+                  style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }}
                 />
               </div>
               <div style={{ flex: 1 }}>
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.3rem' }}>
-                  <span style={{ fontSize: '0.78rem', fontWeight: 700, padding: '0.2rem 0.6rem', borderRadius: '8px', background: '#FEF2F2', color: '#991B1B' }}>
-                    BAB 3 · ΔTf
+                  <span style={{ fontSize: '0.78rem', fontWeight: 700, padding: '0.2rem 0.6rem', borderRadius: '8px', background: '#F0F9FF', color: '#0369A1' }}>
+                    BAB 1 & 2 · ΔP
                   </span>
-                  <span style={{ fontSize: '0.82rem', fontWeight: 700, color: isCh3Completed ? '#10B981' : (isCh3Unlocked ? '#0284C7' : '#94A3B8') }}>
-                    {isCh3Completed ? '✓ Selesai' : (isCh3Unlocked ? 'Siap Dipelajari →' : '🔒 Terkunci')}
+                  <span style={{ fontSize: '0.82rem', fontWeight: 700, color: isCh1Completed ? '#10B981' : (isCh1Unlocked ? '#0284C7' : '#94A3B8') }}>
+                    {isCh1Completed ? '✓ Selesai' : (isCh1Unlocked ? 'Siap Dipelajari →' : '🔒 Terkunci')}
                   </span>
                 </div>
                 <h3 style={{ fontSize: '1.2rem', fontWeight: 800, margin: 0, color: '#0F172A', fontFamily: "'Times New Roman', Times, serif" }}>
-                  Penurunan Titik Beku
+                  Penurunan Tekanan Uap
                 </h3>
                 <span style={{ fontSize: '0.88rem', color: '#0284C7', fontWeight: 700, display: 'block', marginTop: '0.15rem' }}>
-                  🍦 Es Krim Puter & Garam Jalan Salju
+                  💨 Hambatan Partikel Terlarut di Permukaan
                 </span>
               </div>
             </div>
             <p style={{ margin: 0, fontSize: '0.94rem', color: '#475569', lineHeight: 1.6 }}>
-              Rahasia pembuatan es puter tradisional tanpa kulkas (menggunakan campuran es batu & garam kasar agar suhu mencapai di bawah 0°C) serta penaburan garam di jalanan bersalju agar es cepat mencair.
+              Molekul zat terlarut nonvolatil (sukar menguap) memenuhi sebagian permukaan larutan, menghalangi molekul pelarut untuk lepas menguap. Akibatnya laju penguapan berkurang dan tekanan uap larutan selalu lebih rendah daripada pelarut murni.
             </p>
           </div>
 
-          {/* Kartu 2: Kenaikan Titik Didih (Panci Mendidih) */}
+          {/* KARTU 2 (Bab 2): Kenaikan Titik Didih (ΔTb) */}
           <div 
             onClick={isCh2Unlocked ? () => onGoToChapter('chapter2') : undefined}
             style={{
@@ -292,23 +440,27 @@ export default function HomePage({
               flexDirection: 'column',
               gap: '1rem'
             }}
-            title={isCh2Unlocked ? "Klik untuk mempelajari Bab 2: Tekanan Uap & Titik Didih" : "Selesaikan bab sebelumnya untuk membuka"}
+            title={isCh2Unlocked ? "Klik untuk menuju Bab 2: Tekanan Uap & Titik Didih" : "Selesaikan bab sebelumnya untuk membuka"}
           >
             <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+              {/* A.2: Gambar kartu Kenaikan Titik Didih utuh tanpa terpotong */}
               <div style={{
                 width: '135px',
-                height: '105px',
+                height: '110px',
                 borderRadius: '14px',
                 overflow: 'hidden',
                 flexShrink: 0,
                 border: '1.5px solid #C7D2FE',
-                background: '#FFF',
-                boxShadow: '0 4px 10px rgba(99, 102, 241, 0.1)'
+                background: '#F8FAFC',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                padding: '4px'
               }}>
                 <img 
                   src={imgTitikDidih} 
                   alt="Ilustrasi Kenaikan Titik Didih (Panci Mendidih)" 
-                  style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                  style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }}
                 />
               </div>
               <div style={{ flex: 1 }}>
@@ -329,11 +481,70 @@ export default function HomePage({
               </div>
             </div>
             <p style={{ margin: 0, fontSize: '0.94rem', color: '#475569', lineHeight: 1.6 }}>
-              Air murni mendidih pada suhu 100°C, namun saat ditambahkan zat terlarut seperti garam atau bumbu, titik didihnya naik di atas 100°C sehingga masakan matang lebih cepat dan empuk merata.
+              Zat cair mendidih ketika tekanan uapnya sama dengan tekanan udara luar. Karena tekanan uap turun akibat zat terlarut, diperlukan pemanasan pada suhu lebih tinggi (di atas 100°C) agar larutan dapat mendidih, membuat masakan lebih cepat matang.
             </p>
           </div>
 
-          {/* Kartu 3: Cairan Radiator Mobil (Etilen Glikol) */}
+          {/* KARTU 3 (Bab 3): Penurunan Titik Beku (ΔTf) */}
+          <div 
+            onClick={isCh3Unlocked ? () => onGoToChapter('chapter3') : undefined}
+            style={{
+              padding: '1.25rem',
+              borderRadius: '18px',
+              background: 'rgba(255, 255, 255, 0.98)',
+              border: isCh3Completed ? '2px solid #10B981' : (isCh3Unlocked ? '2px solid #0284C7' : '1.5px solid #E2E8F0'),
+              boxShadow: isCh3Unlocked ? '0 6px 20px rgba(2, 132, 199, 0.08)' : 'none',
+              cursor: isCh3Unlocked ? 'pointer' : 'default',
+              transition: 'all 0.2s ease',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '1rem'
+            }}
+            title={isCh3Unlocked ? "Klik untuk menuju Bab 3: Penurunan Titik Beku" : "Selesaikan bab sebelumnya untuk membuka"}
+          >
+            <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+              <div style={{
+                width: '135px',
+                height: '110px',
+                borderRadius: '14px',
+                overflow: 'hidden',
+                flexShrink: 0,
+                border: '1.5px solid #FECACA',
+                background: '#F8FAFC',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                padding: '4px'
+              }}>
+                <img 
+                  src={imgTitikBeku} 
+                  alt="Ilustrasi Penurunan Titik Beku (Es Krim)" 
+                  style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }}
+                />
+              </div>
+              <div style={{ flex: 1 }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.3rem' }}>
+                  <span style={{ fontSize: '0.78rem', fontWeight: 700, padding: '0.2rem 0.6rem', borderRadius: '8px', background: '#FEF2F2', color: '#991B1B' }}>
+                    BAB 3 · ΔTf
+                  </span>
+                  <span style={{ fontSize: '0.82rem', fontWeight: 700, color: isCh3Completed ? '#10B981' : (isCh3Unlocked ? '#0284C7' : '#94A3B8') }}>
+                    {isCh3Completed ? '✓ Selesai' : (isCh3Unlocked ? 'Siap Dipelajari →' : '🔒 Terkunci')}
+                  </span>
+                </div>
+                <h3 style={{ fontSize: '1.2rem', fontWeight: 800, margin: 0, color: '#0F172A', fontFamily: "'Times New Roman', Times, serif" }}>
+                  Penurunan Titik Beku
+                </h3>
+                <span style={{ fontSize: '0.88rem', color: '#0284C7', fontWeight: 700, display: 'block', marginTop: '0.15rem' }}>
+                  🍦 Es Krim Puter & Garam Jalan Salju
+                </span>
+              </div>
+            </div>
+            <p style={{ margin: 0, fontSize: '0.94rem', color: '#475569', lineHeight: 1.6 }}>
+              Zat terlarut merintangi molekul pelarut untuk membentuk kisi kristal padat, sehingga larutan baru membeku pada suhu di bawah 0°C. Prinsip ini digunakan pedagang es puter (campuran es batu dan garam kasar mencapai suhu -5°C) serta pencairan es di jalan salju.
+            </p>
+          </div>
+
+          {/* KARTU 4 (Bab 2 & 3): Cairan Radiator Mobil (A.1: Label HTML Benar Kenaikan Titik Didih & Penurunan Titik Beku) */}
           <div 
             onClick={isCh2Unlocked ? () => onGoToChapter('chapter2') : undefined}
             style={{
@@ -348,23 +559,27 @@ export default function HomePage({
               flexDirection: 'column',
               gap: '1rem'
             }}
-            title={isCh2Unlocked ? "Klik untuk mempelajari penerapan titik didih & beku" : "Selesaikan bab sebelumnya untuk membuka"}
+            title={isCh2Unlocked ? "Klik untuk menuju Bab 2 & 3: Penerapan Didih & Beku" : "Selesaikan bab sebelumnya untuk membuka"}
           >
             <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
               <div style={{
                 width: '135px',
-                height: '105px',
+                height: '110px',
                 borderRadius: '14px',
                 overflow: 'hidden',
                 flexShrink: 0,
                 border: '1.5px solid #BBF7D0',
-                background: '#FFF',
-                boxShadow: '0 4px 10px rgba(34, 197, 94, 0.1)'
+                background: '#F8FAFC',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                padding: '4px',
+                position: 'relative'
               }}>
                 <img 
                   src={imgRadiator} 
                   alt="Ilustrasi Cairan Radiator Mobil" 
-                  style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                  style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }}
                 />
               </div>
               <div style={{ flex: 1 }}>
@@ -379,17 +594,18 @@ export default function HomePage({
                 <h3 style={{ fontSize: '1.2rem', fontWeight: 800, margin: 0, color: '#0F172A', fontFamily: "'Times New Roman', Times, serif" }}>
                   Cairan Radiator Mobil
                 </h3>
+                {/* A.1: Label HTML yang benar secara kimia */}
                 <span style={{ fontSize: '0.88rem', color: '#0284C7', fontWeight: 700, display: 'block', marginTop: '0.15rem' }}>
-                  🚗 Pendingin Mesin (Etilen Glikol)
+                  🚗 Kenaikan Titik Didih & Penurunan Titik Beku
                 </span>
               </div>
             </div>
             <p style={{ margin: 0, fontSize: '0.94rem', color: '#475569', lineHeight: 1.6 }}>
-              Penerapan ganda sifat koligatif: menaikkan titik didih cairan radiator agar mesin tidak overheat saat cuaca terik, sekaligus menurunkan titik beku agar radiator tidak membeku saat musim dingin.
+              Cairan radiator (campuran air dan etilen glikol) memanfaatkan dua sifat koligatif sekaligus: <strong>menaikkan titik didih</strong> agar air radiator tidak mendidih/overheat saat mesin bekerja panas, dan <strong>menurunkan titik beku</strong> agar tidak membeku saat musim salju.
             </p>
           </div>
 
-          {/* Kartu 4: Tekanan Osmotik (Mentimun & Desalinasi) */}
+          {/* KARTU 5 (Bab 4): Tekanan Osmotik & Osmosis Balik (A.3: Pisahkan & Jelaskan Perbedaan Osmosis vs Reverse Osmosis) */}
           <div 
             onClick={isCh4Unlocked ? () => onGoToChapter('chapter4') : undefined}
             style={{
@@ -404,23 +620,26 @@ export default function HomePage({
               flexDirection: 'column',
               gap: '1rem'
             }}
-            title={isCh4Unlocked ? "Klik untuk mempelajari Bab 4: Tekanan Osmotik" : "Selesaikan bab sebelumnya untuk membuka"}
+            title={isCh4Unlocked ? "Klik untuk menuju Bab 4: Tekanan Osmotik" : "Selesaikan bab sebelumnya untuk membuka"}
           >
             <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
               <div style={{
                 width: '135px',
-                height: '105px',
+                height: '110px',
                 borderRadius: '14px',
                 overflow: 'hidden',
                 flexShrink: 0,
                 border: '1.5px solid #BAE6FD',
-                background: '#FFF',
-                boxShadow: '0 4px 10px rgba(2, 132, 199, 0.1)'
+                background: '#F8FAFC',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                padding: '4px'
               }}>
                 <img 
                   src={imgMentimun} 
                   alt="Ilustrasi Tekanan Osmotik (Acar Mentimun)" 
-                  style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                  style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }}
                 />
               </div>
               <div style={{ flex: 1 }}>
@@ -433,15 +652,76 @@ export default function HomePage({
                   </span>
                 </div>
                 <h3 style={{ fontSize: '1.2rem', fontWeight: 800, margin: 0, color: '#0F172A', fontFamily: "'Times New Roman', Times, serif" }}>
-                  Tekanan Osmotik
+                  Tekanan Osmotik & Osmosis Balik
                 </h3>
                 <span style={{ fontSize: '0.88rem', color: '#0284C7', fontWeight: 700, display: 'block', marginTop: '0.15rem' }}>
-                  🥒 Acar Mentimun & Desalinasi Air
+                  🥒 Acar Mentimun vs 🌊 Desalinasi Air Laut
+                </span>
+              </div>
+            </div>
+            {/* A.3: Keterangan jelas memisahkan osmosis alami dan osmosis balik */}
+            <p style={{ margin: 0, fontSize: '0.94rem', color: '#475569', lineHeight: 1.6 }}>
+              <strong>(1) Osmosis Alami:</strong> molekul air dalam sel mentimun berpindah spontan menembus membran ke larutan garam pekat sehingga berkerut menjadi acar. <br />
+              <strong>(2) Osmosis Balik (Reverse Osmosis):</strong> diberikan tekanan luar melebihi tekanan osmotik (P<sub>luar</sub> &gt; Π) untuk membalik arah aliran, menyaring molekul air murni dari air laut.
+            </p>
+          </div>
+
+          {/* KARTU 6 (Bab 5): Sifat Koligatif Larutan Elektrolit & van 't Hoff (i) */}
+          <div 
+            onClick={isCh5Unlocked ? () => onGoToChapter('chapter5') : undefined}
+            style={{
+              padding: '1.25rem',
+              borderRadius: '18px',
+              background: 'rgba(255, 255, 255, 0.98)',
+              border: isCh5Completed ? '2px solid #10B981' : (isCh5Unlocked ? '2px solid #0284C7' : '1.5px solid #E2E8F0'),
+              boxShadow: isCh5Unlocked ? '0 6px 20px rgba(2, 132, 199, 0.08)' : 'none',
+              cursor: isCh5Unlocked ? 'pointer' : 'default',
+              transition: 'all 0.2s ease',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '1rem'
+            }}
+            title={isCh5Unlocked ? "Klik untuk menuju Bab 5: Larutan Elektrolit" : "Selesaikan bab sebelumnya untuk membuka"}
+          >
+            <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+              <div style={{
+                width: '135px',
+                height: '110px',
+                borderRadius: '14px',
+                overflow: 'hidden',
+                flexShrink: 0,
+                border: '1.5px solid #DDD6FE',
+                background: '#F8FAFC',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                padding: '4px'
+              }}>
+                <img 
+                  src={imgElektrolit} 
+                  alt="Ilustrasi Partikel Elektrolit NaCl vs Nonelektrolit" 
+                  style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }}
+                />
+              </div>
+              <div style={{ flex: 1 }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.3rem' }}>
+                  <span style={{ fontSize: '0.78rem', fontWeight: 700, padding: '0.2rem 0.6rem', borderRadius: '8px', background: '#F5F3FF', color: '#5B21B6' }}>
+                    BAB 5 · i (van 't Hoff)
+                  </span>
+                  <span style={{ fontSize: '0.82rem', fontWeight: 700, color: isCh5Completed ? '#10B981' : (isCh5Unlocked ? '#0284C7' : '#94A3B8') }}>
+                    {isCh5Completed ? '✓ Selesai' : (isCh5Unlocked ? 'Siap Dipelajari →' : '🔒 Terkunci')}
+                  </span>
+                </div>
+                <h3 style={{ fontSize: '1.2rem', fontWeight: 800, margin: 0, color: '#0F172A', fontFamily: "'Times New Roman', Times, serif" }}>
+                  Larutan Elektrolit
+                </h3>
+                <span style={{ fontSize: '0.88rem', color: '#0284C7', fontWeight: 700, display: 'block', marginTop: '0.15rem' }}>
+                  ⚡ Multiplikasi Ion: Garam Dapur vs Gula
                 </span>
               </div>
             </div>
             <p style={{ margin: 0, fontSize: '0.94rem', color: '#475569', lineHeight: 1.6 }}>
-              Air dalam sel mentimun keluar saat direndam larutan garam pekat sehingga berkerut menjadi acar. Prinsip kebalikannya (reverse osmosis) digunakan menyaring air laut menjadi air tawar bersih layak minum.
+              Karena sifat koligatif hanya bergantung pada jumlah partikel, zat elektrolit seperti garam dapur (NaCl → Na⁺ + Cl⁻) menghasilkan partikel dua kali lipat lebih banyak daripada nonelektrolit (gula) pada konsentrasi molal yang sama, sehingga efek koligatifnya dilipatgandakan oleh faktor van 't Hoff (i).
             </p>
           </div>
         </div>

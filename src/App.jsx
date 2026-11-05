@@ -26,7 +26,7 @@ import TeacherDashboard from './features/teacher/TeacherDashboard';
  * 
  * Mengatur alur:
  * - Login: Siswa (Nama & Kelas) | Guru (Password 'kimiaasik')
- * - 'home': Beranda interaktif KoligatifLab 11 (Hero, Peta Misi dinamis)
+ * - 'home': Beranda interaktif KimiKoli (Hero, Peta Misi dinamis)
  * - 'pretest': Soal Pretest Prasyarat (Mode Ujian Terkunci)
  * - 'chapter1' - 'chapter6': Modul Materi & Lab Virtual Berurutan (Sequential Unlocking)
  * - 'teacher-dashboard': Panel Khusus Guru melihat rekap nilai & progres siswa
@@ -164,7 +164,7 @@ export default function App() {
   // =========================================================
   return (
     <div className="app-container" style={{ fontFamily: "'Times New Roman', Times, serif" }}>
-      {/* 1. Navbar KoligatifLab 11 dengan Profil & Panel Guru */}
+      {/* 1. Navbar KimiKoli dengan Profil & Panel Guru */}
       <Header
         currentView={currentView}
         onSelectTab={(tabId) => {
@@ -188,7 +188,7 @@ export default function App() {
           />
         )}
 
-        {/* Tampilan 1: Beranda KoligatifLab 11 (Peta Misi Dinamis) */}
+        {/* Tampilan 1: Beranda KimiKoli (Peta Misi Dinamis) */}
         {currentView === 'home' && (
           <HomePage
             isPretestDone={isPretestCompleted}

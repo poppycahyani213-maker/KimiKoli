@@ -44,7 +44,7 @@ export default function Header({
           className="brand-link" 
           onClick={() => handleNavClick('home')}
           style={{ cursor: isExamLocked ? 'not-allowed' : 'pointer' }}
-          title={isExamLocked ? "Navigasi dikunci saat pretest berlangsung" : "Menuju Beranda KoligatifLab 11"}
+          title={isExamLocked ? "Navigasi dikunci saat pretest berlangsung" : "Menuju Beranda KimiKoli"}
         >
           <div className="brand-icon" style={{ background: isExamLocked ? '#475569' : '#0284C7' }}>
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
@@ -54,7 +54,7 @@ export default function Header({
             </svg>
           </div>
           <span className="brand-text">
-            Koligatif<span>Lab 11</span>
+            Kimi<span>Koli</span>
           </span>
         </div>
 

@@ -1,6 +1,6 @@
 /**
  * LocalStorage wrapper with safe JSON parsing and error handling.
- * Conforms to KoligatifLab 11 storage specification.
+ * Conforms to KimiKoli storage specification.
  */
 
 const STORAGE_KEYS = {

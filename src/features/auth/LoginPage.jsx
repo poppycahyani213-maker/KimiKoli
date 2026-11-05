@@ -1,13 +1,12 @@
 import React, { useState } from 'react';
-import illustrationImg from '../../assets/colligative-illustration.jpg';
+import bgImg from '../../assets/kimikoli-bg.jpg';
 
 /**
  * Komponen LoginPage
  * 
+ * Menggunakan background nuansa cat air sifat koligatif larutan KimiKoli.
  * Fitur:
- * - Menampilkan karya ilustrasi cat air fenomena Sifat Koligatif Larutan
- *   (Es Krim, Air Mendidih, Garam pada Es, Cairan Radiator, Mentimun, dan Desalinasi Air Laut)
- * - Tab Masuk: Siswa (Nama & Kelas) | Guru (Password rahasia tanpa teks bocoran)
+ * - Tab Masuk: Siswa (Nama & Kelas) | Guru (Password rahasia)
  */
 export default function LoginPage({ onLoginSuccess }) {
   const [activeRole, setActiveRole] = useState('student'); // 'student' | 'teacher'
@@ -66,50 +65,55 @@ export default function LoginPage({ onLoginSuccess }) {
       alignItems: 'center',
       justifyContent: 'center',
       padding: 'clamp(1rem, 3vw, 2.5rem)',
-      backgroundImage: `linear-gradient(135deg, rgba(15, 23, 42, 0.38), rgba(2, 132, 199, 0.3)), url(${illustrationImg})`,
+      backgroundImage: `linear-gradient(135deg, rgba(240, 249, 255, 0.25), rgba(255, 255, 255, 0.35)), url(${bgImg})`,
       backgroundPosition: 'center',
       backgroundSize: 'cover',
       backgroundRepeat: 'no-repeat',
+      backgroundAttachment: 'fixed',
       fontFamily: "'Times New Roman', Times, serif"
     }}>
-      {/* Form Login */}
+      {/* Form Login Card dengan Efek Halus & Bayangan Lembut */}
       <div style={{
-        background: '#FFFFFF',
-        border: '1px solid #E2E8F0',
+        background: 'rgba(255, 255, 255, 0.94)',
+        backdropFilter: 'blur(10px)',
+        border: '1.5px solid rgba(255, 255, 255, 0.8)',
         borderRadius: '24px',
-        maxWidth: '520px',
+        maxWidth: '500px',
         width: '100%',
-        boxShadow: '0 20px 45px rgba(15, 23, 42, 0.08)',
+        boxShadow: '0 20px 45px rgba(2, 132, 199, 0.12), 0 4px 16px rgba(15, 23, 42, 0.06)',
         overflow: 'hidden'
       }}>
         <div style={{
-          padding: 'clamp(1.75rem, 3.5vw, 2.75rem)',
+          padding: 'clamp(1.75rem, 3.5vw, 2.5rem)',
           display: 'flex',
           flexDirection: 'column',
           justifyContent: 'center'
         }}>
-          {/* Logo & Judul Brand */}
+          {/* Logo & Judul Brand KimiKoli */}
           <div style={{ textAlign: 'center', marginBottom: '1.5rem' }}>
             <div style={{
-              width: 44,
-              height: 44,
-              borderRadius: 12,
+              width: 48,
+              height: 48,
+              borderRadius: 14,
               background: 'linear-gradient(135deg, #0284C7, #06B6D4)',
               color: '#FFFFFF',
               display: 'inline-flex',
               alignItems: 'center',
               justifyContent: 'center',
-              fontSize: '1.35rem',
-              marginBottom: '0.5rem',
-              boxShadow: '0 4px 12px rgba(2, 132, 199, 0.25)'
+              fontSize: '1.4rem',
+              marginBottom: '0.65rem',
+              boxShadow: '0 4px 14px rgba(2, 132, 199, 0.3)'
             }}>
               🧪
             </div>
-            <h1 style={{ fontSize: '1.6rem', fontWeight: 800, margin: '0 0 0.2rem', color: '#0F172A' }}>
-              KimiKoli-Sifat Koligatif Larutan
+            <h1 style={{ fontSize: '1.85rem', fontWeight: 800, margin: '0 0 0.2rem', color: '#0F172A', letterSpacing: '-0.02em' }}>
+              Kimi<span style={{ color: '#0284C7' }}>Koli</span>
             </h1>
-            <p style={{ margin: 0, fontSize: '0.9rem', color: '#64748B' }}>
-              Masuk untuk memulai kursus & laboratorium virtual
+            <span style={{ display: 'block', fontSize: '0.85rem', color: '#0369A1', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '0.35rem' }}>
+              Sifat Koligatif Larutan • Kelas 11 SMA
+            </span>
+            <p style={{ margin: 0, fontSize: '0.92rem', color: '#64748B' }}>
+              Masuk untuk memulai pembelajaran & laboratorium virtual
             </p>
           </div>
 
@@ -246,7 +250,7 @@ export default function LoginPage({ onLoginSuccess }) {
                   boxShadow: '0 4px 14px rgba(2, 132, 199, 0.25)'
                 }}
               >
-                Masuk ke Pembelajaran 🚀
+                Yuk, Mulai Eksplorasi! 🚀
               </button>
             </form>
           )}

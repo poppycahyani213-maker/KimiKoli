@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
+import colligativeIllustration from '../../assets/colligative-illustration.jpg';
 
 /**
- * Komponen HomePage (Beranda KoligatifLab 11)
+ * Komponen HomePage (Beranda KimiKoli)
  * 
  * Dinamis mengikuti progres belajar berurutan (Sequential Learning Path):
  * - Siswa menyelesaikan satu materi -> materi selanjutnya OTOMATIS TERBUKA.
@@ -61,15 +62,23 @@ export default function HomePage({
   return (
     <div className="fade-in" style={{ maxWidth: 'var(--max-content-width)', margin: '0 auto', paddingBottom: '2.5rem', fontFamily: "'Times New Roman', Times, serif" }}>
       {/* =========================================================
-          1. HERO SECTION (2 KOLOM)
+          1. HERO SECTION (2 KOLOM DENGAN NUANSA KIMIKOLI)
           ========================================================= */}
-      <section className="hero-section">
+      <section className="hero-section" style={{
+        background: 'rgba(255, 255, 255, 0.88)',
+        backdropFilter: 'blur(12px)',
+        padding: 'clamp(1.5rem, 3vw, 2.5rem)',
+        borderRadius: '24px',
+        border: '1.5px solid rgba(255, 255, 255, 0.95)',
+        boxShadow: '0 12px 35px rgba(2, 132, 199, 0.08)',
+        marginBottom: '2.5rem'
+      }}>
         <div className="hero-grid">
           {/* Kolom Kiri: Headline & CTA */}
           <div>
             <div className="hero-tag">
               <span>🔬</span>
-              <span>Kelas XI · Sifat Koligatif Larutan</span>
+              <span>KimiKoli · Sifat Koligatif Larutan Kelas XI SMA</span>
             </div>
 
             <h1 className="hero-title" style={{ fontFamily: "'Times New Roman', Times, serif" }}>
@@ -174,7 +183,152 @@ export default function HomePage({
       </section>
 
       {/* =========================================================
-          2. PETA MISI (6 KARTU TAHAPAN BERURUTAN)
+          2. INFOGRAFIS VISUAL CAT AIR (KIMIKOLI EXPLORER)
+          ========================================================= */}
+      <section style={{
+        background: 'rgba(255, 255, 255, 0.92)',
+        backdropFilter: 'blur(12px)',
+        padding: 'clamp(1.5rem, 3vw, 2.25rem)',
+        borderRadius: '24px',
+        border: '1.5px solid rgba(255, 255, 255, 0.95)',
+        boxShadow: '0 12px 35px rgba(2, 132, 199, 0.08)',
+        marginBottom: '2.5rem'
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1.25rem', flexWrap: 'wrap', gap: '0.75rem' }}>
+          <div>
+            <span style={{ fontSize: '0.85rem', fontWeight: 700, color: '#0284C7', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+              🎨 Ilustrasi Konsep Kimia KimiKoli
+            </span>
+            <h2 style={{ fontSize: '1.6rem', fontWeight: 800, margin: '0.25rem 0 0', color: '#0F172A', fontFamily: "'Times New Roman', Times, serif" }}>
+              Fenomena Sifat Koligatif dalam Kehidupan Nyata
+            </h2>
+          </div>
+          <span style={{ fontSize: '0.9rem', color: '#0369A1', background: '#F0F9FF', padding: '0.4rem 0.9rem', borderRadius: '20px', border: '1px solid #BAE6FD', fontWeight: 600 }}>
+            💡 Klik materi untuk langsung menuju lab pembelajarannya
+          </span>
+        </div>
+
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '1.5rem', alignItems: 'center' }}>
+          {/* Gambar Ilustrasi Cat Air */}
+          <div style={{ borderRadius: '18px', overflow: 'hidden', boxShadow: '0 8px 24px rgba(2, 132, 199, 0.15)', border: '2px solid #E0F2FE', background: '#FFF' }}>
+            <img 
+              src={colligativeIllustration} 
+              alt="Ilustrasi Cat Air Sifat Koligatif Larutan KimiKoli" 
+              style={{ width: '100%', height: 'auto', display: 'block', objectFit: 'contain' }}
+            />
+          </div>
+
+          {/* Ringkasan 4 Sifat Koligatif Larutan Berdasarkan Ilustrasi */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem' }}>
+            <div 
+              onClick={isCh3Unlocked ? () => onGoToChapter('chapter3') : undefined}
+              style={{
+                padding: '0.9rem 1.1rem',
+                borderRadius: '14px',
+                background: 'rgba(254, 242, 242, 0.85)',
+                border: '1.5px solid #FECACA',
+                cursor: isCh3Unlocked ? 'pointer' : 'default',
+                transition: 'all 0.2s ease',
+                display: 'flex',
+                gap: '0.85rem',
+                alignItems: 'flex-start'
+              }}
+              title={isCh3Unlocked ? "Klik untuk menuju Bab 3" : "Selesaikan bab sebelumnya untuk membuka"}
+            >
+              <span style={{ fontSize: '1.6rem' }}>🍦</span>
+              <div>
+                <strong style={{ display: 'block', color: '#991B1B', fontSize: '1.02rem', marginBottom: '0.2rem' }}>
+                  Penurunan Titik Beku (ΔTf) {isCh3Unlocked ? '→' : '🔒'}
+                </strong>
+                <span style={{ fontSize: '0.9rem', color: '#475569', lineHeight: 1.45, display: 'block' }}>
+                  Rahasia pembuatan es puter dan penaburan garam di jalanan bersalju agar es cepat mencair.
+                </span>
+              </div>
+            </div>
+
+            <div 
+              onClick={isCh2Unlocked ? () => onGoToChapter('chapter2') : undefined}
+              style={{
+                padding: '0.9rem 1.1rem',
+                borderRadius: '14px',
+                background: 'rgba(238, 242, 255, 0.85)',
+                border: '1.5px solid #C7D2FE',
+                cursor: isCh2Unlocked ? 'pointer' : 'default',
+                transition: 'all 0.2s ease',
+                display: 'flex',
+                gap: '0.85rem',
+                alignItems: 'flex-start'
+              }}
+              title={isCh2Unlocked ? "Klik untuk menuju Bab 2" : "Selesaikan bab sebelumnya untuk membuka"}
+            >
+              <span style={{ fontSize: '1.6rem' }}>🫕</span>
+              <div>
+                <strong style={{ display: 'block', color: '#3730A3', fontSize: '1.02rem', marginBottom: '0.2rem' }}>
+                  Kenaikan Titik Didih (ΔTb) {isCh2Unlocked ? '→' : '🔒'}
+                </strong>
+                <span style={{ fontSize: '0.9rem', color: '#475569', lineHeight: 1.45, display: 'block' }}>
+                  Air garam mendidih pada suhu lebih tinggi (di atas 100°C), memasak makanan lebih cepat matang.
+                </span>
+              </div>
+            </div>
+
+            <div 
+              onClick={isCh2Unlocked ? () => onGoToChapter('chapter2') : undefined}
+              style={{
+                padding: '0.9rem 1.1rem',
+                borderRadius: '14px',
+                background: 'rgba(240, 253, 244, 0.85)',
+                border: '1.5px solid #BBF7D0',
+                cursor: isCh2Unlocked ? 'pointer' : 'default',
+                transition: 'all 0.2s ease',
+                display: 'flex',
+                gap: '0.85rem',
+                alignItems: 'flex-start'
+              }}
+              title={isCh2Unlocked ? "Klik untuk menuju Bab 2" : "Selesaikan bab sebelumnya untuk membuka"}
+            >
+              <span style={{ fontSize: '1.6rem' }}>🚗</span>
+              <div>
+                <strong style={{ display: 'block', color: '#166534', fontSize: '1.02rem', marginBottom: '0.2rem' }}>
+                  Cairan Radiator Mobil (Etilen Glikol) {isCh2Unlocked ? '→' : '🔒'}
+                </strong>
+                <span style={{ fontSize: '0.9rem', color: '#475569', lineHeight: 1.45, display: 'block' }}>
+                  Menaikkan titik didih agar mesin mobil tidak mendidih dan menurunkan titik beku saat musim dingin.
+                </span>
+              </div>
+            </div>
+
+            <div 
+              onClick={isCh4Unlocked ? () => onGoToChapter('chapter4') : undefined}
+              style={{
+                padding: '0.9rem 1.1rem',
+                borderRadius: '14px',
+                background: 'rgba(240, 249, 255, 0.85)',
+                border: '1.5px solid #BAE6FD',
+                cursor: isCh4Unlocked ? 'pointer' : 'default',
+                transition: 'all 0.2s ease',
+                display: 'flex',
+                gap: '0.85rem',
+                alignItems: 'flex-start'
+              }}
+              title={isCh4Unlocked ? "Klik untuk menuju Bab 4" : "Selesaikan bab sebelumnya untuk membuka"}
+            >
+              <span style={{ fontSize: '1.6rem' }}>🥒</span>
+              <div>
+                <strong style={{ display: 'block', color: '#075985', fontSize: '1.02rem', marginBottom: '0.2rem' }}>
+                  Tekanan Osmotik (Π) & Desalinasi {isCh4Unlocked ? '→' : '🔒'}
+                </strong>
+                <span style={{ fontSize: '0.9rem', color: '#475569', lineHeight: 1.45, display: 'block' }}>
+                  Kerutan pada acar mentimun dan teknologi pemurnian air laut (*reverse osmosis*) menjadi air tawar.
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* =========================================================
+          3. PETA MISI (6 KARTU TAHAPAN BERURUTAN)
           ========================================================= */}
       <section id="peta-misi-section" className="mission-section">
         <div className="mission-header-row">

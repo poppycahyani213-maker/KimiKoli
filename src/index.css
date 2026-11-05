@@ -11,9 +11,18 @@
 html, body {
   margin: 0;
   padding: 0;
-  background-color: var(--bg-primary);
+  background-color: #F0F9FF;
+  /* Background Nuansa Cat Air Sifat Koligatif Larutan KimiKoli */
+  background-image: 
+    linear-gradient(180deg, rgba(255, 255, 255, 0.40) 0%, rgba(240, 249, 255, 0.50) 100%), 
+    url('/images/kimikoli-bg.jpg');
+  background-position: center top;
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
   min-height: 100vh;
   font-family: 'Times New Roman', Times, serif;
+  color: var(--text-main);
 }
 
 button, input, select, textarea {
@@ -46,6 +55,33 @@ button, input, select, textarea {
   flex: 1;
   padding: 2rem 2.5rem;
   overflow-y: auto;
+}
+
+/* Efek Elegan untuk Kartu di atas Background Nuansa Cat Air */
+.navbar-wrapper {
+  background: rgba(255, 255, 255, 0.92) !important;
+  backdrop-filter: blur(12px) !important;
+  border-bottom: 1px solid rgba(226, 232, 240, 0.85) !important;
+}
+
+.gamify-card {
+  background: rgba(255, 255, 255, 0.94) !important;
+  backdrop-filter: blur(10px) !important;
+  border: 1.5px solid rgba(255, 255, 255, 0.9) !important;
+}
+
+.mission-card {
+  background: rgba(255, 255, 255, 0.95) !important;
+  backdrop-filter: blur(8px) !important;
+}
+
+.mission-card.locked-card {
+  background: rgba(248, 250, 252, 0.88) !important;
+}
+
+.card {
+  background: rgba(255, 255, 255, 0.95) !important;
+  backdrop-filter: blur(8px) !important;
 }
 
 /* Penyesuaian Responsivitas Layar Tablet & Ponsel */

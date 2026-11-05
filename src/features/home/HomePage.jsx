@@ -1,5 +1,8 @@
 import React, { useState } from 'react';
-import colligativeIllustration from '../../assets/colligative-illustration.jpg';
+import imgTitikBeku from '../../assets/fenomena-titik-beku.jpg';
+import imgTitikDidih from '../../assets/fenomena-titik-didih.jpg';
+import imgRadiator from '../../assets/fenomena-radiator.jpg';
+import imgMentimun from '../../assets/fenomena-mentimun.jpg';
 
 /**
  * Komponen HomePage (Beranda KimiKoli)
@@ -183,10 +186,11 @@ export default function HomePage({
       </section>
 
       {/* =========================================================
-          2. INFOGRAFIS VISUAL CAT AIR (KIMIKOLI EXPLORER)
+          2. FENOMENA SIFAT KOLIGATIF DALAM KEHIDUPAN NYATA
+             (Ilustrasi Cat Air Disematkan Langsung ke Tiap Narasi)
           ========================================================= */}
       <section style={{
-        background: 'rgba(255, 255, 255, 0.92)',
+        background: 'rgba(255, 255, 255, 0.94)',
         backdropFilter: 'blur(12px)',
         padding: 'clamp(1.5rem, 3vw, 2.25rem)',
         borderRadius: '24px',
@@ -194,135 +198,248 @@ export default function HomePage({
         boxShadow: '0 12px 35px rgba(2, 132, 199, 0.08)',
         marginBottom: '2.5rem'
       }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1.25rem', flexWrap: 'wrap', gap: '0.75rem' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1.5rem', flexWrap: 'wrap', gap: '0.75rem' }}>
           <div>
             <span style={{ fontSize: '0.85rem', fontWeight: 700, color: '#0284C7', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-              🎨 Ilustrasi Konsep Kimia KimiKoli
+              🎨 Ilustrasi & Penerapan Kehidupan Nyata
             </span>
-            <h2 style={{ fontSize: '1.6rem', fontWeight: 800, margin: '0.25rem 0 0', color: '#0F172A', fontFamily: "'Times New Roman', Times, serif" }}>
+            <h2 style={{ fontSize: '1.65rem', fontWeight: 800, margin: '0.25rem 0 0', color: '#0F172A', fontFamily: "'Times New Roman', Times, serif" }}>
               Fenomena Sifat Koligatif dalam Kehidupan Nyata
             </h2>
           </div>
-          <span style={{ fontSize: '0.9rem', color: '#0369A1', background: '#F0F9FF', padding: '0.4rem 0.9rem', borderRadius: '20px', border: '1px solid #BAE6FD', fontWeight: 600 }}>
-            💡 Klik materi untuk langsung menuju lab pembelajarannya
+          <span style={{ fontSize: '0.9rem', color: '#0369A1', background: '#F0F9FF', padding: '0.45rem 1rem', borderRadius: '20px', border: '1px solid #BAE6FD', fontWeight: 600 }}>
+            💡 Klik kartu untuk langsung menuju laboratorium materinya
           </span>
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '1.5rem', alignItems: 'center' }}>
-          {/* Gambar Ilustrasi Cat Air */}
-          <div style={{ borderRadius: '18px', overflow: 'hidden', boxShadow: '0 8px 24px rgba(2, 132, 199, 0.15)', border: '2px solid #E0F2FE', background: '#FFF' }}>
-            <img 
-              src={colligativeIllustration} 
-              alt="Ilustrasi Cat Air Sifat Koligatif Larutan KimiKoli" 
-              style={{ width: '100%', height: 'auto', display: 'block', objectFit: 'contain' }}
-            />
+        {/* Grid 4 Kartu Fenomena (Tiap Kartu Berisi Ilustrasi Cat Air Langsung) */}
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(360px, 1fr))',
+          gap: '1.25rem'
+        }}>
+          {/* Kartu 1: Penurunan Titik Beku (Es Krim Puter) */}
+          <div 
+            onClick={isCh3Unlocked ? () => onGoToChapter('chapter3') : undefined}
+            style={{
+              padding: '1.25rem',
+              borderRadius: '18px',
+              background: 'rgba(255, 255, 255, 0.98)',
+              border: isCh3Completed ? '2px solid #10B981' : (isCh3Unlocked ? '2px solid #0284C7' : '1.5px solid #E2E8F0'),
+              boxShadow: isCh3Unlocked ? '0 6px 20px rgba(2, 132, 199, 0.08)' : 'none',
+              cursor: isCh3Unlocked ? 'pointer' : 'default',
+              transition: 'all 0.2s ease',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '1rem'
+            }}
+            title={isCh3Unlocked ? "Klik untuk mempelajari Bab 3: Penurunan Titik Beku" : "Selesaikan bab sebelumnya untuk membuka"}
+          >
+            <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+              <div style={{
+                width: '135px',
+                height: '105px',
+                borderRadius: '14px',
+                overflow: 'hidden',
+                flexShrink: 0,
+                border: '1.5px solid #FECACA',
+                background: '#FFF',
+                boxShadow: '0 4px 10px rgba(239, 68, 68, 0.1)'
+              }}>
+                <img 
+                  src={imgTitikBeku} 
+                  alt="Ilustrasi Penurunan Titik Beku (Es Krim)" 
+                  style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                />
+              </div>
+              <div style={{ flex: 1 }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.3rem' }}>
+                  <span style={{ fontSize: '0.78rem', fontWeight: 700, padding: '0.2rem 0.6rem', borderRadius: '8px', background: '#FEF2F2', color: '#991B1B' }}>
+                    BAB 3 · ΔTf
+                  </span>
+                  <span style={{ fontSize: '0.82rem', fontWeight: 700, color: isCh3Completed ? '#10B981' : (isCh3Unlocked ? '#0284C7' : '#94A3B8') }}>
+                    {isCh3Completed ? '✓ Selesai' : (isCh3Unlocked ? 'Siap Dipelajari →' : '🔒 Terkunci')}
+                  </span>
+                </div>
+                <h3 style={{ fontSize: '1.2rem', fontWeight: 800, margin: 0, color: '#0F172A', fontFamily: "'Times New Roman', Times, serif" }}>
+                  Penurunan Titik Beku
+                </h3>
+                <span style={{ fontSize: '0.88rem', color: '#0284C7', fontWeight: 700, display: 'block', marginTop: '0.15rem' }}>
+                  🍦 Es Krim Puter & Garam Jalan Salju
+                </span>
+              </div>
+            </div>
+            <p style={{ margin: 0, fontSize: '0.94rem', color: '#475569', lineHeight: 1.6 }}>
+              Rahasia pembuatan es puter tradisional tanpa kulkas (menggunakan campuran es batu & garam kasar agar suhu mencapai di bawah 0°C) serta penaburan garam di jalanan bersalju agar es cepat mencair.
+            </p>
           </div>
 
-          {/* Ringkasan 4 Sifat Koligatif Larutan Berdasarkan Ilustrasi */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem' }}>
-            <div 
-              onClick={isCh3Unlocked ? () => onGoToChapter('chapter3') : undefined}
-              style={{
-                padding: '0.9rem 1.1rem',
+          {/* Kartu 2: Kenaikan Titik Didih (Panci Mendidih) */}
+          <div 
+            onClick={isCh2Unlocked ? () => onGoToChapter('chapter2') : undefined}
+            style={{
+              padding: '1.25rem',
+              borderRadius: '18px',
+              background: 'rgba(255, 255, 255, 0.98)',
+              border: isCh2Completed ? '2px solid #10B981' : (isCh2Unlocked ? '2px solid #0284C7' : '1.5px solid #E2E8F0'),
+              boxShadow: isCh2Unlocked ? '0 6px 20px rgba(2, 132, 199, 0.08)' : 'none',
+              cursor: isCh2Unlocked ? 'pointer' : 'default',
+              transition: 'all 0.2s ease',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '1rem'
+            }}
+            title={isCh2Unlocked ? "Klik untuk mempelajari Bab 2: Tekanan Uap & Titik Didih" : "Selesaikan bab sebelumnya untuk membuka"}
+          >
+            <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+              <div style={{
+                width: '135px',
+                height: '105px',
                 borderRadius: '14px',
-                background: 'rgba(254, 242, 242, 0.85)',
-                border: '1.5px solid #FECACA',
-                cursor: isCh3Unlocked ? 'pointer' : 'default',
-                transition: 'all 0.2s ease',
-                display: 'flex',
-                gap: '0.85rem',
-                alignItems: 'flex-start'
-              }}
-              title={isCh3Unlocked ? "Klik untuk menuju Bab 3" : "Selesaikan bab sebelumnya untuk membuka"}
-            >
-              <span style={{ fontSize: '1.6rem' }}>🍦</span>
-              <div>
-                <strong style={{ display: 'block', color: '#991B1B', fontSize: '1.02rem', marginBottom: '0.2rem' }}>
-                  Penurunan Titik Beku (ΔTf) {isCh3Unlocked ? '→' : '🔒'}
-                </strong>
-                <span style={{ fontSize: '0.9rem', color: '#475569', lineHeight: 1.45, display: 'block' }}>
-                  Rahasia pembuatan es puter dan penaburan garam di jalanan bersalju agar es cepat mencair.
-                </span>
-              </div>
-            </div>
-
-            <div 
-              onClick={isCh2Unlocked ? () => onGoToChapter('chapter2') : undefined}
-              style={{
-                padding: '0.9rem 1.1rem',
-                borderRadius: '14px',
-                background: 'rgba(238, 242, 255, 0.85)',
+                overflow: 'hidden',
+                flexShrink: 0,
                 border: '1.5px solid #C7D2FE',
-                cursor: isCh2Unlocked ? 'pointer' : 'default',
-                transition: 'all 0.2s ease',
-                display: 'flex',
-                gap: '0.85rem',
-                alignItems: 'flex-start'
-              }}
-              title={isCh2Unlocked ? "Klik untuk menuju Bab 2" : "Selesaikan bab sebelumnya untuk membuka"}
-            >
-              <span style={{ fontSize: '1.6rem' }}>🫕</span>
-              <div>
-                <strong style={{ display: 'block', color: '#3730A3', fontSize: '1.02rem', marginBottom: '0.2rem' }}>
-                  Kenaikan Titik Didih (ΔTb) {isCh2Unlocked ? '→' : '🔒'}
-                </strong>
-                <span style={{ fontSize: '0.9rem', color: '#475569', lineHeight: 1.45, display: 'block' }}>
-                  Air garam mendidih pada suhu lebih tinggi (di atas 100°C), memasak makanan lebih cepat matang.
+                background: '#FFF',
+                boxShadow: '0 4px 10px rgba(99, 102, 241, 0.1)'
+              }}>
+                <img 
+                  src={imgTitikDidih} 
+                  alt="Ilustrasi Kenaikan Titik Didih (Panci Mendidih)" 
+                  style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                />
+              </div>
+              <div style={{ flex: 1 }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.3rem' }}>
+                  <span style={{ fontSize: '0.78rem', fontWeight: 700, padding: '0.2rem 0.6rem', borderRadius: '8px', background: '#EEF2FF', color: '#3730A3' }}>
+                    BAB 2 · ΔTb
+                  </span>
+                  <span style={{ fontSize: '0.82rem', fontWeight: 700, color: isCh2Completed ? '#10B981' : (isCh2Unlocked ? '#0284C7' : '#94A3B8') }}>
+                    {isCh2Completed ? '✓ Selesai' : (isCh2Unlocked ? 'Siap Dipelajari →' : '🔒 Terkunci')}
+                  </span>
+                </div>
+                <h3 style={{ fontSize: '1.2rem', fontWeight: 800, margin: 0, color: '#0F172A', fontFamily: "'Times New Roman', Times, serif" }}>
+                  Kenaikan Titik Didih
+                </h3>
+                <span style={{ fontSize: '0.88rem', color: '#0284C7', fontWeight: 700, display: 'block', marginTop: '0.15rem' }}>
+                  🫕 Air Mendidih & Memasak Dapur
                 </span>
               </div>
             </div>
+            <p style={{ margin: 0, fontSize: '0.94rem', color: '#475569', lineHeight: 1.6 }}>
+              Air murni mendidih pada suhu 100°C, namun saat ditambahkan zat terlarut seperti garam atau bumbu, titik didihnya naik di atas 100°C sehingga masakan matang lebih cepat dan empuk merata.
+            </p>
+          </div>
 
-            <div 
-              onClick={isCh2Unlocked ? () => onGoToChapter('chapter2') : undefined}
-              style={{
-                padding: '0.9rem 1.1rem',
+          {/* Kartu 3: Cairan Radiator Mobil (Etilen Glikol) */}
+          <div 
+            onClick={isCh2Unlocked ? () => onGoToChapter('chapter2') : undefined}
+            style={{
+              padding: '1.25rem',
+              borderRadius: '18px',
+              background: 'rgba(255, 255, 255, 0.98)',
+              border: (isCh2Completed && isCh3Completed) ? '2px solid #10B981' : (isCh2Unlocked ? '2px solid #0284C7' : '1.5px solid #E2E8F0'),
+              boxShadow: isCh2Unlocked ? '0 6px 20px rgba(2, 132, 199, 0.08)' : 'none',
+              cursor: isCh2Unlocked ? 'pointer' : 'default',
+              transition: 'all 0.2s ease',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '1rem'
+            }}
+            title={isCh2Unlocked ? "Klik untuk mempelajari penerapan titik didih & beku" : "Selesaikan bab sebelumnya untuk membuka"}
+          >
+            <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+              <div style={{
+                width: '135px',
+                height: '105px',
                 borderRadius: '14px',
-                background: 'rgba(240, 253, 244, 0.85)',
+                overflow: 'hidden',
+                flexShrink: 0,
                 border: '1.5px solid #BBF7D0',
-                cursor: isCh2Unlocked ? 'pointer' : 'default',
-                transition: 'all 0.2s ease',
-                display: 'flex',
-                gap: '0.85rem',
-                alignItems: 'flex-start'
-              }}
-              title={isCh2Unlocked ? "Klik untuk menuju Bab 2" : "Selesaikan bab sebelumnya untuk membuka"}
-            >
-              <span style={{ fontSize: '1.6rem' }}>🚗</span>
-              <div>
-                <strong style={{ display: 'block', color: '#166534', fontSize: '1.02rem', marginBottom: '0.2rem' }}>
-                  Cairan Radiator Mobil (Etilen Glikol) {isCh2Unlocked ? '→' : '🔒'}
-                </strong>
-                <span style={{ fontSize: '0.9rem', color: '#475569', lineHeight: 1.45, display: 'block' }}>
-                  Menaikkan titik didih agar mesin mobil tidak mendidih dan menurunkan titik beku saat musim dingin.
+                background: '#FFF',
+                boxShadow: '0 4px 10px rgba(34, 197, 94, 0.1)'
+              }}>
+                <img 
+                  src={imgRadiator} 
+                  alt="Ilustrasi Cairan Radiator Mobil" 
+                  style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                />
+              </div>
+              <div style={{ flex: 1 }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.3rem' }}>
+                  <span style={{ fontSize: '0.78rem', fontWeight: 700, padding: '0.2rem 0.6rem', borderRadius: '8px', background: '#F0FDF4', color: '#166534' }}>
+                    BAB 2 & 3 · ΔTb & ΔTf
+                  </span>
+                  <span style={{ fontSize: '0.82rem', fontWeight: 700, color: (isCh2Completed && isCh3Completed) ? '#10B981' : (isCh2Unlocked ? '#0284C7' : '#94A3B8') }}>
+                    {(isCh2Completed && isCh3Completed) ? '✓ Selesai' : (isCh2Unlocked ? 'Siap Dipelajari →' : '🔒 Terkunci')}
+                  </span>
+                </div>
+                <h3 style={{ fontSize: '1.2rem', fontWeight: 800, margin: 0, color: '#0F172A', fontFamily: "'Times New Roman', Times, serif" }}>
+                  Cairan Radiator Mobil
+                </h3>
+                <span style={{ fontSize: '0.88rem', color: '#0284C7', fontWeight: 700, display: 'block', marginTop: '0.15rem' }}>
+                  🚗 Pendingin Mesin (Etilen Glikol)
                 </span>
               </div>
             </div>
+            <p style={{ margin: 0, fontSize: '0.94rem', color: '#475569', lineHeight: 1.6 }}>
+              Penerapan ganda sifat koligatif: menaikkan titik didih cairan radiator agar mesin tidak overheat saat cuaca terik, sekaligus menurunkan titik beku agar radiator tidak membeku saat musim dingin.
+            </p>
+          </div>
 
-            <div 
-              onClick={isCh4Unlocked ? () => onGoToChapter('chapter4') : undefined}
-              style={{
-                padding: '0.9rem 1.1rem',
+          {/* Kartu 4: Tekanan Osmotik (Mentimun & Desalinasi) */}
+          <div 
+            onClick={isCh4Unlocked ? () => onGoToChapter('chapter4') : undefined}
+            style={{
+              padding: '1.25rem',
+              borderRadius: '18px',
+              background: 'rgba(255, 255, 255, 0.98)',
+              border: isCh4Completed ? '2px solid #10B981' : (isCh4Unlocked ? '2px solid #0284C7' : '1.5px solid #E2E8F0'),
+              boxShadow: isCh4Unlocked ? '0 6px 20px rgba(2, 132, 199, 0.08)' : 'none',
+              cursor: isCh4Unlocked ? 'pointer' : 'default',
+              transition: 'all 0.2s ease',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '1rem'
+            }}
+            title={isCh4Unlocked ? "Klik untuk mempelajari Bab 4: Tekanan Osmotik" : "Selesaikan bab sebelumnya untuk membuka"}
+          >
+            <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+              <div style={{
+                width: '135px',
+                height: '105px',
                 borderRadius: '14px',
-                background: 'rgba(240, 249, 255, 0.85)',
+                overflow: 'hidden',
+                flexShrink: 0,
                 border: '1.5px solid #BAE6FD',
-                cursor: isCh4Unlocked ? 'pointer' : 'default',
-                transition: 'all 0.2s ease',
-                display: 'flex',
-                gap: '0.85rem',
-                alignItems: 'flex-start'
-              }}
-              title={isCh4Unlocked ? "Klik untuk menuju Bab 4" : "Selesaikan bab sebelumnya untuk membuka"}
-            >
-              <span style={{ fontSize: '1.6rem' }}>🥒</span>
-              <div>
-                <strong style={{ display: 'block', color: '#075985', fontSize: '1.02rem', marginBottom: '0.2rem' }}>
-                  Tekanan Osmotik (Π) & Desalinasi {isCh4Unlocked ? '→' : '🔒'}
-                </strong>
-                <span style={{ fontSize: '0.9rem', color: '#475569', lineHeight: 1.45, display: 'block' }}>
-                  Kerutan pada acar mentimun dan teknologi pemurnian air laut (*reverse osmosis*) menjadi air tawar.
+                background: '#FFF',
+                boxShadow: '0 4px 10px rgba(2, 132, 199, 0.1)'
+              }}>
+                <img 
+                  src={imgMentimun} 
+                  alt="Ilustrasi Tekanan Osmotik (Acar Mentimun)" 
+                  style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                />
+              </div>
+              <div style={{ flex: 1 }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.3rem' }}>
+                  <span style={{ fontSize: '0.78rem', fontWeight: 700, padding: '0.2rem 0.6rem', borderRadius: '8px', background: '#F0F9FF', color: '#075985' }}>
+                    BAB 4 · Π
+                  </span>
+                  <span style={{ fontSize: '0.82rem', fontWeight: 700, color: isCh4Completed ? '#10B981' : (isCh4Unlocked ? '#0284C7' : '#94A3B8') }}>
+                    {isCh4Completed ? '✓ Selesai' : (isCh4Unlocked ? 'Siap Dipelajari →' : '🔒 Terkunci')}
+                  </span>
+                </div>
+                <h3 style={{ fontSize: '1.2rem', fontWeight: 800, margin: 0, color: '#0F172A', fontFamily: "'Times New Roman', Times, serif" }}>
+                  Tekanan Osmotik
+                </h3>
+                <span style={{ fontSize: '0.88rem', color: '#0284C7', fontWeight: 700, display: 'block', marginTop: '0.15rem' }}>
+                  🥒 Acar Mentimun & Desalinasi Air
                 </span>
               </div>
             </div>
+            <p style={{ margin: 0, fontSize: '0.94rem', color: '#475569', lineHeight: 1.6 }}>
+              Air dalam sel mentimun keluar saat direndam larutan garam pekat sehingga berkerut menjadi acar. Prinsip kebalikannya (reverse osmosis) digunakan menyaring air laut menjadi air tawar bersih layak minum.
+            </p>
           </div>
         </div>
       </section>

@@ -40,7 +40,8 @@ export function getCourseProgress() {
     currentChapter: 'chapter1',
     pretestCompleted: false,
     pretestScore: 0,
-    pretestTotal: 8
+    pretestTotal: 8,
+    labVirtualCompleted: false
   });
 }
 

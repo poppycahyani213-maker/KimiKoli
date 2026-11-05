@@ -15,7 +15,9 @@ export default function Header({
   isExamLocked = false,
   currentUser = null,
   onLogout,
-  onOpenTeacherPanel
+  onOpenTeacherPanel,
+  isAllMaterialCompleted = false,
+  isLabVirtualCompleted = false
 }) {
   const isTeacher = currentUser?.role === 'teacher';
 
@@ -23,6 +25,23 @@ export default function Header({
     if (isExamLocked) {
       alert("🔒 Mode Ujian Terfokus Aktif: Harap selesaikan seluruh soal pretest terlebih dahulu untuk membuka fitur lainnya.");
       return;
+    }
+    if (tabId === 'lab-virtual') {
+      if (!isAllMaterialCompleted) {
+        alert("🔒 Laboratorium Virtual Terkunci: Harap selesaikan seluruh materi (Bab 1 sampai Bab 5) terlebih dahulu sebelum dapat mengakses Lab Virtual.");
+        return;
+      }
+    }
+    if (tabId === 'quiz') {
+      if (!isAllMaterialCompleted) {
+        alert("🔒 Kuis Akhir Terkunci: Harap selesaikan seluruh materi (Bab 1 sampai Bab 5) dan kegiatan di Lab Virtual terlebih dahulu.");
+        return;
+      }
+      if (!isLabVirtualCompleted) {
+        alert("🔒 Kuis Akhir Terkunci: Kamu harus menyelesaikan seluruh kegiatan di Laboratorium Virtual terlebih dahulu untuk membuka akses Kuis Evaluasi Akhir.");
+        return;
+      }
+      tabId = 'chapter6';
     }
     if (onSelectTab) {
       onSelectTab(tabId);
@@ -70,7 +89,7 @@ export default function Header({
           </button>
           <button
             type="button"
-            className={`nav-pill-btn ${currentView.startsWith('chapter') ? 'active' : ''}`}
+            className={`nav-pill-btn ${(currentView.startsWith('chapter') && currentView !== 'chapter6') ? 'active' : ''}`}
             onClick={() => handleNavClick('chapter1')}
             style={{ cursor: isExamLocked ? 'not-allowed' : 'pointer' }}
           >
@@ -78,26 +97,27 @@ export default function Header({
           </button>
           <button
             type="button"
-            className="nav-pill-btn"
-            onClick={() => handleNavClick('chapter1')}
-            style={{ cursor: isExamLocked ? 'not-allowed' : 'pointer' }}
-            title="Laboratorium Virtual Larutan"
+            className={`nav-pill-btn ${currentView === 'lab-virtual' ? 'active' : ''}`}
+            onClick={() => handleNavClick('lab-virtual')}
+            style={{ 
+              cursor: isExamLocked ? 'not-allowed' : 'pointer',
+              color: !isAllMaterialCompleted ? '#94A3B8' : undefined
+            }}
+            title={isAllMaterialCompleted ? "Laboratorium Virtual (Terbuka)" : "🔒 Selesaikan Bab 1-5 untuk membuka"}
           >
-            Lab Virtual
+            {!isAllMaterialCompleted ? '🔒 Lab Virtual' : '🔬 Lab Virtual'}
           </button>
           <button
             type="button"
-            className="nav-pill-btn"
-            onClick={() => {
-              if (isExamLocked) {
-                handleNavClick('quiz');
-              } else {
-                alert("Kuis komprehensif akan terbuka otomatis setelah Anda menuntaskan misi lab.");
-              }
+            className={`nav-pill-btn ${currentView === 'chapter6' ? 'active' : ''}`}
+            onClick={() => handleNavClick('quiz')}
+            style={{ 
+              cursor: isExamLocked ? 'not-allowed' : 'pointer',
+              color: !isLabVirtualCompleted ? '#94A3B8' : undefined
             }}
-            style={{ cursor: isExamLocked ? 'not-allowed' : 'pointer' }}
+            title={isLabVirtualCompleted ? "Kuis Evaluasi Akhir (Terbuka)" : "🔒 Selesaikan Lab Virtual untuk membuka"}
           >
-            Kuis
+            {!isLabVirtualCompleted ? '🔒 Kuis' : '🏆 Kuis'}
           </button>
         </nav>
 

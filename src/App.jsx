@@ -19,6 +19,7 @@ import Chapter3Page from './features/chapter3-freezing-phase/Chapter3Page';
 import Chapter4Page from './features/chapter4-osmosis/Chapter4Page';
 import Chapter5Page from './features/chapter5-electrolyte/Chapter5Page';
 import Chapter6Page from './features/chapter6-evaluation/Chapter6Page';
+import LabVirtualHub from './features/lab-virtual/LabVirtualHub';
 import TeacherDashboard from './features/teacher/TeacherDashboard';
 
 /**
@@ -37,6 +38,11 @@ export default function App() {
   const [completedChapters, setCompletedChapters] = useState([]);
   const [isPretestCompleted, setIsPretestCompleted] = useState(false);
   const [isPretestLocked, setIsPretestLocked] = useState(false);
+  const [isLabVirtualCompleted, setIsLabVirtualCompleted] = useState(false);
+
+  // Status penyelesaian seluruh materi teori (Pretest + Bab 1 s.d. Bab 5)
+  const isAllMaterialCompleted = isPretestCompleted && 
+    ['chapter1', 'chapter2', 'chapter3', 'chapter4', 'chapter5'].every(c => completedChapters.includes(c));
 
   // Ambil sesi login dan progres saat pertama kali dimuat
   useEffect(() => {
@@ -52,6 +58,9 @@ export default function App() {
       }
       if (saved.pretestCompleted) {
         setIsPretestCompleted(true);
+      }
+      if (saved.labVirtualCompleted) {
+        setIsLabVirtualCompleted(true);
       }
     }
   }, []);
@@ -176,6 +185,8 @@ export default function App() {
         currentUser={currentUser}
         onLogout={handleLogout}
         onOpenTeacherPanel={() => setCurrentView('teacher-dashboard')}
+        isAllMaterialCompleted={isAllMaterialCompleted}
+        isLabVirtualCompleted={isLabVirtualCompleted}
       />
 
       {/* 2. Konten Utama */}
@@ -193,8 +204,10 @@ export default function App() {
           <HomePage
             isPretestDone={isPretestCompleted}
             completedChapters={completedChapters}
+            isLabVirtualCompleted={isLabVirtualCompleted}
             onStartPretest={handleStartPretest}
             onGoToChapter={(chapterId) => setCurrentView(chapterId)}
+            onGoToLabVirtual={() => setCurrentView('lab-virtual')}
           />
         )}
 
@@ -360,12 +373,80 @@ export default function App() {
 
             <Chapter5Page
               isCompleted={completedChapters.includes('chapter5')}
-              onComplete={() => handleCompleteAndProceed('chapter5', 'chapter6')}
+              onComplete={() => handleCompleteAndProceed('chapter5', 'lab-virtual')}
             />
           </div>
         )}
 
-        {/* Tampilan 8: Bab 6 - Evaluasi Akhir & Penghargaan */}
+        {/* Tampilan 8: Laboratorium Virtual (Gating: Wajib Selesai Seluruh Teori Bab 1-5) */}
+        {currentView === 'lab-virtual' && (
+          <div>
+            <div style={{ marginBottom: '1.25rem', display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
+              <button
+                type="button"
+                onClick={() => setCurrentView('home')}
+                className="btn btn-secondary"
+                style={{ padding: '0.45rem 1rem', fontSize: '0.85rem' }}
+              >
+                ← Kembali ke Peta Misi
+              </button>
+              <button
+                type="button"
+                onClick={() => setCurrentView('chapter5')}
+                className="btn btn-outline"
+                style={{ padding: '0.45rem 1rem', fontSize: '0.85rem' }}
+              >
+                ← Bab Sebelumnya (Bab 5)
+              </button>
+              <span style={{ fontSize: '0.85rem', color: '#64748B', fontWeight: 600 }}>
+                Tahap 6: Laboratorium Virtual & Eksplorasi Mandiri
+              </span>
+            </div>
+
+            {!isAllMaterialCompleted ? (
+              <div style={{
+                background: '#FFFBEB',
+                border: '1.5px solid #FDE68A',
+                borderRadius: '16px',
+                padding: '2.5rem 1.5rem',
+                textAlign: 'center',
+                margin: '1.5rem 0'
+              }}>
+                <div style={{ fontSize: '3rem', marginBottom: '0.75rem' }}>🔒</div>
+                <h3 style={{ color: '#92400E', margin: '0 0 0.5rem 0', fontSize: '1.4rem' }}>
+                  Laboratorium Virtual Masih Terkunci
+                </h3>
+                <p style={{ color: '#78350F', maxWidth: '620px', margin: '0 auto 1.5rem', lineHeight: 1.6 }}>
+                  Sesuai alur pembelajaran KimiKoli, kamu wajib menyelesaikan seluruh materi teori (Pretest dan Bab 1 hingga Bab 5) terlebih dahulu sebelum dapat mengakses sesi Laboratorium Virtual.
+                </p>
+                <button
+                  type="button"
+                  className="btn btn-primary"
+                  onClick={() => setCurrentView('home')}
+                >
+                  ← Kembali ke Beranda & Tuntaskan Materi
+                </button>
+              </div>
+            ) : (
+              <LabVirtualHub
+                isCompleted={isLabVirtualCompleted}
+                onCompleteLab={() => {
+                  setIsLabVirtualCompleted(true);
+                  const saved = getCourseProgress() || {};
+                  saveCourseProgress({
+                    ...saved,
+                    labVirtualCompleted: true
+                  });
+                  setCurrentView('chapter6');
+                  window.scrollTo({ top: 0, behavior: 'smooth' });
+                }}
+                onBackToHome={() => setCurrentView('home')}
+              />
+            )}
+          </div>
+        )}
+
+        {/* Tampilan 9: Bab 6 - Evaluasi Akhir & Penghargaan (Gating: Wajib Selesai Lab Virtual) */}
         {currentView === 'chapter6' && (
           <div>
             <div style={{ marginBottom: '1.25rem', display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
@@ -378,24 +459,61 @@ export default function App() {
                 ← Kembali ke Peta Misi
               </button>
               <span style={{ fontSize: '0.85rem', color: '#64748B', fontWeight: 600 }}>
-                Bab 6 dari 6: Evaluasi Akhir & Capaian Belajar
+                Tahap 7: Evaluasi Akhir & Capaian Belajar
               </span>
             </div>
 
-            <Chapter6Page
-              completedChapters={completedChapters}
-              onResetProgress={() => {
-                setCompletedChapters([]);
-                setIsPretestCompleted(false);
-                const saved = getCourseProgress() || {};
-                saveCourseProgress({
-                  ...saved,
-                  completedChapters: [],
-                  pretestCompleted: false
-                });
-                setCurrentView('home');
-              }}
-            />
+            {!isLabVirtualCompleted ? (
+              <div style={{
+                background: '#FFFBEB',
+                border: '1.5px solid #FDE68A',
+                borderRadius: '16px',
+                padding: '2.5rem 1.5rem',
+                textAlign: 'center',
+                margin: '1.5rem 0'
+              }}>
+                <div style={{ fontSize: '3rem', marginBottom: '0.75rem' }}>🔒</div>
+                <h3 style={{ color: '#92400E', margin: '0 0 0.5rem 0', fontSize: '1.4rem' }}>
+                  Kuis Evaluasi Akhir Masih Terkunci
+                </h3>
+                <p style={{ color: '#78350F', maxWidth: '620px', margin: '0 auto 1.5rem', lineHeight: 1.6 }}>
+                  Untuk dapat mengakses Kuis Evaluasi Akhir, kamu wajib menuntaskan sesi praktikum di <strong>Laboratorium Virtual</strong> terlebih dahulu setelah menyelesaikan seluruh materi.
+                </p>
+                <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', flexWrap: 'wrap' }}>
+                  <button
+                    type="button"
+                    className="btn btn-primary"
+                    onClick={() => setCurrentView('lab-virtual')}
+                  >
+                    🔬 Buka Laboratorium Virtual →
+                  </button>
+                  <button
+                    type="button"
+                    className="btn btn-secondary"
+                    onClick={() => setCurrentView('home')}
+                  >
+                    Kembali ke Beranda
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <Chapter6Page
+                completedChapters={completedChapters}
+                onResetProgress={() => {
+                  setCompletedChapters([]);
+                  setIsPretestCompleted(false);
+                  setIsLabVirtualCompleted(false);
+                  const saved = getCourseProgress() || {};
+                  saveCourseProgress({
+                    ...saved,
+                    completedChapters: [],
+                    pretestCompleted: false,
+                    labVirtualCompleted: false
+                  });
+                  setCurrentView('home');
+                }}
+              />
+            )}
           </div>
         )}
 

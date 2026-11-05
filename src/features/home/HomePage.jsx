@@ -17,8 +17,10 @@ import imgElektrolit from '../../assets/fenomena-elektrolit.jpg';
 export default function HomePage({ 
   isPretestDone = false, 
   completedChapters = [],
+  isLabVirtualCompleted = false,
   onStartPretest, 
-  onGoToChapter 
+  onGoToChapter,
+  onGoToLabVirtual
 }) {
   const [selectedGuess, setSelectedGuess] = useState(null);
 
@@ -44,7 +46,7 @@ export default function HomePage({
   if (isCh4Completed) totalMissionsDone += 1;
   if (isCh5Completed) totalMissionsDone += 1;
 
-  const currentXp = (isPretestDone ? 20 : 0) + (completedChapters.length * 30);
+  const currentXp = (isPretestDone ? 20 : 0) + (completedChapters.length * 30) + (isLabVirtualCompleted ? 40 : 0);
 
   const isAllMissionsDone = isPretestDone && isCh1Completed && isCh2Completed && isCh3Completed && isCh4Completed && isCh5Completed;
 
@@ -56,7 +58,17 @@ export default function HomePage({
     if (!isCh3Completed) return { label: 'Lanjut Misi: Bab 3 Penurunan Titik Beku →', action: () => onGoToChapter('chapter3'), isAllDone: false };
     if (!isCh4Completed) return { label: 'Lanjut Misi: Bab 4 Tekanan Osmotik →', action: () => onGoToChapter('chapter4'), isAllDone: false };
     if (!isCh5Completed) return { label: 'Lanjut Misi: Bab 5 Larutan Elektrolit →', action: () => onGoToChapter('chapter5'), isAllDone: false };
-    return { label: '🏆 Lihat Capaian & Evaluasi Akhir →', action: () => onGoToChapter('chapter6'), isAllDone: true };
+    
+    // Jika Bab 1-5 selesai tapi Lab Virtual belum selesai
+    if (!isLabVirtualCompleted) {
+      return { 
+        label: '🔬 Masuk ke Laboratorium Virtual →', 
+        action: onGoToLabVirtual || (() => onGoToChapter('lab-virtual')), 
+        isAllDone: false 
+      };
+    }
+
+    return { label: '🏆 Masuk ke Kuis Evaluasi Akhir →', action: () => onGoToChapter('chapter6'), isAllDone: true };
   };
 
   const nextAction = getNextAvailableView();
@@ -92,18 +104,26 @@ export default function HomePage({
 
             <h1 className="hero-title" style={{ fontFamily: "'Times New Roman', Times, serif" }}>
               {isAllMissionsDone ? (
-                <>🎉 Selamat! Kamu telah menguasai seluruh <span className="highlight-blue">6 Misi KimiKoli</span>.</>
+                isLabVirtualCompleted ? (
+                  <>🏆 Selamat! Seluruh Misi & Praktikum <span className="highlight-blue">Lab Tuntas</span>.</>
+                ) : (
+                  <>🎉 Materi Bab 1–5 Tuntas! Lanjut ke <span className="highlight-blue">Lab Virtual</span>.</>
+                )
               ) : (
                 <>Selesaikan 6 misi lab, bongkar rahasia <span className="highlight-blue">larutan</span>.</>
               )}
             </h1>
 
             <p className="hero-desc" style={{ fontSize: '1.05rem', lineHeight: 1.65 }}>
-              {isAllMissionsDone
-                ? "Luar biasa! Seluruh konsep sifat koligatif larutan (penurunan tekanan uap, kenaikan titik didih, penurunan titik beku, tekanan osmotik, hingga faktor van 't Hoff larutan elektrolit) telah berhasil kamu selesaikan dengan tuntas. Buka evaluasi akhir atau eksplorasi laboratorium secara mandiri."
-                : (totalMissionsDone > 0 
+              {isAllMissionsDone ? (
+                isLabVirtualCompleted
+                  ? "Hebat! Kamu telah menuntaskan seluruh materi teori dan sesi eksperimen di Laboratorium Virtual. Sekarang kamu siap menguji pemahaman komprehensifmu di Kuis Evaluasi Akhir!"
+                  : "Luar biasa! Seluruh materi teori sifat koligatif larutan (Bab 1 sampai Bab 5) telah tuntas. Sekarang, masuklah ke Laboratorium Virtual untuk mengeksplorasi fenomena larutan secara langsung sebelum membuka Kuis Evaluasi Akhir."
+              ) : (
+                totalMissionsDone > 0 
                   ? `Progres luar biasa! Kamu telah menuntaskan ${totalMissionsDone} misi belajar. Terus lanjutkan untuk membuka fenomena koligatif berikutnya.`
-                  : "Setiap misi membuka satu fenomena nyata: kenapa es puter butuh garam kasar, kenapa cairan radiator mobil tidak mendidih, hingga desalinasi air laut. Kumpulkan XP dan lencana di setiap langkah.")}
+                  : "Setiap misi membuka satu fenomena nyata: kenapa es puter butuh garam kasar, kenapa cairan radiator mobil tidak mendidih, hingga desalinasi air laut. Kumpulkan XP dan lencana di setiap langkah."
+              )}
             </p>
 
             <div className="hero-cta-group">

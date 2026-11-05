@@ -155,7 +155,7 @@ export default function Chapter5Page({ onComplete, isCompleted }) {
         </Card>
       </div>
 
-      {/* Tombol Lanjut ke Evaluasi Akhir (Bab 6) */}
+      {/* Tombol Lanjut ke Laboratorium Virtual (Selesai Seluruh Teori) */}
       <div style={{
         marginTop: '2.5rem',
         padding: '1.5rem',
@@ -171,10 +171,10 @@ export default function Chapter5Page({ onComplete, isCompleted }) {
       }}>
         <div>
           <span style={{ fontSize: '0.85rem', color: '#10B981', fontWeight: 700 }}>
-            {isCompleted ? '✓ Materi Bab 5 Selesai' : 'Siap Lanjut ke Tahap Terakhir?'}
+            {isCompleted ? '✓ Seluruh Materi Teori Bab 1–5 Telah Selesai' : 'Siap Menuju Praktikum Virtual?'}
           </span>
           <h4 style={{ margin: '0.2rem 0 0', color: '#0F172A', fontSize: '1.1rem' }}>
-            Bab 6: Evaluasi Akhir & Penghargaan
+            Tahap Selanjutnya: Laboratorium Virtual Larutan
           </h4>
         </div>
 
@@ -188,7 +188,7 @@ export default function Chapter5Page({ onComplete, isCompleted }) {
             boxShadow: '0 4px 14px rgba(2, 132, 199, 0.25)'
           }}
         >
-          Selesaikan Bab 5 & Buka Evaluasi Akhir →
+          Selesaikan Bab 5 & Buka Laboratorium Virtual →
         </Button>
       </div>
     </div>

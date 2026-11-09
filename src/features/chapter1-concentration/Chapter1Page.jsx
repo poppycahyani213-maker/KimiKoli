@@ -1,17 +1,66 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import Card from '../../components/common/Card';
 import Button from '../../components/common/Button';
 import Badge from '../../components/common/Badge';
 import TripleRepresentation from '../../components/chemistry/TripleRepresentation';
 import MisconceptionCard from '../../components/chemistry/MisconceptionCard';
 import { FormulaRenderer } from '../../components/chemistry/FormulaRenderer';
+import { getStoredData, setStoredData, getAuthUser } from '../../utils/storage';
 import SugarGlassesIllustration from './SugarGlassesIllustration';
 import PerbandinganKonsentrasi from './PerbandinganKonsentrasi';
 import ContohSoal from './ContohSoal';
 import SimulatorLarutan from './SimulatorLarutan';
 import LatihanSoal from './LatihanSoal';
 
+// Helper membuat kunci penyimpanan unik per siswa (nama dan kelas yang sedang login)
+function getCh1StorageKey() {
+  const user = getAuthUser();
+  if (user && user.name) {
+    const cleanName = user.name.toLowerCase().trim().replace(/[^a-z0-9]/g, '_');
+    const cleanClass = (user.className || '').toLowerCase().trim().replace(/[^a-z0-9]/g, '_');
+    return `koligatif_ch1_requirements_v1_${cleanName}_${cleanClass}`;
+  }
+  return 'koligatif_ch1_requirements_v1_guest';
+}
+
 export default function Chapter1Page({ onComplete, isCompleted }) {
+  const [isMissionDone, setIsMissionDone] = useState(() => {
+    if (isCompleted) return true;
+    const storageKey = getCh1StorageKey();
+    const saved = getStoredData(storageKey, { isMissionDone: false, isExerciseDone: false });
+    return Boolean(saved?.isMissionDone);
+  });
+
+  const [isExerciseDone, setIsExerciseDone] = useState(() => {
+    if (isCompleted) return true;
+    const storageKey = getCh1StorageKey();
+    const saved = getStoredData(storageKey, { isMissionDone: false, isExerciseDone: false });
+    return Boolean(saved?.isExerciseDone);
+  });
+
+  // Sinkronisasi jika bab berstatus isCompleted
+  useEffect(() => {
+    if (isCompleted) {
+      setIsMissionDone(true);
+      setIsExerciseDone(true);
+    }
+  }, [isCompleted]);
+
+  const handleMissionDone = () => {
+    setIsMissionDone(true);
+    const storageKey = getCh1StorageKey();
+    const saved = getStoredData(storageKey, { isMissionDone: false, isExerciseDone: false });
+    setStoredData(storageKey, { ...saved, isMissionDone: true });
+  };
+
+  const handleExerciseDone = () => {
+    setIsExerciseDone(true);
+    const storageKey = getCh1StorageKey();
+    const saved = getStoredData(storageKey, { isMissionDone: false, isExerciseDone: false });
+    setStoredData(storageKey, { ...saved, isExerciseDone: true });
+  };
+
+  const isReadyToProceed = (isMissionDone && isExerciseDone) || isCompleted;
 
   return (
     <div className="fade-in" style={{ fontFamily: "'Times New Roman', Times, serif" }}>
@@ -151,10 +200,10 @@ export default function Chapter1Page({ onComplete, isCompleted }) {
       </div>
 
       {/* Simulator Pembuat Larutan Virtual */}
-      <SimulatorLarutan />
+      <SimulatorLarutan onMisiSelesai={handleMissionDone} />
 
       {/* Latihan Pemahaman Mandiri Bab 1 */}
-      <LatihanSoal />
+      <LatihanSoal onSemuaSelesai={handleExerciseDone} />
 
       {/* Tombol Lanjut ke Materi Selanjutnya */}
       <div style={{
@@ -171,26 +220,72 @@ export default function Chapter1Page({ onComplete, isCompleted }) {
         boxShadow: '0 2px 8px rgba(15, 23, 42, 0.04)'
       }}>
         <div>
-          <span style={{ fontSize: '0.85rem', color: '#10B981', fontWeight: 700 }}>
-            {isCompleted ? '✓ Materi Bab 1 Selesai' : 'Siap Lanjut ke Tahap Selanjutnya?'}
+          <span style={{
+            fontSize: '0.85rem',
+            color: isCompleted ? '#10B981' : isReadyToProceed ? '#059669' : '#D97706',
+            fontWeight: 700
+          }}>
+            {isCompleted
+              ? '✓ Materi Bab 1 Selesai'
+              : isReadyToProceed
+                ? '✓ Seluruh Syarat Terpenuhi! Siap Lanjut'
+                : 'Selesaikan Syarat untuk Membuka Bab 2:'}
           </span>
           <h4 style={{ margin: '0.2rem 0 0', color: '#0F172A', fontSize: '1.1rem' }}>
             Bab 2: Penurunan Tekanan Uap & Kenaikan Titik Didih
           </h4>
         </div>
 
-        <Button
-          variant="primary"
-          onClick={onComplete}
-          style={{
-            padding: '0.85rem 1.8rem',
-            fontSize: '1.05rem',
-            background: '#0284C7',
-            boxShadow: '0 4px 14px rgba(2, 132, 199, 0.25)'
-          }}
-        >
-          Selesaikan Bab 1 & Buka Bab 2 →
-        </Button>
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '0.5rem' }}>
+          {/* Daftar Centang Syarat Pembuka Bab 2 */}
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.75rem',
+            fontSize: '0.85rem',
+            background: isReadyToProceed ? '#ECFDF5' : '#F8FAFC',
+            border: isReadyToProceed ? '1px solid #A7F3D0' : '1px solid #CBD5E1',
+            borderRadius: '8px',
+            padding: '0.35rem 0.75rem'
+          }}>
+            <span style={{
+              color: isMissionDone ? '#16A34A' : '#64748B',
+              fontWeight: isMissionDone ? 800 : 500,
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '0.3rem'
+            }}>
+              <span>{isMissionDone ? '✓' : '○'}</span> Misi simulator
+            </span>
+            <span style={{ color: '#CBD5E1' }}>•</span>
+            <span style={{
+              color: isExerciseDone ? '#16A34A' : '#64748B',
+              fontWeight: isExerciseDone ? 800 : 500,
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '0.3rem'
+            }}>
+              <span>{isExerciseDone ? '✓' : '○'}</span> Soal latihan
+            </span>
+          </div>
+
+          <Button
+            variant="primary"
+            onClick={onComplete}
+            disabled={!isReadyToProceed}
+            style={{
+              padding: '0.85rem 1.8rem',
+              fontSize: '1.05rem',
+              background: isReadyToProceed ? '#0284C7' : '#94A3B8',
+              boxShadow: isReadyToProceed ? '0 4px 14px rgba(2, 132, 199, 0.25)' : 'none',
+              cursor: isReadyToProceed ? 'pointer' : 'not-allowed',
+              opacity: isReadyToProceed ? 1 : 0.65
+            }}
+            title={!isReadyToProceed ? "Selesaikan minimal 1 misi simulator dan soal latihan untuk membuka" : "Buka Bab 2"}
+          >
+            {isReadyToProceed ? 'Selesaikan Bab 1 & Buka Bab 2 →' : '🔒 Selesaikan Bab 1 & Buka Bab 2'}
+          </Button>
+        </div>
       </div>
     </div>
   );

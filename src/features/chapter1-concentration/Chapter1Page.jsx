@@ -9,7 +9,7 @@ import { calculateMolality, calculateMoleFractions } from '../../utils/colligati
 import { formatIndonesianNumber } from '../../utils/formatNumber';
 import solutesData from '../../data/solutes.json';
 import solventsData from '../../data/solvents.json';
-import imgTekananUap from '../../assets/fenomena-tekanan-uap.jpg';
+import SugarGlassesIllustration from './SugarGlassesIllustration';
 import PerbandinganKonsentrasi from './PerbandinganKonsentrasi';
 
 export default function Chapter1Page({ onComplete, isCompleted }) {
@@ -104,8 +104,8 @@ export default function Chapter1Page({ onComplete, isCompleted }) {
         conceptName="Konsentrasi & Partikel Koligatif"
         macroscopic={{
           title: "Pengamatan Sehari-hari: Rasa & Kepekatan",
-          image: imgTekananUap,
-          description: "Ketika melarutkan 1 sendok vs 5 sendok gula ke dalam segelas air teh, warna dan rasa manisnya berubah nyata. Semakin banyak gula yang larut, larutan semakin pekat.",
+          customVisual: <SugarGlassesIllustration />,
+          description: "Ketika melarutkan 1 sendok dan 5 sendok gula ke dalam dua gelas air yang sama banyak, kedua larutan tetap tampak jernih. Namun, larutan dengan 5 sendok gula terasa jauh lebih manis dan sedikit lebih kental. Semakin banyak zat terlarut dalam jumlah pelarut yang sama, semakin pekat larutannya.",
           observations: [
             "Wujud fisik berubah homogen (gula padat larut sempurna dalam air cair)",
             "Larutan yang lebih pekat memiliki kekentalan dan massa jenis yang lebih tinggi",

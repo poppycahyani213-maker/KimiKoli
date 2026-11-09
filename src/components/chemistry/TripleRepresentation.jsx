@@ -211,23 +211,29 @@ export default function TripleRepresentation({
             </div>
 
             {/* Media Gambar / Contoh Sehari-hari */}
-            {macroscopic.image && (
+            {(macroscopic.customVisual || macroscopic.image) && (
               <div style={{
                 borderRadius: '12px',
                 overflow: 'hidden',
                 background: '#FFFFFF',
                 border: '1px solid #FECACA',
-                height: '140px',
+                minHeight: '140px',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
                 padding: '4px'
               }}>
-                <img
-                  src={macroscopic.image}
-                  alt={macroscopic.title}
-                  style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }}
-                />
+                {macroscopic.customVisual ? (
+                  macroscopic.customVisual
+                ) : typeof macroscopic.image === 'string' ? (
+                  <img
+                    src={macroscopic.image}
+                    alt={macroscopic.title}
+                    style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }}
+                  />
+                ) : (
+                  macroscopic.image
+                )}
               </div>
             )}
 

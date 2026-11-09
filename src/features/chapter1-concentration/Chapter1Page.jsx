@@ -10,6 +10,7 @@ import { formatIndonesianNumber } from '../../utils/formatNumber';
 import solutesData from '../../data/solutes.json';
 import solventsData from '../../data/solvents.json';
 import imgTekananUap from '../../assets/fenomena-tekanan-uap.jpg';
+import PerbandinganKonsentrasi from './PerbandinganKonsentrasi';
 
 export default function Chapter1Page({ onComplete, isCompleted }) {
   const [selectedSoluteId, setSelectedSoluteId] = useState(solutesData[0].id);
@@ -134,6 +135,9 @@ export default function Chapter1Page({ onComplete, isCompleted }) {
           // TODO: Konten guru: Tambahkan latihan konversi Molaritas (M) ke Molalitas (m)
         }}
       />
+
+      {/* D.5: TABEL PERBANDINGAN SATUAN KONSENTRASI & ANIMASI PEMUAIAN */}
+      <PerbandinganKonsentrasi />
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '1.5rem' }}>
         {/* Concept Card */}

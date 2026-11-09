@@ -9,6 +9,7 @@ import SugarGlassesIllustration from './SugarGlassesIllustration';
 import PerbandinganKonsentrasi from './PerbandinganKonsentrasi';
 import ContohSoal from './ContohSoal';
 import SimulatorLarutan from './SimulatorLarutan';
+import LatihanSoal from './LatihanSoal';
 
 export default function Chapter1Page({ onComplete, isCompleted }) {
 
@@ -151,6 +152,9 @@ export default function Chapter1Page({ onComplete, isCompleted }) {
 
       {/* Simulator Pembuat Larutan Virtual */}
       <SimulatorLarutan />
+
+      {/* Latihan Pemahaman Mandiri Bab 1 */}
+      <LatihanSoal />
 
       {/* Tombol Lanjut ke Materi Selanjutnya */}
       <div style={{

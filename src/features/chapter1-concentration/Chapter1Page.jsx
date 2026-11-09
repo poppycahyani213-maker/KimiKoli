@@ -11,6 +11,7 @@ import solutesData from '../../data/solutes.json';
 import solventsData from '../../data/solvents.json';
 import SugarGlassesIllustration from './SugarGlassesIllustration';
 import PerbandinganKonsentrasi from './PerbandinganKonsentrasi';
+import ContohSoal from './ContohSoal';
 
 export default function Chapter1Page({ onComplete, isCompleted }) {
   const [selectedSoluteId, setSelectedSoluteId] = useState(solutesData[0].id);
@@ -138,6 +139,9 @@ export default function Chapter1Page({ onComplete, isCompleted }) {
 
       {/* D.5: TABEL PERBANDINGAN SATUAN KONSENTRASI & ANIMASI PEMUAIAN */}
       <PerbandinganKonsentrasi />
+
+      {/* D.6: CONTOH SOAL & PEMBAHASAN TERBIMBING BERTAHAP */}
+      <ContohSoal />
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '1.5rem' }}>
         {/* Concept Card */}

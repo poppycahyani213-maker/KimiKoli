@@ -3,7 +3,7 @@ import imgTekananUap from '../../assets/icon-tekanan-uap.png';
 import imgTitikDidih from '../../assets/icon-titik-didih.png';
 import imgTitikBeku from '../../assets/icon-titik-beku.png';
 import imgRadiator from '../../assets/fenomena-radiator.jpg';
-import imgMentimun from '../../assets/fenomena-mentimun.jpg';
+import imgOsmosis from '../../assets/icon-osmosis.png';
 import imgDesalinasi from '../../assets/fenomena-desalinasi.jpg';
 import imgElektrolit from '../../assets/fenomena-elektrolit.jpg';
 import kimikoliIcon from '../../assets/kimikoli-icon.jpg';
@@ -298,7 +298,11 @@ export default function HomePage({
                     boxShadow: isCh4Completed ? '0 2px 8px rgba(16, 185, 129, 0.18)' : 'none'
                   }}
                 >
-                  <span className="icon" style={{ color: isCh4Completed ? '#10B981' : '#94A3B8' }}>{isCh4Completed ? '➕' : '🔒'}</span>
+                  <span className="icon" style={{ color: isCh4Completed ? '#10B981' : '#94A3B8', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    {isCh4Completed ? (
+                      <img src={imgOsmosis} alt="Osmosis" style={{ width: 18, height: 18, objectFit: 'contain' }} />
+                    ) : '🔒'}
+                  </span>
                   <span className="title" style={{ color: isCh4Completed ? '#065F46' : '#475569' }}>Osmosis</span>
                 </div>
 
@@ -695,16 +699,16 @@ export default function HomePage({
                 borderRadius: '14px',
                 overflow: 'hidden',
                 flexShrink: 0,
-                border: '1.5px solid #BAE6FD',
-                background: '#F8FAFC',
+                border: '1.5px solid #86EFAC',
+                background: '#ECFDF5',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
                 padding: '4px'
               }}>
                 <img 
-                  src={imgMentimun} 
-                  alt="Ilustrasi Tekanan Osmotik (Acar Mentimun)" 
+                  src={imgOsmosis} 
+                  alt="Ilustrasi Tekanan Osmotik (Irisan Mentimun)" 
                   style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }}
                 />
               </div>

@@ -23,8 +23,6 @@ export default function HomePage({
   onGoToChapter,
   onGoToLabVirtual
 }) {
-  const [selectedGuess, setSelectedGuess] = useState(null);
-
   const isCh1Completed = completedChapters.includes('chapter1');
   const isCh2Completed = completedChapters.includes('chapter2');
   const isCh3Completed = completedChapters.includes('chapter3');
@@ -1033,43 +1031,6 @@ export default function HomePage({
               </span>
             </div>
           </div>
-        </div>
-      </section>
-
-      {/* =========================================================
-          3. TEKA-TEKI PEMBUKA (INTERACTIVE CURIOSITY BANNER)
-          ========================================================= */}
-      <section className="teaser-banner">
-        <div>
-          <div className="teaser-pill">Teka–teki pembuka</div>
-          <h3 className="teaser-question" style={{ fontFamily: "'Times New Roman', Times, serif" }}>
-            Garam atau gula: mana yang lebih cepat membuat es di gerobak es puter makin dingin?
-          </h3>
-          <p className="teaser-subtext" style={{ fontSize: '0.95rem' }}>
-            Simpan tebakanmu. Jawabannya terbuka secara ilmiah di Bab 3 dan Bab 5.
-            {selectedGuess && (
-              <span style={{ display: 'block', marginTop: '0.4rem', color: '#38BDF8', fontWeight: 600 }}>
-                💡 Kamu memilih {selectedGuess}! Pelajari faktor van 't Hoff & jumlah partikel ion di materi nanti.
-              </span>
-            )}
-          </p>
-        </div>
-
-        <div className="teaser-interactive-actions">
-          <button
-            type="button"
-            className={`choice-btn ${selectedGuess === 'Garam' ? 'selected-correct' : ''}`}
-            onClick={() => setSelectedGuess('Garam')}
-          >
-            Garam
-          </button>
-          <button
-            type="button"
-            className={`choice-btn ${selectedGuess === 'Gula' ? 'selected-wrong' : ''}`}
-            onClick={() => setSelectedGuess('Gula')}
-          >
-            Gula
-          </button>
         </div>
       </section>
     </div>

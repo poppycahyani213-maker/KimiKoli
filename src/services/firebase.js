@@ -22,12 +22,13 @@ import {
  * VITE_FIREBASE_APP_ID=...
  */
 export const firebaseConfig = {
-  apiKey: import.meta.env.VITE_FIREBASE_API_KEY || "YOUR_FIREBASE_API_KEY",
-  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN || "kimikoli-app.firebaseapp.com",
-  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID || "kimikoli-app",
-  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET || "kimikoli-app.appspot.com",
-  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID || "1234567890",
-  appId: import.meta.env.VITE_FIREBASE_APP_ID || "1:1234567890:web:abcdef123456"
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY || "AIzaSyDOpKXaV6J3aF2W-A9ncZmWVkGGx33HNdg",
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN || "kimikoli-36924.firebaseapp.com",
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID || "kimikoli-36924",
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET || "kimikoli-36924.firebasestorage.app",
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID || "225279441430",
+  appId: import.meta.env.VITE_FIREBASE_APP_ID || "1:225279441430:web:d5c64a4d9422a69c9d9337",
+  measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID || "G-ZEKSKMWG2Y"
 };
 
 // Cek apakah kredensial Firebase asli sudah dimasukkan

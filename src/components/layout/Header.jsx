@@ -1,4 +1,5 @@
 import React from 'react';
+import kimikoliIcon from '../../assets/kimikoli-icon.jpg';
 
 /**
  * Komponen Navbar KoligatifLab 11
@@ -60,12 +61,22 @@ export default function Header({
           style={{ cursor: isExamLocked ? 'not-allowed' : 'pointer' }}
           title={isExamLocked ? "Navigasi dikunci saat pretest berlangsung" : "Menuju Beranda KimiKoli"}
         >
-          <div className="brand-icon" style={{ background: isExamLocked ? '#475569' : '#0284C7' }}>
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M10 2v5.5L4.5 18a2 2 0 0 0 1.7 3h11.6a2 2 0 0 0 1.7-3L14 7.5V2"/>
-              <path d="M8.5 2h7"/>
-              <path d="M7 15h10"/>
-            </svg>
+          <div className="brand-icon" style={{ 
+            background: '#FFFFFF', 
+            border: '1.5px solid #BAE6FD',
+            borderRadius: '10px',
+            overflow: 'hidden',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: '2px',
+            boxShadow: '0 2px 6px rgba(2, 132, 199, 0.14)'
+          }}>
+            <img 
+              src={kimikoliIcon} 
+              alt="Logo KimiKoli" 
+              style={{ width: '100%', height: '100%', objectFit: 'contain' }}
+            />
           </div>
           <span className="brand-text">
             Kimi<span>Koli</span>

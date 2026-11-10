@@ -6,6 +6,7 @@ import imgRadiator from '../../assets/fenomena-radiator.jpg';
 import imgMentimun from '../../assets/fenomena-mentimun.jpg';
 import imgDesalinasi from '../../assets/fenomena-desalinasi.jpg';
 import imgElektrolit from '../../assets/fenomena-elektrolit.jpg';
+import kimikoliIcon from '../../assets/kimikoli-icon.jpg';
 
 /**
  * Komponen HomePage (Beranda KimiKoli)
@@ -97,22 +98,48 @@ export default function HomePage({
         <div className="hero-grid">
           {/* Kolom Kiri: Headline & CTA */}
           <div>
-            <div className="hero-tag">
-              <span>🔬</span>
+            <div className="hero-tag" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.55rem' }}>
+              <img 
+                src={kimikoliIcon} 
+                alt="KimiKoli" 
+                style={{ width: '22px', height: '22px', borderRadius: '6px', objectFit: 'contain' }}
+              />
               <span>KimiKoli · Sifat Koligatif Larutan Kelas XI SMA</span>
             </div>
 
-            <h1 className="hero-title" style={{ fontFamily: "'Times New Roman', Times, serif" }}>
-              {isAllMissionsDone ? (
-                isLabVirtualCompleted ? (
-                  <>🏆 Selamat! Seluruh Misi & Praktikum <span className="highlight-blue">Lab Tuntas</span>.</>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '1.25rem', marginBottom: '1.2rem', flexWrap: 'wrap' }}>
+              <div style={{
+                width: 84,
+                height: 84,
+                borderRadius: '22px',
+                background: '#FFFFFF',
+                border: '2px solid #BAE6FD',
+                boxShadow: '0 8px 24px rgba(2, 132, 199, 0.14)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                padding: '6px',
+                flexShrink: 0
+              }}>
+                <img 
+                  src={kimikoliIcon} 
+                  alt="Ilustrasi Laboratorium KimiKoli" 
+                  style={{ width: '100%', height: '100%', objectFit: 'contain' }}
+                />
+              </div>
+
+              <h1 className="hero-title" style={{ fontFamily: "'Times New Roman', Times, serif", margin: 0, flex: 1, minWidth: '240px' }}>
+                {isAllMissionsDone ? (
+                  isLabVirtualCompleted ? (
+                    <>🏆 Selamat! Seluruh Misi & Praktikum <span className="highlight-blue">Lab Tuntas</span>.</>
+                  ) : (
+                    <>🎉 Materi Bab 1–5 Tuntas! Lanjut ke <span className="highlight-blue">Lab Virtual</span>.</>
+                  )
                 ) : (
-                  <>🎉 Materi Bab 1–5 Tuntas! Lanjut ke <span className="highlight-blue">Lab Virtual</span>.</>
-                )
-              ) : (
-                <>Selesaikan 6 misi lab, bongkar rahasia <span className="highlight-blue">larutan</span>.</>
-              )}
-            </h1>
+                  <>Selesaikan 6 misi lab, bongkar rahasia <span className="highlight-blue">larutan</span>.</>
+                )}
+              </h1>
+            </div>
 
             <p className="hero-desc" style={{ fontSize: '1.05rem', lineHeight: 1.65 }}>
               {isAllMissionsDone ? (
@@ -753,7 +780,14 @@ export default function HomePage({
       <section id="peta-misi-section" className="mission-section">
         <div className="mission-header-row">
           <div className="mission-title-group">
-            <h2 style={{ fontFamily: "'Times New Roman', Times, serif" }}>Peta Misi Pembelajaran</h2>
+            <h2 style={{ fontFamily: "'Times New Roman', Times, serif", display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
+              <img 
+                src={kimikoliIcon} 
+                alt="Icon KimiKoli" 
+                style={{ width: 28, height: 28, borderRadius: 8, objectFit: 'contain', background: '#FFFFFF', border: '1px solid #BAE6FD', padding: '2px' }} 
+              />
+              Peta Misi Pembelajaran
+            </h2>
             <p>Materi berikutnya otomatis terbuka setiap kali kamu menyelesaikan materi sebelumnya.</p>
           </div>
           <div className="mission-duration-tag">

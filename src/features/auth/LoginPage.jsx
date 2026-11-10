@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import bgImg from '../../assets/kimikoli-bg.jpg';
+import kimikoliIcon from '../../assets/kimikoli-icon.jpg';
 
 /**
  * Komponen LoginPage
@@ -92,19 +93,24 @@ export default function LoginPage({ onLoginSuccess }) {
           {/* Logo & Judul Brand KimiKoli */}
           <div style={{ textAlign: 'center', marginBottom: '1.5rem' }}>
             <div style={{
-              width: 48,
-              height: 48,
-              borderRadius: 14,
-              background: 'linear-gradient(135deg, #0284C7, #06B6D4)',
-              color: '#FFFFFF',
+              width: 72,
+              height: 72,
+              borderRadius: 20,
+              background: '#FFFFFF',
+              border: '2px solid #BAE6FD',
               display: 'inline-flex',
               alignItems: 'center',
               justifyContent: 'center',
-              fontSize: '1.4rem',
               marginBottom: '0.65rem',
-              boxShadow: '0 4px 14px rgba(2, 132, 199, 0.3)'
+              boxShadow: '0 8px 24px rgba(2, 132, 199, 0.16)',
+              overflow: 'hidden',
+              padding: '6px'
             }}>
-              🧪
+              <img 
+                src={kimikoliIcon} 
+                alt="Logo KimiKoli" 
+                style={{ width: '100%', height: '100%', objectFit: 'contain' }}
+              />
             </div>
             <h1 style={{ fontSize: '1.85rem', fontWeight: 800, margin: '0 0 0.2rem', color: '#0F172A', letterSpacing: '-0.02em' }}>
               Kimi<span style={{ color: '#0284C7' }}>Koli</span>

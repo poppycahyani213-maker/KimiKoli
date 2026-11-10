@@ -5,7 +5,7 @@ import imgTitikBeku from '../../assets/icon-titik-beku.png';
 import imgRadiator from '../../assets/fenomena-radiator.jpg';
 import imgOsmosis from '../../assets/icon-osmosis.png';
 import imgDesalinasi from '../../assets/fenomena-desalinasi.jpg';
-import imgElektrolit from '../../assets/fenomena-elektrolit.jpg';
+import imgElektrolit from '../../assets/icon-elektrolit.png';
 import kimikoliIcon from '../../assets/kimikoli-icon.jpg';
 
 /**
@@ -317,7 +317,11 @@ export default function HomePage({
                     boxShadow: isCh5Completed ? '0 2px 8px rgba(16, 185, 129, 0.18)' : 'none'
                   }}
                 >
-                  <span className="icon" style={{ color: isCh5Completed ? '#10B981' : '#94A3B8' }}>{isCh5Completed ? '⚡' : '🔒'}</span>
+                  <span className="icon" style={{ color: isCh5Completed ? '#10B981' : '#94A3B8', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    {isCh5Completed ? (
+                      <img src={imgElektrolit} alt="Elektrolit" style={{ width: 18, height: 18, objectFit: 'contain' }} />
+                    ) : '🔒'}
+                  </span>
                   <span className="title" style={{ color: isCh5Completed ? '#065F46' : '#475569' }}>Elektrolit</span>
                 </div>
               </div>
@@ -760,8 +764,8 @@ export default function HomePage({
                 borderRadius: '14px',
                 overflow: 'hidden',
                 flexShrink: 0,
-                border: '1.5px solid #DDD6FE',
-                background: '#F8FAFC',
+                border: '1.5px solid #C4B5FD',
+                background: '#F5F3FF',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
@@ -769,7 +773,7 @@ export default function HomePage({
               }}>
                 <img 
                   src={imgElektrolit} 
-                  alt="Ilustrasi Partikel Elektrolit NaCl vs Nonelektrolit" 
+                  alt="Ilustrasi Ion Larutan Elektrolit" 
                   style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }}
                 />
               </div>

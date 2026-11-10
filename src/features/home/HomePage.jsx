@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import imgTekananUap from '../../assets/fenomena-tekanan-uap.jpg';
+import imgTekananUap from '../../assets/icon-tekanan-uap.png';
 import imgTitikDidih from '../../assets/fenomena-titik-didih.jpg';
 import imgTitikBeku from '../../assets/fenomena-titik-beku.jpg';
 import imgRadiator from '../../assets/fenomena-radiator.jpg';
@@ -241,7 +241,11 @@ export default function HomePage({
                     boxShadow: isCh1Completed ? '0 2px 8px rgba(16, 185, 129, 0.18)' : 'none'
                   }}
                 >
-                  <span className="icon" style={{ color: isCh1Completed ? '#10B981' : '#94A3B8' }}>{isCh1Completed ? '↓' : '🔒'}</span>
+                  <span className="icon" style={{ color: isCh1Completed ? '#10B981' : '#94A3B8', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    {isCh1Completed ? (
+                      <img src={imgTekananUap} alt="Uap" style={{ width: 18, height: 18, objectFit: 'contain' }} />
+                    ) : '🔒'}
+                  </span>
                   <span className="title" style={{ color: isCh1Completed ? '#065F46' : '#64748B' }}>Uap</span>
                 </div>
 
@@ -444,11 +448,11 @@ export default function HomePage({
                 overflow: 'hidden',
                 flexShrink: 0,
                 border: '1.5px solid #BAE6FD',
-                background: '#F8FAFC',
+                background: '#F0F9FF',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                padding: '4px'
+                padding: '6px'
               }}>
                 <img 
                   src={imgTekananUap} 
@@ -468,8 +472,9 @@ export default function HomePage({
                 <h3 style={{ fontSize: '1.2rem', fontWeight: 800, margin: 0, color: '#0F172A', fontFamily: "'Times New Roman', Times, serif" }}>
                   Penurunan Tekanan Uap
                 </h3>
-                <span style={{ fontSize: '0.88rem', color: '#0284C7', fontWeight: 700, display: 'block', marginTop: '0.15rem' }}>
-                  💨 Hambatan Partikel Terlarut di Permukaan
+                <span style={{ fontSize: '0.88rem', color: '#0284C7', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '0.35rem', marginTop: '0.15rem' }}>
+                  <span>💨</span>
+                  <span>Hambatan Partikel Terlarut & Penguapan</span>
                 </span>
               </div>
             </div>

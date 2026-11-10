@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import imgTekananUap from '../../assets/icon-tekanan-uap.png';
-import imgTitikDidih from '../../assets/fenomena-titik-didih.jpg';
+import imgTitikDidih from '../../assets/icon-titik-didih.png';
 import imgTitikBeku from '../../assets/fenomena-titik-beku.jpg';
 import imgRadiator from '../../assets/fenomena-radiator.jpg';
 import imgMentimun from '../../assets/fenomena-mentimun.jpg';
@@ -260,7 +260,11 @@ export default function HomePage({
                     boxShadow: isCh2Completed ? '0 2px 8px rgba(16, 185, 129, 0.18)' : 'none'
                   }}
                 >
-                  <span className="icon" style={{ color: isCh2Completed ? '#10B981' : '#94A3B8' }}>{isCh2Completed ? '💧' : '🔒'}</span>
+                  <span className="icon" style={{ color: isCh2Completed ? '#10B981' : '#94A3B8', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    {isCh2Completed ? (
+                      <img src={imgTitikDidih} alt="Didih" style={{ width: 18, height: 18, objectFit: 'contain' }} />
+                    ) : '🔒'}
+                  </span>
                   <span className="title" style={{ color: isCh2Completed ? '#065F46' : '#475569' }}>Didih</span>
                 </div>
 
@@ -508,8 +512,8 @@ export default function HomePage({
                 borderRadius: '14px',
                 overflow: 'hidden',
                 flexShrink: 0,
-                border: '1.5px solid #C7D2FE',
-                background: '#F8FAFC',
+                border: '1.5px solid #FCD34D',
+                background: '#FFF5E8',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',

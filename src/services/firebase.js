@@ -194,12 +194,18 @@ export async function logoutFirebase() {
 function translateFirebaseError(error) {
   const code = error?.code || '';
   switch (code) {
+    case 'auth/operation-not-allowed':
+      return new Error("Metode login ini belum diaktifkan di Firebase Console. Harap buka Firebase Console > Authentication > tab 'Sign-in method', lalu aktifkan (Enable) Email/Password atau Google.");
+    case 'auth/unauthorized-domain':
+      return new Error("Domain ini belum diizinkan di Firebase. Harap pastikan 'localhost' terdaftar di Firebase Console > Authentication > Settings > Authorized domains.");
+    case 'auth/configuration-not-found':
+      return new Error("Layanan Authentication belum diaktifkan. Harap buka menu Authentication di Firebase Console lalu klik tombol 'Get started'.");
     case 'auth/invalid-email':
       return new Error("Format alamat email tidak valid.");
     case 'auth/user-disabled':
       return new Error("Akun ini telah dinonaktifkan oleh administrator.");
     case 'auth/user-not-found':
-      return new Error("Akun dengan email ini belum terdaftar.");
+      return new Error("Akun dengan email ini belum terdaftar. Silakan gunakan menu 'Daftar Akun Baru'.");
     case 'auth/wrong-password':
     case 'auth/invalid-credential':
       return new Error("Email atau password yang Anda masukkan salah.");
@@ -210,7 +216,7 @@ function translateFirebaseError(error) {
     case 'auth/popup-closed-by-user':
       return new Error("Jendela login Google ditutup sebelum proses selesai.");
     case 'auth/popup-blocked':
-      return new Error("Pop-up browser diblokir. Harap izinkan pop-up untuk login Google.");
+      return new Error("Pop-up browser diblokir. Harap izinkan pop-up peramban Anda untuk login Google.");
     case 'auth/network-request-failed':
       return new Error("Koneksi internet bermasalah. Periksa jaringan Anda dan coba lagi.");
     default:

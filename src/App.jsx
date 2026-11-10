@@ -71,37 +71,31 @@ export default function App() {
 
   // Handler Berhasil Login
   const handleLoginSuccess = (userData) => {
+    // 1. Kosongkan state di memori terlebih dahulu agar tidak terbawa dari sesi user sebelumnya
+    setCompletedChapters([]);
+    setIsPretestCompleted(false);
+    setPretestAnswers({});
+    setIsLabVirtualCompleted(false);
+    setIsPretestLocked(false);
+
+    // 2. Simpan sesi user aktif
     setAuthUser(userData);
     setCurrentUser(userData);
 
-    // Ambil data progres spesifik untuk akun pengguna yang baru login ini!
+    // 3. Baca progres HANYA dari kunci "kimikoli:v1:<username dinormalisasi>"
     const saved = getCourseProgress(userData);
     const userCompletedChapters = saved?.completedChapters || [];
     const userPretestCompleted = Boolean(saved?.pretestCompleted);
     const userPretestAnswers = saved?.pretestAnswers || {};
     const userLabCompleted = Boolean(saved?.labVirtualCompleted);
 
-    // Muat progres milik akun yang bersangkutan
+    // 4. Set state memori sesuai data pengguna (kosong jika user baru)
     setCompletedChapters(userCompletedChapters);
     setIsPretestCompleted(userPretestCompleted);
     setPretestAnswers(userPretestAnswers);
     setIsLabVirtualCompleted(userLabCompleted);
-    setIsPretestLocked(false);
 
-    if (userData.role === 'student') {
-      const missionCount = Math.min(6, (userPretestCompleted ? 1 : 0) + userCompletedChapters.length);
-      saveStudentRecord({
-        name: userData.name,
-        email: userData.email,
-        className: userData.className,
-        pretestCompleted: userPretestCompleted,
-        pretestScore: saved?.pretestScore || 0,
-        pretestTotal: saved?.pretestTotal || 8,
-        progressMissions: `${missionCount}/6 Misi`,
-        xp: (userPretestCompleted ? 20 : 0) + (userCompletedChapters.length * 30) + (userLabCompleted ? 40 : 0)
-      });
-    }
-
+    // Jangan menyimpan data saat login tanpa ada perubahan dari user
     setCurrentView('home');
   };
 

@@ -58,15 +58,19 @@ export default function LatihanSoal({ onSemuaSelesai }) {
     return Boolean(saved?.isQ6Submitted);
   });
 
-  // Simpan progres latihan secara otomatis ke akun
+  // Simpan progres latihan hanya setelah ada interaksi nyata dari siswa
+  const hasUserInteracted = Object.values(answers).some(a => Boolean(a && a.trim())) || isQ6Submitted;
+
   useEffect(() => {
-    saveUserExerciseState(null, 'chapter1_latihan_soal', {
-      answers,
-      status,
-      showHint,
-      isQ6Submitted
-    });
-  }, [answers, status, showHint, isQ6Submitted]);
+    if (hasUserInteracted) {
+      saveUserExerciseState(null, 'chapter1_latihan_soal', {
+        answers,
+        status,
+        showHint,
+        isQ6Submitted
+      });
+    }
+  }, [answers, status, showHint, isQ6Submitted, hasUserInteracted]);
 
   // Cek kelengkapan saat pertama kali dimuat jika sudah pernah dikerjakan sebelumnya
   useEffect(() => {

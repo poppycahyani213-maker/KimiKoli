@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import imgTekananUap from '../../assets/icon-tekanan-uap.png';
 import imgTitikDidih from '../../assets/icon-titik-didih.png';
-import imgTitikBeku from '../../assets/fenomena-titik-beku.jpg';
+import imgTitikBeku from '../../assets/icon-titik-beku.png';
 import imgRadiator from '../../assets/fenomena-radiator.jpg';
 import imgMentimun from '../../assets/fenomena-mentimun.jpg';
 import imgDesalinasi from '../../assets/fenomena-desalinasi.jpg';
@@ -279,7 +279,11 @@ export default function HomePage({
                     boxShadow: isCh3Completed ? '0 2px 8px rgba(16, 185, 129, 0.18)' : 'none'
                   }}
                 >
-                  <span className="icon" style={{ color: isCh3Completed ? '#10B981' : '#94A3B8' }}>{isCh3Completed ? '❄️' : '🔒'}</span>
+                  <span className="icon" style={{ color: isCh3Completed ? '#10B981' : '#94A3B8', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    {isCh3Completed ? (
+                      <img src={imgTitikBeku} alt="Beku" style={{ width: 18, height: 18, objectFit: 'contain' }} />
+                    ) : '🔒'}
+                  </span>
                   <span className="title" style={{ color: isCh3Completed ? '#065F46' : '#475569' }}>Beku</span>
                 </div>
 
@@ -571,8 +575,8 @@ export default function HomePage({
                 borderRadius: '14px',
                 overflow: 'hidden',
                 flexShrink: 0,
-                border: '1.5px solid #FECACA',
-                background: '#F8FAFC',
+                border: '1.5px solid #BAE6FD',
+                background: '#F0F9FF',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
@@ -580,7 +584,7 @@ export default function HomePage({
               }}>
                 <img 
                   src={imgTitikBeku} 
-                  alt="Ilustrasi Penurunan Titik Beku (Es Krim)" 
+                  alt="Ilustrasi Penurunan Titik Beku (Kristal Es)" 
                   style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }}
                 />
               </div>

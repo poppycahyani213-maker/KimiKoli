@@ -17,6 +17,8 @@ export default function Header({
   currentUser = null,
   onLogout,
   onOpenTeacherPanel,
+  isPretestCompleted = false,
+  onStartPretest,
   isAllMaterialCompleted = false,
   isLabVirtualCompleted = false
 }) {
@@ -32,6 +34,17 @@ export default function Header({
     if (isTeacher) {
       if (tabId === 'quiz') tabId = 'chapter6';
       if (onSelectTab) onSelectTab(tabId);
+      return;
+    }
+
+    // Jika siswa belum pretest, tab Materi terkunci dan arahkan ke Pretest
+    if (tabId === 'chapter1' && !isPretestCompleted) {
+      alert("🔒 Materi Masih Terkunci: Harap selesaikan Pretest Prasyarat terlebih dahulu sebelum membuka materi Bab 1.");
+      if (onStartPretest) {
+        onStartPretest();
+      } else if (onSelectTab) {
+        onSelectTab('pretest');
+      }
       return;
     }
 
@@ -97,9 +110,13 @@ export default function Header({
             type="button"
             className={`nav-pill-btn ${(currentView.startsWith('chapter') && currentView !== 'chapter6') ? 'active' : ''}`}
             onClick={() => handleNavClick('chapter1')}
-            style={{ cursor: isExamLocked ? 'not-allowed' : 'pointer' }}
+            style={{ 
+              cursor: isExamLocked ? 'not-allowed' : 'pointer',
+              color: (!isPretestCompleted && !isTeacher) ? '#94A3B8' : undefined
+            }}
+            title={(!isPretestCompleted && !isTeacher) ? "🔒 Selesaikan Pretest terlebih dahulu untuk membuka Materi" : "Menuju Materi"}
           >
-            Materi
+            {(!isPretestCompleted && !isTeacher) ? '🔒 Materi' : 'Materi'}
           </button>
           <button
             type="button"

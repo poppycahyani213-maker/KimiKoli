@@ -104,7 +104,9 @@ export default function HomePage({
                 alt="KimiKoli" 
                 style={{ width: '22px', height: '22px', borderRadius: '6px', objectFit: 'contain' }}
               />
-              <span>KimiKoli · Sifat Koligatif Larutan Kelas XI SMA</span>
+              <span>
+                {!isPretestDone ? '🎯 Misi 1 Wajib: Pretest Prasyarat Pembuka Materi' : 'KimiKoli · Sifat Koligatif Larutan Kelas XI SMA'}
+              </span>
             </div>
 
             <div style={{ display: 'flex', alignItems: 'center', gap: '1.25rem', marginBottom: '1.2rem', flexWrap: 'wrap' }}>
@@ -136,7 +138,11 @@ export default function HomePage({
                     <>🎉 Materi Bab 1–5 Tuntas! Lanjut ke <span className="highlight-blue">Lab Virtual</span>.</>
                   )
                 ) : (
-                  <>Selesaikan 6 misi lab, bongkar rahasia <span className="highlight-blue">larutan</span>.</>
+                  !isPretestDone ? (
+                    <>Selesaikan Pretest Prasyarat untuk membuka gerbang <span className="highlight-blue">materi</span>.</>
+                  ) : (
+                    <>Selesaikan 6 misi lab, bongkar rahasia <span className="highlight-blue">larutan</span>.</>
+                  )
                 )}
               </h1>
             </div>
@@ -147,9 +153,11 @@ export default function HomePage({
                   ? "Hebat! Kamu telah menuntaskan seluruh materi teori dan sesi eksperimen di Laboratorium Virtual. Sekarang kamu siap menguji pemahaman komprehensifmu di Kuis Evaluasi Akhir!"
                   : "Luar biasa! Seluruh materi teori sifat koligatif larutan (Bab 1 sampai Bab 5) telah tuntas. Sekarang, masuklah ke Laboratorium Virtual untuk mengeksplorasi fenomena larutan secara langsung sebelum membuka Kuis Evaluasi Akhir."
               ) : (
-                totalMissionsDone > 0 
-                  ? `Progres luar biasa! Kamu telah menuntaskan ${totalMissionsDone} misi belajar. Terus lanjutkan untuk membuka fenomena koligatif berikutnya.`
-                  : "Setiap misi membuka satu fenomena nyata: kenapa es puter butuh garam kasar, kenapa cairan radiator mobil tidak mendidih, hingga desalinasi air laut. Kumpulkan XP dan lencana di setiap langkah."
+                !isPretestDone
+                  ? "Selamat datang di KimiKoli! Sebelum mempelajari materi sifat koligatif larutan, kamu wajib menyelesaikan 8 soal Pretest Prasyarat (±10 menit). Begitu pretest tuntas, materi Bab 1 akan langsung terbuka otomatis!"
+                  : (totalMissionsDone > 0 
+                    ? `Progres luar biasa! Kamu telah menuntaskan ${totalMissionsDone} misi belajar. Terus lanjutkan untuk membuka fenomena koligatif berikutnya.`
+                    : "Setiap misi membuka satu fenomena nyata: kenapa es puter butuh garam kasar, kenapa cairan radiator mobil tidak mendidih, hingga desalinasi air laut. Kumpulkan XP dan lencana di setiap langkah.")
               )}
             </p>
 
@@ -414,20 +422,20 @@ export default function HomePage({
         }}>
           {/* KARTU 1 (Bab 1 & 2): Penurunan Tekanan Uap (ΔP) */}
           <div 
-            onClick={isCh1Unlocked ? () => onGoToChapter('chapter1') : undefined}
+            onClick={isCh1Unlocked ? () => onGoToChapter('chapter1') : onStartPretest}
             style={{
               padding: '1.25rem',
               borderRadius: '18px',
               background: 'rgba(255, 255, 255, 0.98)',
               border: isCh1Completed ? '2px solid #10B981' : (isCh1Unlocked ? '2px solid #0284C7' : '1.5px solid #E2E8F0'),
               boxShadow: isCh1Unlocked ? '0 6px 20px rgba(2, 132, 199, 0.08)' : 'none',
-              cursor: isCh1Unlocked ? 'pointer' : 'default',
+              cursor: 'pointer',
               transition: 'all 0.2s ease',
               display: 'flex',
               flexDirection: 'column',
               gap: '1rem'
             }}
-            title={isCh1Unlocked ? "Klik untuk menuju Bab 1: Konsentrasi & Hakikat Koligatif" : "Selesaikan Pretest untuk membuka"}
+            title={isCh1Unlocked ? "Klik untuk menuju Bab 1: Konsentrasi & Hakikat Koligatif" : "🔒 Terkunci: Klik untuk mengerjakan Pretest terlebih dahulu"}
           >
             <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
               {/* Container gambar rapi dengan object-fit: contain agar utuh */}

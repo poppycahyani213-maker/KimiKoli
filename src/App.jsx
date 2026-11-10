@@ -212,6 +212,8 @@ export default function App() {
         currentUser={currentUser}
         onLogout={handleLogout}
         onOpenTeacherPanel={() => setCurrentView('teacher-dashboard')}
+        isPretestCompleted={isPretestCompleted}
+        onStartPretest={handleStartPretest}
         isAllMaterialCompleted={isAllMaterialCompleted}
         isLabVirtualCompleted={isLabVirtualCompleted}
       />
@@ -253,155 +255,355 @@ export default function App() {
           />
         )}
 
-        {/* Tampilan 3: Bab 1 - Konsentrasi Larutan & Lab Virtual */}
+        {/* Tampilan 3: Bab 1 - Konsentrasi Larutan (Wajib Tuntas Pretest Terlebih Dahulu) */}
         {currentView === 'chapter1' && (
           <div>
-            <div style={{ marginBottom: '1.25rem', display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
-              <button
-                type="button"
-                onClick={() => setCurrentView('home')}
-                className="btn btn-secondary"
-                style={{ padding: '0.45rem 1rem', fontSize: '0.85rem' }}
-              >
-                ← Kembali ke Peta Misi
-              </button>
-              <span style={{ fontSize: '0.85rem', color: '#64748B', fontWeight: 600 }}>
-                Bab 1 dari 6: Konsentrasi Larutan & Sifat Koligatif
-              </span>
-            </div>
+            {!isPretestCompleted && currentUser?.role !== 'teacher' ? (
+              <div style={{
+                background: '#FFFBEB',
+                border: '1.5px solid #FDE68A',
+                borderRadius: '16px',
+                padding: '2.5rem 1.5rem',
+                textAlign: 'center',
+                margin: '2rem auto',
+                maxWidth: '680px'
+              }}>
+                <div style={{ fontSize: '3.2rem', marginBottom: '0.75rem' }}>🔒</div>
+                <h3 style={{ color: '#92400E', fontSize: '1.4rem', margin: '0 0 0.6rem 0' }}>
+                  Materi Bab 1 Masih Terkunci
+                </h3>
+                <p style={{ color: '#78350F', lineHeight: 1.6, margin: '0 auto 1.5rem' }}>
+                  Sebagai siswa yang baru bergabung, kamu wajib mengerjakan <strong>Pretest Prasyarat</strong> terlebih dahulu untuk mengukur pemahaman awal sebelum membuka materi Bab 1 dan materi selanjutnya.
+                </p>
+                <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'center', flexWrap: 'wrap' }}>
+                  <button
+                    type="button"
+                    className="btn btn-primary"
+                    onClick={handleStartPretest}
+                    style={{ padding: '0.8rem 1.6rem', fontSize: '1rem', background: '#0284C7' }}
+                  >
+                    🚀 Mulai Kerjakan Pretest Sekarang →
+                  </button>
+                  <button
+                    type="button"
+                    className="btn btn-secondary"
+                    onClick={() => setCurrentView('home')}
+                    style={{ padding: '0.8rem 1.4rem' }}
+                  >
+                    Kembali ke Beranda
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <div>
+                <div style={{ marginBottom: '1.25rem', display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
+                  <button
+                    type="button"
+                    onClick={() => setCurrentView('home')}
+                    className="btn btn-secondary"
+                    style={{ padding: '0.45rem 1rem', fontSize: '0.85rem' }}
+                  >
+                    ← Kembali ke Peta Misi
+                  </button>
+                  <span style={{ fontSize: '0.85rem', color: '#64748B', fontWeight: 600 }}>
+                    Bab 1 dari 6: Konsentrasi Larutan & Sifat Koligatif
+                  </span>
+                </div>
 
-            <Chapter1Page
-              isCompleted={completedChapters.includes('chapter1')}
-              onComplete={() => handleCompleteAndProceed('chapter1', 'chapter2')}
-            />
+                <Chapter1Page
+                  isCompleted={completedChapters.includes('chapter1')}
+                  onComplete={() => handleCompleteAndProceed('chapter1', 'chapter2')}
+                />
+              </div>
+            )}
           </div>
         )}
 
         {/* Tampilan 4: Bab 2 - Penurunan Tekanan Uap & Kenaikan Titik Didih */}
         {currentView === 'chapter2' && (
           <div>
-            <div style={{ marginBottom: '1.25rem', display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
-              <button
-                type="button"
-                onClick={() => setCurrentView('home')}
-                className="btn btn-secondary"
-                style={{ padding: '0.45rem 1rem', fontSize: '0.85rem' }}
-              >
-                ← Kembali ke Peta Misi
-              </button>
-              <button
-                type="button"
-                onClick={() => setCurrentView('chapter1')}
-                className="btn btn-outline"
-                style={{ padding: '0.45rem 1rem', fontSize: '0.85rem' }}
-              >
-                ← Bab Sebelumnya (Bab 1)
-              </button>
-              <span style={{ fontSize: '0.85rem', color: '#64748B', fontWeight: 600 }}>
-                Bab 2 dari 6: Penurunan Tekanan Uap & Kenaikan Titik Didih
-              </span>
-            </div>
+            {!completedChapters.includes('chapter1') && currentUser?.role !== 'teacher' ? (
+              <div style={{
+                background: '#FFFBEB',
+                border: '1.5px solid #FDE68A',
+                borderRadius: '16px',
+                padding: '2.5rem 1.5rem',
+                textAlign: 'center',
+                margin: '2rem auto',
+                maxWidth: '680px'
+              }}>
+                <div style={{ fontSize: '3.2rem', marginBottom: '0.75rem' }}>🔒</div>
+                <h3 style={{ color: '#92400E', fontSize: '1.4rem', margin: '0 0 0.6rem 0' }}>
+                  Bab 2 Masih Terkunci
+                </h3>
+                <p style={{ color: '#78350F', lineHeight: 1.6, margin: '0 auto 1.5rem' }}>
+                  Sesuai alur belajar bertahap, kamu wajib menyelesaikan materi di <strong>Bab 1 (Konsentrasi Larutan)</strong> terlebih dahulu sebelum membuka Bab 2.
+                </p>
+                <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'center', flexWrap: 'wrap' }}>
+                  <button
+                    type="button"
+                    className="btn btn-primary"
+                    onClick={() => setCurrentView('chapter1')}
+                    style={{ padding: '0.8rem 1.6rem', fontSize: '1rem', background: '#0284C7' }}
+                  >
+                    📖 Buka Bab 1 Sekarang →
+                  </button>
+                  <button
+                    type="button"
+                    className="btn btn-secondary"
+                    onClick={() => setCurrentView('home')}
+                    style={{ padding: '0.8rem 1.4rem' }}
+                  >
+                    Kembali ke Beranda
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <div>
+                <div style={{ marginBottom: '1.25rem', display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
+                  <button
+                    type="button"
+                    onClick={() => setCurrentView('home')}
+                    className="btn btn-secondary"
+                    style={{ padding: '0.45rem 1rem', fontSize: '0.85rem' }}
+                  >
+                    ← Kembali ke Peta Misi
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setCurrentView('chapter1')}
+                    className="btn btn-outline"
+                    style={{ padding: '0.45rem 1rem', fontSize: '0.85rem' }}
+                  >
+                    ← Bab Sebelumnya (Bab 1)
+                  </button>
+                  <span style={{ fontSize: '0.85rem', color: '#64748B', fontWeight: 600 }}>
+                    Bab 2 dari 6: Penurunan Tekanan Uap & Kenaikan Titik Didih
+                  </span>
+                </div>
 
-            <Chapter2Page
-              isCompleted={completedChapters.includes('chapter2')}
-              onComplete={() => handleCompleteAndProceed('chapter2', 'chapter3')}
-            />
+                <Chapter2Page
+                  isCompleted={completedChapters.includes('chapter2')}
+                  onComplete={() => handleCompleteAndProceed('chapter2', 'chapter3')}
+                />
+              </div>
+            )}
           </div>
         )}
 
         {/* Tampilan 5: Bab 3 - Penurunan Titik Beku & Diagram Fase P–T */}
         {currentView === 'chapter3' && (
           <div>
-            <div style={{ marginBottom: '1.25rem', display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
-              <button
-                type="button"
-                onClick={() => setCurrentView('home')}
-                className="btn btn-secondary"
-                style={{ padding: '0.45rem 1rem', fontSize: '0.85rem' }}
-              >
-                ← Kembali ke Peta Misi
-              </button>
-              <button
-                type="button"
-                onClick={() => setCurrentView('chapter2')}
-                className="btn btn-outline"
-                style={{ padding: '0.45rem 1rem', fontSize: '0.85rem' }}
-              >
-                ← Bab Sebelumnya (Bab 2)
-              </button>
-              <span style={{ fontSize: '0.85rem', color: '#64748B', fontWeight: 600 }}>
-                Bab 3 dari 6: Penurunan Titik Beku & Diagram Fase P–T
-              </span>
-            </div>
+            {!completedChapters.includes('chapter2') && currentUser?.role !== 'teacher' ? (
+              <div style={{
+                background: '#FFFBEB',
+                border: '1.5px solid #FDE68A',
+                borderRadius: '16px',
+                padding: '2.5rem 1.5rem',
+                textAlign: 'center',
+                margin: '2rem auto',
+                maxWidth: '680px'
+              }}>
+                <div style={{ fontSize: '3.2rem', marginBottom: '0.75rem' }}>🔒</div>
+                <h3 style={{ color: '#92400E', fontSize: '1.4rem', margin: '0 0 0.6rem 0' }}>
+                  Bab 3 Masih Terkunci
+                </h3>
+                <p style={{ color: '#78350F', lineHeight: 1.6, margin: '0 auto 1.5rem' }}>
+                  Kamu wajib menyelesaikan materi di <strong>Bab 2 (Penurunan Tekanan Uap & Kenaikan Titik Didih)</strong> terlebih dahulu sebelum membuka Bab 3.
+                </p>
+                <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'center', flexWrap: 'wrap' }}>
+                  <button
+                    type="button"
+                    className="btn btn-primary"
+                    onClick={() => setCurrentView('chapter2')}
+                    style={{ padding: '0.8rem 1.6rem', fontSize: '1rem', background: '#0284C7' }}
+                  >
+                    📖 Buka Bab 2 Sekarang →
+                  </button>
+                  <button
+                    type="button"
+                    className="btn btn-secondary"
+                    onClick={() => setCurrentView('home')}
+                    style={{ padding: '0.8rem 1.4rem' }}
+                  >
+                    Kembali ke Beranda
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <div>
+                <div style={{ marginBottom: '1.25rem', display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
+                  <button
+                    type="button"
+                    onClick={() => setCurrentView('home')}
+                    className="btn btn-secondary"
+                    style={{ padding: '0.45rem 1rem', fontSize: '0.85rem' }}
+                  >
+                    ← Kembali ke Peta Misi
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setCurrentView('chapter2')}
+                    className="btn btn-outline"
+                    style={{ padding: '0.45rem 1rem', fontSize: '0.85rem' }}
+                  >
+                    ← Bab Sebelumnya (Bab 2)
+                  </button>
+                  <span style={{ fontSize: '0.85rem', color: '#64748B', fontWeight: 600 }}>
+                    Bab 3 dari 6: Penurunan Titik Beku & Diagram Fase P–T
+                  </span>
+                </div>
 
-            <Chapter3Page
-              isCompleted={completedChapters.includes('chapter3')}
-              onComplete={() => handleCompleteAndProceed('chapter3', 'chapter4')}
-            />
+                <Chapter3Page
+                  isCompleted={completedChapters.includes('chapter3')}
+                  onComplete={() => handleCompleteAndProceed('chapter3', 'chapter4')}
+                />
+              </div>
+            )}
           </div>
         )}
 
         {/* Tampilan 6: Bab 4 - Tekanan Osmotik & Membran Semipermeabel */}
         {currentView === 'chapter4' && (
           <div>
-            <div style={{ marginBottom: '1.25rem', display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
-              <button
-                type="button"
-                onClick={() => setCurrentView('home')}
-                className="btn btn-secondary"
-                style={{ padding: '0.45rem 1rem', fontSize: '0.85rem' }}
-              >
-                ← Kembali ke Peta Misi
-              </button>
-              <button
-                type="button"
-                onClick={() => setCurrentView('chapter3')}
-                className="btn btn-outline"
-                style={{ padding: '0.45rem 1rem', fontSize: '0.85rem' }}
-              >
-                ← Bab Sebelumnya (Bab 3)
-              </button>
-              <span style={{ fontSize: '0.85rem', color: '#64748B', fontWeight: 600 }}>
-                Bab 4 dari 6: Tekanan Osmotik & Membran Semipermeabel
-              </span>
-            </div>
+            {!completedChapters.includes('chapter3') && currentUser?.role !== 'teacher' ? (
+              <div style={{
+                background: '#FFFBEB',
+                border: '1.5px solid #FDE68A',
+                borderRadius: '16px',
+                padding: '2.5rem 1.5rem',
+                textAlign: 'center',
+                margin: '2rem auto',
+                maxWidth: '680px'
+              }}>
+                <div style={{ fontSize: '3.2rem', marginBottom: '0.75rem' }}>🔒</div>
+                <h3 style={{ color: '#92400E', fontSize: '1.4rem', margin: '0 0 0.6rem 0' }}>
+                  Bab 4 Masih Terkunci
+                </h3>
+                <p style={{ color: '#78350F', lineHeight: 1.6, margin: '0 auto 1.5rem' }}>
+                  Kamu wajib menyelesaikan materi di <strong>Bab 3 (Penurunan Titik Beku)</strong> terlebih dahulu sebelum membuka Bab 4.
+                </p>
+                <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'center', flexWrap: 'wrap' }}>
+                  <button
+                    type="button"
+                    className="btn btn-primary"
+                    onClick={() => setCurrentView('chapter3')}
+                    style={{ padding: '0.8rem 1.6rem', fontSize: '1rem', background: '#0284C7' }}
+                  >
+                    📖 Buka Bab 3 Sekarang →
+                  </button>
+                  <button
+                    type="button"
+                    className="btn btn-secondary"
+                    onClick={() => setCurrentView('home')}
+                    style={{ padding: '0.8rem 1.4rem' }}
+                  >
+                    Kembali ke Beranda
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <div>
+                <div style={{ marginBottom: '1.25rem', display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
+                  <button
+                    type="button"
+                    onClick={() => setCurrentView('home')}
+                    className="btn btn-secondary"
+                    style={{ padding: '0.45rem 1rem', fontSize: '0.85rem' }}
+                  >
+                    ← Kembali ke Peta Misi
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setCurrentView('chapter3')}
+                    className="btn btn-outline"
+                    style={{ padding: '0.45rem 1rem', fontSize: '0.85rem' }}
+                  >
+                    ← Bab Sebelumnya (Bab 3)
+                  </button>
+                  <span style={{ fontSize: '0.85rem', color: '#64748B', fontWeight: 600 }}>
+                    Bab 4 dari 6: Tekanan Osmotik & Membran Semipermeabel
+                  </span>
+                </div>
 
-            <Chapter4Page
-              isCompleted={completedChapters.includes('chapter4')}
-              onComplete={() => handleCompleteAndProceed('chapter4', 'chapter5')}
-            />
+                <Chapter4Page
+                  isCompleted={completedChapters.includes('chapter4')}
+                  onComplete={() => handleCompleteAndProceed('chapter4', 'chapter5')}
+                />
+              </div>
+            )}
           </div>
         )}
 
         {/* Tampilan 7: Bab 5 - Sifat Koligatif Larutan Elektrolit & van 't Hoff */}
         {currentView === 'chapter5' && (
           <div>
-            <div style={{ marginBottom: '1.25rem', display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
-              <button
-                type="button"
-                onClick={() => setCurrentView('home')}
-                className="btn btn-secondary"
-                style={{ padding: '0.45rem 1rem', fontSize: '0.85rem' }}
-              >
-                ← Kembali ke Peta Misi
-              </button>
-              <button
-                type="button"
-                onClick={() => setCurrentView('chapter4')}
-                className="btn btn-outline"
-                style={{ padding: '0.45rem 1rem', fontSize: '0.85rem' }}
-              >
-                ← Bab Sebelumnya (Bab 4)
-              </button>
-              <span style={{ fontSize: '0.85rem', color: '#64748B', fontWeight: 600 }}>
-                Bab 5 dari 6: Larutan Elektrolit & Faktor van 't Hoff
-              </span>
-            </div>
+            {!completedChapters.includes('chapter4') && currentUser?.role !== 'teacher' ? (
+              <div style={{
+                background: '#FFFBEB',
+                border: '1.5px solid #FDE68A',
+                borderRadius: '16px',
+                padding: '2.5rem 1.5rem',
+                textAlign: 'center',
+                margin: '2rem auto',
+                maxWidth: '680px'
+              }}>
+                <div style={{ fontSize: '3.2rem', marginBottom: '0.75rem' }}>🔒</div>
+                <h3 style={{ color: '#92400E', fontSize: '1.4rem', margin: '0 0 0.6rem 0' }}>
+                  Bab 5 Masih Terkunci
+                </h3>
+                <p style={{ color: '#78350F', lineHeight: 1.6, margin: '0 auto 1.5rem' }}>
+                  Kamu wajib menyelesaikan materi di <strong>Bab 4 (Tekanan Osmotik)</strong> terlebih dahulu sebelum membuka Bab 5.
+                </p>
+                <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'center', flexWrap: 'wrap' }}>
+                  <button
+                    type="button"
+                    className="btn btn-primary"
+                    onClick={() => setCurrentView('chapter4')}
+                    style={{ padding: '0.8rem 1.6rem', fontSize: '1rem', background: '#0284C7' }}
+                  >
+                    📖 Buka Bab 4 Sekarang →
+                  </button>
+                  <button
+                    type="button"
+                    className="btn btn-secondary"
+                    onClick={() => setCurrentView('home')}
+                    style={{ padding: '0.8rem 1.4rem' }}
+                  >
+                    Kembali ke Beranda
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <div>
+                <div style={{ marginBottom: '1.25rem', display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
+                  <button
+                    type="button"
+                    onClick={() => setCurrentView('home')}
+                    className="btn btn-secondary"
+                    style={{ padding: '0.45rem 1rem', fontSize: '0.85rem' }}
+                  >
+                    ← Kembali ke Peta Misi
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setCurrentView('chapter4')}
+                    className="btn btn-outline"
+                    style={{ padding: '0.45rem 1rem', fontSize: '0.85rem' }}
+                  >
+                    ← Bab Sebelumnya (Bab 4)
+                  </button>
+                  <span style={{ fontSize: '0.85rem', color: '#64748B', fontWeight: 600 }}>
+                    Bab 5 dari 6: Larutan Elektrolit & Faktor van 't Hoff
+                  </span>
+                </div>
 
-            <Chapter5Page
-              isCompleted={completedChapters.includes('chapter5')}
-              onComplete={() => handleCompleteAndProceed('chapter5', 'lab-virtual')}
-            />
+                <Chapter5Page
+                  isCompleted={completedChapters.includes('chapter5')}
+                  onComplete={() => handleCompleteAndProceed('chapter5', 'lab-virtual')}
+                />
+              </div>
+            )}
           </div>
         )}
 

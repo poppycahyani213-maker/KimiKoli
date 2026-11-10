@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { getUserExerciseState, saveUserExerciseState } from '../../utils/storage';
 
 /**
  * Komponen PrerequisiteRefresher
@@ -6,11 +7,18 @@ import React, { useState } from 'react';
  * Modul Penyegar Singkat Prasyarat:
  * - Molalitas (m), Molaritas (M), dan Fraksi Mol (X)
  * - Disertai 3 soal latihan interaktif dengan umpan balik langsung
+ * - Jawaban tersimpan otomatis per akun siswa
  */
 export default function PrerequisiteRefresher({ isOpenDefault = false }) {
   const [isOpen, setIsOpen] = useState(isOpenDefault);
-  const [selectedAnswers, setSelectedAnswers] = useState({});
-  const [showFeedback, setShowFeedback] = useState({});
+  const [selectedAnswers, setSelectedAnswers] = useState(() => {
+    const saved = getUserExerciseState(null, 'ch2_prerequisite_refresher');
+    return saved?.selectedAnswers || {};
+  });
+  const [showFeedback, setShowFeedback] = useState(() => {
+    const saved = getUserExerciseState(null, 'ch2_prerequisite_refresher');
+    return saved?.showFeedback || {};
+  });
 
   const questions = [
     {
@@ -52,8 +60,14 @@ export default function PrerequisiteRefresher({ isOpenDefault = false }) {
   ];
 
   const handleSelect = (qId, key) => {
-    setSelectedAnswers(prev => ({ ...prev, [qId]: key }));
-    setShowFeedback(prev => ({ ...prev, [qId]: true }));
+    const updatedAnswers = { ...selectedAnswers, [qId]: key };
+    const updatedFeedback = { ...showFeedback, [qId]: true };
+    setSelectedAnswers(updatedAnswers);
+    setShowFeedback(updatedFeedback);
+    saveUserExerciseState(null, 'ch2_prerequisite_refresher', {
+      selectedAnswers: updatedAnswers,
+      showFeedback: updatedFeedback
+    });
   };
 
   return (

@@ -38,6 +38,7 @@ export default function App() {
   const [completedChapters, setCompletedChapters] = useState([]);
   const [isPretestCompleted, setIsPretestCompleted] = useState(false);
   const [isPretestLocked, setIsPretestLocked] = useState(false);
+  const [pretestAnswers, setPretestAnswers] = useState({});
   const [isLabVirtualCompleted, setIsLabVirtualCompleted] = useState(false);
 
   // Status penyelesaian seluruh materi teori (Bab 1 s.d. Bab 5)
@@ -56,12 +57,14 @@ export default function App() {
       if (saved) {
         setCompletedChapters(saved.completedChapters || []);
         setIsPretestCompleted(Boolean(saved.pretestCompleted));
+        setPretestAnswers(saved.pretestAnswers || {});
         setIsLabVirtualCompleted(Boolean(saved.labVirtualCompleted));
       }
     } else {
       setCurrentUser(null);
       setCompletedChapters([]);
       setIsPretestCompleted(false);
+      setPretestAnswers({});
       setIsLabVirtualCompleted(false);
     }
   }, []);
@@ -71,15 +74,17 @@ export default function App() {
     setAuthUser(userData);
     setCurrentUser(userData);
 
-    // Ambil data progres spesifik untuk pengguna (username) yang baru login ini!
+    // Ambil data progres spesifik untuk akun pengguna yang baru login ini!
     const saved = getCourseProgress(userData);
     const userCompletedChapters = saved?.completedChapters || [];
     const userPretestCompleted = Boolean(saved?.pretestCompleted);
+    const userPretestAnswers = saved?.pretestAnswers || {};
     const userLabCompleted = Boolean(saved?.labVirtualCompleted);
 
-    // Muat progres milik user yang bersangkutan (jika akun baru, akan kosong 0/6)
+    // Muat progres milik akun yang bersangkutan
     setCompletedChapters(userCompletedChapters);
     setIsPretestCompleted(userPretestCompleted);
+    setPretestAnswers(userPretestAnswers);
     setIsLabVirtualCompleted(userLabCompleted);
     setIsPretestLocked(false);
 
@@ -87,6 +92,7 @@ export default function App() {
       const missionCount = Math.min(6, (userPretestCompleted ? 1 : 0) + userCompletedChapters.length);
       saveStudentRecord({
         name: userData.name,
+        email: userData.email,
         className: userData.className,
         pretestCompleted: userPretestCompleted,
         pretestScore: saved?.pretestScore || 0,
@@ -108,6 +114,7 @@ export default function App() {
       setCompletedChapters([]);
       setIsPretestCompleted(false);
       setIsPretestLocked(false);
+      setPretestAnswers({});
       setIsLabVirtualCompleted(false);
       setCurrentView('home');
     }
@@ -115,28 +122,46 @@ export default function App() {
 
   const handleStartPretest = () => {
     setCurrentView('pretest');
-    setIsPretestLocked(true);
+    // Jika pretest belum selesai, kunci navigasi
+    if (!isPretestCompleted) {
+      setIsPretestLocked(true);
+    }
   };
 
-  // Callback saat pretest selesai dikerjakan (soal 8 tuntas)
+  // Callback simpan jawaban pretest per nomor soal secara instan
+  const handleSavePretestAnswer = (updatedAnswers) => {
+    setPretestAnswers(updatedAnswers);
+    const saved = getCourseProgress(currentUser) || {};
+    saveCourseProgress({
+      ...saved,
+      pretestAnswers: updatedAnswers
+    }, currentUser);
+  };
+
+  // Callback saat pretest selesai dikerjakan (seluruh soal tuntas diperiksa)
   const handleFinishPretest = (result) => {
     setIsPretestLocked(false);
     setIsPretestCompleted(true);
 
-    const score = result?.score || 0;
-    const total = result?.total || 8;
+    const score = result?.score ?? 0;
+    const total = result?.total ?? 8;
+    const finalAnswers = result?.answers || pretestAnswers;
+    setPretestAnswers(finalAnswers);
 
     const saved = getCourseProgress(currentUser) || {};
     saveCourseProgress({
       ...saved,
       pretestCompleted: true,
       pretestScore: score,
-      pretestTotal: total
+      pretestTotal: total,
+      pretestAnswers: finalAnswers,
+      pretestFinished: true
     }, currentUser);
 
     if (currentUser && currentUser.role === 'student') {
       saveStudentRecord({
         name: currentUser.name,
+        email: currentUser.email,
         className: currentUser.className,
         pretestCompleted: true,
         pretestScore: score,
@@ -145,6 +170,20 @@ export default function App() {
         xp: 20
       });
     }
+  };
+
+  // Callback reset pretest jika ingin mengulang
+  const handleResetPretest = () => {
+    setIsPretestCompleted(false);
+    setPretestAnswers({});
+    const saved = getCourseProgress(currentUser) || {};
+    saveCourseProgress({
+      ...saved,
+      pretestCompleted: false,
+      pretestScore: 0,
+      pretestAnswers: {},
+      pretestFinished: false
+    }, currentUser);
   };
 
   // Fungsi Transisi Menyelesaikan 1 Materi & Otomatis Membuka Materi Berikutnya
@@ -243,6 +282,9 @@ export default function App() {
         {/* Tampilan 2: Soal Pretest Interaktif */}
         {currentView === 'pretest' && (
           <PretestPage
+            currentUser={currentUser}
+            savedAnswers={pretestAnswers}
+            isPretestCompleted={isPretestCompleted}
             onBackToHome={() => {
               setIsPretestLocked(false);
               setCurrentView('home');
@@ -252,6 +294,8 @@ export default function App() {
               setCurrentView('chapter1');
             }}
             onFinishPretest={handleFinishPretest}
+            onSaveAnswer={handleSavePretestAnswer}
+            onResetPretest={handleResetPretest}
           />
         )}
 

@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Card from '../../components/common/Card';
 import Button from '../../components/common/Button';
+import { getUserExerciseState, saveUserExerciseState } from '../../utils/storage';
 
 /**
  * Komponen LatihanSoal
@@ -9,40 +10,71 @@ import Button from '../../components/common/Button';
  * - 5 Soal Numerik dengan kolom isian angka (menerima titik atau koma, toleransi ±2%)
  *   dan umpan balik langsung serta petunjuk terarah jika keliru.
  * - 1 Soal Uraian Konseptual (refleksi tanpa penilaian otomatis) disertai contoh jawaban ideal.
- * - Prop onSemuaSelesai dipanggil saat soal 1–5 benar dan soal 6 telah diisi (tanpa menambah XP).
+ * - Jawaban tersimpan otomatis per akun siswa sehingga tidak hilang saat login ulang.
+ * - Prop onSemuaSelesai dipanggil saat soal 1–5 benar dan soal 6 telah diisi.
  */
 export default function LatihanSoal({ onSemuaSelesai }) {
   // State Jawaban Siswa
-  const [answers, setAnswers] = useState({
-    q1: '',
-    q2: '',
-    q3: '',
-    q4: '',
-    q5: '',
-    q6: ''
+  const [answers, setAnswers] = useState(() => {
+    const saved = getUserExerciseState(null, 'chapter1_latihan_soal');
+    return saved?.answers || {
+      q1: '',
+      q2: '',
+      q3: '',
+      q4: '',
+      q5: '',
+      q6: ''
+    };
   });
 
   // State Status Pemeriksaan: 'unanswered' | 'correct' | 'incorrect'
-  const [status, setStatus] = useState({
-    q1: 'unanswered',
-    q2: 'unanswered',
-    q3: 'unanswered',
-    q4: 'unanswered',
-    q5: 'unanswered',
-    q6: 'unanswered'
+  const [status, setStatus] = useState(() => {
+    const saved = getUserExerciseState(null, 'chapter1_latihan_soal');
+    return saved?.status || {
+      q1: 'unanswered',
+      q2: 'unanswered',
+      q3: 'unanswered',
+      q4: 'unanswered',
+      q5: 'unanswered',
+      q6: 'unanswered'
+    };
   });
 
   // State untuk menampilkan Petunjuk
-  const [showHint, setShowHint] = useState({
-    q1: false,
-    q2: false,
-    q3: false,
-    q4: false,
-    q5: false
+  const [showHint, setShowHint] = useState(() => {
+    const saved = getUserExerciseState(null, 'chapter1_latihan_soal');
+    return saved?.showHint || {
+      q1: false,
+      q2: false,
+      q3: false,
+      q4: false,
+      q5: false
+    };
   });
 
   // State untuk menampilkan Contoh Jawaban Soal 6
-  const [isQ6Submitted, setIsQ6Submitted] = useState(false);
+  const [isQ6Submitted, setIsQ6Submitted] = useState(() => {
+    const saved = getUserExerciseState(null, 'chapter1_latihan_soal');
+    return Boolean(saved?.isQ6Submitted);
+  });
+
+  // Simpan progres latihan secara otomatis ke akun
+  useEffect(() => {
+    saveUserExerciseState(null, 'chapter1_latihan_soal', {
+      answers,
+      status,
+      showHint,
+      isQ6Submitted
+    });
+  }, [answers, status, showHint, isQ6Submitted]);
+
+  // Cek kelengkapan saat pertama kali dimuat jika sudah pernah dikerjakan sebelumnya
+  useEffect(() => {
+    const allNumericCorrect = ['q1', 'q2', 'q3', 'q4', 'q5'].every(k => status[k] === 'correct');
+    if (allNumericCorrect && isQ6Submitted && typeof onSemuaSelesai === 'function') {
+      onSemuaSelesai();
+    }
+  }, []);
 
   // Daftar Definisi Soal Numerik (Soal 1 - 5)
   const numericQuestions = [

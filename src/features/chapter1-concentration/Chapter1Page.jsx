@@ -5,36 +5,44 @@ import Badge from '../../components/common/Badge';
 import TripleRepresentation from '../../components/chemistry/TripleRepresentation';
 import MisconceptionCard from '../../components/chemistry/MisconceptionCard';
 import { FormulaRenderer } from '../../components/chemistry/FormulaRenderer';
-import { getStoredData, setStoredData, getAuthUser } from '../../utils/storage';
+import { getStoredData, setStoredData, getAuthUser, getUserAccountKey } from '../../utils/storage';
 import SugarGlassesIllustration from './SugarGlassesIllustration';
 import PerbandinganKonsentrasi from './PerbandinganKonsentrasi';
 import ContohSoal from './ContohSoal';
 import SimulatorLarutan from './SimulatorLarutan';
 import LatihanSoal from './LatihanSoal';
 
-// Helper membuat kunci penyimpanan unik per siswa (nama dan kelas yang sedang login)
+// Helper membuat kunci penyimpanan unik per akun pengguna yang login
 function getCh1StorageKey() {
   const user = getAuthUser();
-  if (user && user.name) {
-    const cleanName = user.name.toLowerCase().trim().replace(/[^a-z0-9]/g, '_');
-    const cleanClass = (user.className || '').toLowerCase().trim().replace(/[^a-z0-9]/g, '_');
-    return `koligatif_ch1_requirements_v1_${cleanName}_${cleanClass}`;
+  const accountKey = getUserAccountKey(user);
+  return `koligatif_ch1_requirements_v2_${accountKey}`;
+}
+
+function getCh1SavedData() {
+  const key = getCh1StorageKey();
+  let saved = getStoredData(key, null);
+  if (!saved) {
+    const user = getAuthUser();
+    if (user?.name) {
+      const cleanName = user.name.toLowerCase().trim().replace(/[^a-z0-9]/g, '_');
+      const cleanClass = (user.className || '').toLowerCase().trim().replace(/[^a-z0-9]/g, '_');
+      saved = getStoredData(`koligatif_ch1_requirements_v1_${cleanName}_${cleanClass}`, null);
+    }
   }
-  return 'koligatif_ch1_requirements_v1_guest';
+  return saved || { isMissionDone: false, isExerciseDone: false };
 }
 
 export default function Chapter1Page({ onComplete, isCompleted }) {
   const [isMissionDone, setIsMissionDone] = useState(() => {
     if (isCompleted) return true;
-    const storageKey = getCh1StorageKey();
-    const saved = getStoredData(storageKey, { isMissionDone: false, isExerciseDone: false });
+    const saved = getCh1SavedData();
     return Boolean(saved?.isMissionDone);
   });
 
   const [isExerciseDone, setIsExerciseDone] = useState(() => {
     if (isCompleted) return true;
-    const storageKey = getCh1StorageKey();
-    const saved = getStoredData(storageKey, { isMissionDone: false, isExerciseDone: false });
+    const saved = getCh1SavedData();
     return Boolean(saved?.isExerciseDone);
   });
 

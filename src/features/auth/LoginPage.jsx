@@ -8,6 +8,7 @@ import {
   resetPassword,
   isFirebaseConfigured 
 } from '../../services/firebase';
+import { getUserProfile, saveUserProfile } from '../../utils/storage';
 
 /**
  * Komponen LoginPage (KimiKoli)
@@ -45,15 +46,17 @@ export default function LoginPage({ onLoginSuccess }) {
 
     try {
       const googleUser = await loginWithGoogle();
+      const existingProfile = getUserProfile(googleUser.email) || getUserProfile(googleUser.uid);
       const userData = {
-        role: activeRole,
-        name: googleUser.name || 'Siswa KimiKoli',
+        role: existingProfile?.role || activeRole,
+        name: existingProfile?.name || googleUser.name || 'Siswa KimiKoli',
         email: googleUser.email,
-        className: activeRole === 'student' ? studentClass : 'Guru Kimia',
+        className: existingProfile?.className || (activeRole === 'student' ? studentClass : 'Guru Kimia'),
         uid: googleUser.uid,
         provider: 'google.com',
         loginAt: new Date().toISOString()
       };
+      saveUserProfile(userData);
       onLoginSuccess(userData);
     } catch (error) {
       setErrorMessage(error.message || 'Gagal masuk dengan Google. Silakan coba kembali.');
@@ -76,15 +79,20 @@ export default function LoginPage({ onLoginSuccess }) {
     setIsLoading(true);
     try {
       const user = await loginWithEmail(email.trim(), password);
+      const existingProfile = getUserProfile(user.email) || getUserProfile(user.uid);
+      const resolvedName = existingProfile?.name || (user.name && user.name !== email.split('@')[0] ? user.name : null) || email.split('@')[0];
+      const resolvedClass = existingProfile?.className || (activeRole === 'student' ? studentClass : 'Guru Kimia');
+
       const userData = {
-        role: activeRole,
-        name: user.name || email.split('@')[0],
+        role: existingProfile?.role || activeRole,
+        name: resolvedName,
         email: user.email,
-        className: activeRole === 'student' ? studentClass : 'Guru Kimia',
+        className: resolvedClass,
         uid: user.uid,
         provider: 'password',
         loginAt: new Date().toISOString()
       };
+      saveUserProfile(userData);
       onLoginSuccess(userData);
     } catch (error) {
       setErrorMessage(error.message || 'Gagal masuk. Periksa kembali email dan password Anda.');
@@ -128,6 +136,7 @@ export default function LoginPage({ onLoginSuccess }) {
         provider: 'password',
         loginAt: new Date().toISOString()
       };
+      saveUserProfile(userData);
       onLoginSuccess(userData);
     } catch (error) {
       setErrorMessage(error.message || 'Gagal mendaftar. Silakan coba email lain.');
@@ -173,6 +182,7 @@ export default function LoginPage({ onLoginSuccess }) {
       provider: 'guest',
       loginAt: new Date().toISOString()
     };
+    saveUserProfile(userData);
     onLoginSuccess(userData);
   };
 

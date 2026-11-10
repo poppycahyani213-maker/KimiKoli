@@ -33,9 +33,20 @@ export function setStoredData(key, value) {
   }
 }
 
-// Progres Belajar Sesi Saat Ini
-export function getCourseProgress() {
-  return getStoredData(STORAGE_KEYS.PROGRESS, {
+// Helper untuk mendapatkan key penyimpanan progres berbasis akun pengguna
+export function getUserProgressKey(user) {
+  if (!user || !user.name) return STORAGE_KEYS.PROGRESS;
+  const safeName = encodeURIComponent(user.name.trim().toLowerCase());
+  const safeClass = user.className ? encodeURIComponent(user.className.trim().toLowerCase()) : 'default';
+  const role = user.role || 'student';
+  return `koligatif_progress_${role}_${safeName}_${safeClass}`;
+}
+
+// Progres Belajar Sesi Pengguna Tertentu
+export function getCourseProgress(user = null) {
+  const activeUser = user || getAuthUser();
+  const key = getUserProgressKey(activeUser);
+  return getStoredData(key, {
     completedChapters: [],
     currentChapter: 'chapter1',
     pretestCompleted: false,
@@ -45,8 +56,10 @@ export function getCourseProgress() {
   });
 }
 
-export function saveCourseProgress(progress) {
-  return setStoredData(STORAGE_KEYS.PROGRESS, progress);
+export function saveCourseProgress(progress, user = null) {
+  const activeUser = user || getAuthUser();
+  const key = getUserProgressKey(activeUser);
+  return setStoredData(key, progress);
 }
 
 // Data Autentikasi Pengguna (Siswa / Guru)

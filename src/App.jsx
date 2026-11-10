@@ -52,19 +52,17 @@ export default function App() {
     const loggedUser = getAuthUser();
     if (loggedUser) {
       setCurrentUser(loggedUser);
-    }
-
-    const saved = getCourseProgress();
-    if (saved) {
-      if (saved.completedChapters) {
-        setCompletedChapters(saved.completedChapters);
+      const saved = getCourseProgress(loggedUser);
+      if (saved) {
+        setCompletedChapters(saved.completedChapters || []);
+        setIsPretestCompleted(Boolean(saved.pretestCompleted));
+        setIsLabVirtualCompleted(Boolean(saved.labVirtualCompleted));
       }
-      if (saved.pretestCompleted) {
-        setIsPretestCompleted(true);
-      }
-      if (saved.labVirtualCompleted) {
-        setIsLabVirtualCompleted(true);
-      }
+    } else {
+      setCurrentUser(null);
+      setCompletedChapters([]);
+      setIsPretestCompleted(false);
+      setIsLabVirtualCompleted(false);
     }
   }, []);
 
@@ -73,14 +71,28 @@ export default function App() {
     setAuthUser(userData);
     setCurrentUser(userData);
 
+    // Ambil data progres spesifik untuk pengguna (username) yang baru login ini!
+    const saved = getCourseProgress(userData);
+    const userCompletedChapters = saved?.completedChapters || [];
+    const userPretestCompleted = Boolean(saved?.pretestCompleted);
+    const userLabCompleted = Boolean(saved?.labVirtualCompleted);
+
+    // Muat progres milik user yang bersangkutan (jika akun baru, akan kosong 0/6)
+    setCompletedChapters(userCompletedChapters);
+    setIsPretestCompleted(userPretestCompleted);
+    setIsLabVirtualCompleted(userLabCompleted);
+    setIsPretestLocked(false);
+
     if (userData.role === 'student') {
+      const missionCount = Math.min(6, (userPretestCompleted ? 1 : 0) + userCompletedChapters.length);
       saveStudentRecord({
         name: userData.name,
         className: userData.className,
-        pretestCompleted: isPretestCompleted,
-        pretestScore: 0,
-        pretestTotal: 8,
-        progressMissions: isPretestCompleted ? `${1 + completedChapters.length}/6 Misi` : '0/6 Misi'
+        pretestCompleted: userPretestCompleted,
+        pretestScore: saved?.pretestScore || 0,
+        pretestTotal: saved?.pretestTotal || 8,
+        progressMissions: `${missionCount}/6 Misi`,
+        xp: (userPretestCompleted ? 20 : 0) + (userCompletedChapters.length * 30) + (userLabCompleted ? 40 : 0)
       });
     }
 
@@ -92,8 +104,12 @@ export default function App() {
     if (window.confirm("Apakah Anda yakin ingin keluar dari akun ini?")) {
       clearAuthUser();
       setCurrentUser(null);
-      setCurrentView('home');
+      // Bersihkan state agar tidak terbawa ke akun/username lain yang akan login berikutnya
+      setCompletedChapters([]);
+      setIsPretestCompleted(false);
       setIsPretestLocked(false);
+      setIsLabVirtualCompleted(false);
+      setCurrentView('home');
     }
   };
 
@@ -110,13 +126,13 @@ export default function App() {
     const score = result?.score || 0;
     const total = result?.total || 8;
 
-    const saved = getCourseProgress() || {};
+    const saved = getCourseProgress(currentUser) || {};
     saveCourseProgress({
       ...saved,
       pretestCompleted: true,
       pretestScore: score,
       pretestTotal: total
-    });
+    }, currentUser);
 
     if (currentUser && currentUser.role === 'student') {
       saveStudentRecord({
@@ -147,21 +163,21 @@ export default function App() {
 
     setCompletedChapters(updated);
 
-    const saved = getCourseProgress() || {};
+    const saved = getCourseProgress(currentUser) || {};
     saveCourseProgress({
       ...saved,
       completedChapters: updated,
       currentChapter: nextChapterId || completedChapterId
-    });
+    }, currentUser);
 
     // Perbarui rekapitulasi nilai dan progres siswa untuk guru
     if (currentUser && currentUser.role === 'student') {
-      const missionCount = Math.min(6, 1 + updated.length);
+      const missionCount = Math.min(6, (isPretestCompleted ? 1 : 0) + updated.length);
       saveStudentRecord({
         name: currentUser.name,
         className: currentUser.className,
         progressMissions: `${missionCount}/6 Misi`,
-        xp: 20 + updated.length * 30
+        xp: (isPretestCompleted ? 20 : 0) + (updated.length * 30) + (isLabVirtualCompleted ? 40 : 0)
       });
     }
 
@@ -454,8 +470,8 @@ export default function App() {
                       // Buka akses langsung bagi siswa yang sudah membaca materi
                       const updated = ['chapter1', 'chapter2', 'chapter3', 'chapter4', 'chapter5'];
                       setCompletedChapters(updated);
-                      const saved = getCourseProgress() || {};
-                      saveCourseProgress({ ...saved, completedChapters: updated });
+                      const saved = getCourseProgress(currentUser) || {};
+                      saveCourseProgress({ ...saved, completedChapters: updated }, currentUser);
                     }}
                     style={{ padding: '0.65rem 1.25rem', fontSize: '0.95rem', background: '#FFFFFF', borderColor: '#10B981', color: '#047857' }}
                   >
@@ -468,11 +484,19 @@ export default function App() {
                 isCompleted={isLabVirtualCompleted}
                 onCompleteLab={() => {
                   setIsLabVirtualCompleted(true);
-                  const saved = getCourseProgress() || {};
+                  const saved = getCourseProgress(currentUser) || {};
                   saveCourseProgress({
                     ...saved,
                     labVirtualCompleted: true
-                  });
+                  }, currentUser);
+                  if (currentUser && currentUser.role === 'student') {
+                    saveStudentRecord({
+                      name: currentUser.name,
+                      className: currentUser.className,
+                      progressMissions: '6/6 Misi',
+                      xp: (isPretestCompleted ? 20 : 0) + (completedChapters.length * 30) + 40
+                    });
+                  }
                   setCurrentView('chapter6');
                   window.scrollTo({ top: 0, behavior: 'smooth' });
                 }}
@@ -539,13 +563,14 @@ export default function App() {
                   setCompletedChapters([]);
                   setIsPretestCompleted(false);
                   setIsLabVirtualCompleted(false);
-                  const saved = getCourseProgress() || {};
                   saveCourseProgress({
-                    ...saved,
                     completedChapters: [],
+                    currentChapter: 'chapter1',
                     pretestCompleted: false,
+                    pretestScore: 0,
+                    pretestTotal: 8,
                     labVirtualCompleted: false
-                  });
+                  }, currentUser);
                   setCurrentView('home');
                 }}
               />

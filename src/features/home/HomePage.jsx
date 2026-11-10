@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import imgTekananUap from '../../assets/icon-tekanan-uap.png';
 import imgTitikDidih from '../../assets/icon-titik-didih.png';
 import imgTitikBeku from '../../assets/icon-titik-beku.png';
-import imgRadiator from '../../assets/fenomena-radiator.jpg';
+import imgRadiator from '../../assets/icon-radiator.png';
 import imgOsmosis from '../../assets/icon-osmosis.png';
 import imgDesalinasi from '../../assets/fenomena-desalinasi.jpg';
 import imgElektrolit from '../../assets/icon-elektrolit.png';
@@ -642,8 +642,8 @@ export default function HomePage({
                 borderRadius: '14px',
                 overflow: 'hidden',
                 flexShrink: 0,
-                border: '1.5px solid #BBF7D0',
-                background: '#F8FAFC',
+                border: '1.5px solid #FBCFE8',
+                background: '#FDF2F8',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
@@ -652,7 +652,7 @@ export default function HomePage({
               }}>
                 <img 
                   src={imgRadiator} 
-                  alt="Ilustrasi Cairan Radiator Mobil" 
+                  alt="Ilustrasi Cairan Radiator (Didih & Beku)" 
                   style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }}
                 />
               </div>

@@ -22,10 +22,19 @@ export default function HomePage({
   isLabVirtualCompleted = false,
   onStartPretest, 
   onGoToChapter,
-  onGoToLabVirtual
+  onGoToLabVirtual,
+  onOpenInfoModal
 }) {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isIconHovered, setIsIconHovered] = useState(false);
+
+  const handleOpenInfoModal = () => {
+    if (onOpenInfoModal) {
+      onOpenInfoModal();
+    } else {
+      setIsModalOpen(true);
+    }
+  };
 
   const isCh1Completed = completedChapters.includes('chapter1');
   const isCh2Completed = completedChapters.includes('chapter2');
@@ -102,13 +111,13 @@ export default function HomePage({
           <div>
             <div 
               className="hero-tag" 
-              onClick={() => setIsModalOpen(true)}
+              onClick={handleOpenInfoModal}
               role="button"
               tabIndex={0}
               onKeyDown={(e) => {
                 if (e.key === 'Enter' || e.key === ' ') {
                   e.preventDefault();
-                  setIsModalOpen(true);
+                  handleOpenInfoModal();
                 }
               }}
               title="Klik untuk membuka informasi website dan manual penggunaan"
@@ -140,11 +149,11 @@ export default function HomePage({
                 tabIndex={0}
                 aria-label="Buka Informasi Website dan Manual Penggunaan KimiKoli"
                 title="Klik untuk membuka informasi website & manual penggunaan KimiKoli"
-                onClick={() => setIsModalOpen(true)}
+                onClick={handleOpenInfoModal}
                 onKeyDown={(e) => {
                   if (e.key === 'Enter' || e.key === ' ') {
                     e.preventDefault();
-                    setIsModalOpen(true);
+                    handleOpenInfoModal();
                   }
                 }}
                 onMouseEnter={() => setIsIconHovered(true)}

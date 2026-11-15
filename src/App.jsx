@@ -21,6 +21,7 @@ import Chapter5Page from './features/chapter5-electrolyte/Chapter5Page';
 import Chapter6Page from './features/chapter6-evaluation/Chapter6Page';
 import LabVirtualHub from './features/lab-virtual/LabVirtualHub';
 import TeacherDashboard from './features/teacher/TeacherDashboard';
+import KimiKoliModal from './features/home/KimiKoliModal';
 
 /**
  * Komponen Utama App
@@ -40,6 +41,7 @@ export default function App() {
   const [isPretestLocked, setIsPretestLocked] = useState(false);
   const [pretestAnswers, setPretestAnswers] = useState({});
   const [isLabVirtualCompleted, setIsLabVirtualCompleted] = useState(false);
+  const [isInfoModalOpen, setIsInfoModalOpen] = useState(false);
 
   // Status penyelesaian seluruh materi teori (Bab 1 s.d. Bab 5)
   // Guru selalu memiliki akses penuh. Siswa berhak membuka jika telah menyelesaikan Bab 5 atau seluruh bab materi 1–5.
@@ -263,6 +265,7 @@ export default function App() {
         onStartPretest={handleStartPretest}
         isAllMaterialCompleted={isAllMaterialCompleted}
         isLabVirtualCompleted={isLabVirtualCompleted}
+        onOpenInfoModal={() => setIsInfoModalOpen(true)}
       />
 
       {/* 2. Konten Utama */}
@@ -284,6 +287,7 @@ export default function App() {
             onStartPretest={handleStartPretest}
             onGoToChapter={(chapterId) => setCurrentView(chapterId)}
             onGoToLabVirtual={() => setCurrentView('lab-virtual')}
+            onOpenInfoModal={() => setIsInfoModalOpen(true)}
           />
         )}
 
@@ -861,6 +865,12 @@ export default function App() {
         )}
 
       </main>
+
+      {/* Modal Popup Informasi Website & Manual Penggunaan KimiKoli */}
+      <KimiKoliModal
+        isOpen={isInfoModalOpen}
+        onClose={() => setIsInfoModalOpen(false)}
+      />
     </div>
   );
 }

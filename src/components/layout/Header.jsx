@@ -20,7 +20,8 @@ export default function Header({
   isPretestCompleted = false,
   onStartPretest,
   isAllMaterialCompleted = false,
-  isLabVirtualCompleted = false
+  isLabVirtualCompleted = false,
+  onOpenInfoModal
 }) {
   const isTeacher = currentUser?.role === 'teacher';
 
@@ -70,9 +71,19 @@ export default function Header({
         {/* 1. Logo Brand */}
         <div 
           className="brand-link" 
-          onClick={() => handleNavClick('home')}
-          style={{ cursor: isExamLocked ? 'not-allowed' : 'pointer' }}
-          title={isExamLocked ? "Navigasi dikunci saat pretest berlangsung" : "Menuju Beranda KimiKoli"}
+          onClick={() => {
+            if (isExamLocked) {
+              alert("🔒 Mode Ujian Terfokus Aktif: Harap selesaikan seluruh soal pretest terlebih dahulu untuk membuka fitur lainnya.");
+              return;
+            }
+            if (onOpenInfoModal) {
+              onOpenInfoModal();
+            } else {
+              handleNavClick('home');
+            }
+          }}
+          style={{ cursor: isExamLocked ? 'not-allowed' : 'pointer', userSelect: 'none' }}
+          title={isExamLocked ? "Navigasi dikunci saat pretest berlangsung" : "Klik untuk Informasi Website & Manual Penggunaan KimiKoli"}
         >
           <div className="brand-icon" style={{ 
             background: '#FFFFFF', 

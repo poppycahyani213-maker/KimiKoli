@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import kimikoliIcon from '../../assets/kimikoli-icon.jpg';
 
 /**
  * Modal Popup Informasi Website & Manual Penggunaan KimiKoli
  * Memiliki 2 tab: "Tentang Website" dan "Manual Penggunaan"
+ * Menggunakan React Portal ke document.body agar tidak terpengaruh parent overflow/transform.
  * Ditutup dengan tombol ✕, tombol Esc, klik backdrop di luar modal, atau tombol "Tutup".
  */
 export default function KimiKoliModal({ isOpen, onClose }) {
@@ -20,6 +22,7 @@ export default function KimiKoliModal({ isOpen, onClose }) {
     };
 
     window.addEventListener('keydown', handleKeyDown);
+    
     // Kunci scroll body saat modal aktif
     const originalOverflow = document.body.style.overflow;
     document.body.style.overflow = 'hidden';
@@ -31,14 +34,15 @@ export default function KimiKoliModal({ isOpen, onClose }) {
   }, [isOpen, onClose]);
 
   if (!isOpen) return null;
+  if (typeof document === 'undefined') return null;
 
-  return (
+  const modalElement = (
     <div
       role="dialog"
       aria-modal="true"
       aria-labelledby="modal-title"
       onClick={(e) => {
-        // Tutup jika klik di luar modal (backdrop)
+        // Tutup jika klik tepat di backdrop (area gelap di luar kotak modal)
         if (e.target === e.currentTarget) {
           onClose();
         }
@@ -47,16 +51,17 @@ export default function KimiKoliModal({ isOpen, onClose }) {
         position: 'fixed',
         top: 0,
         left: 0,
-        right: 0,
-        bottom: 0,
-        backgroundColor: 'rgba(15, 23, 42, 0.65)',
-        backdropFilter: 'blur(6px)',
-        zIndex: 99999,
+        width: '100vw',
+        height: '100vh',
+        backgroundColor: 'rgba(15, 23, 42, 0.72)',
+        backdropFilter: 'blur(5px)',
+        WebkitBackdropFilter: 'blur(5px)',
+        zIndex: 999999,
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
         padding: '1rem',
-        animation: 'fadeIn 0.2s ease-out'
+        boxSizing: 'border-box'
       }}
     >
       <div
@@ -65,13 +70,13 @@ export default function KimiKoliModal({ isOpen, onClose }) {
           borderRadius: '24px',
           width: '100%',
           maxWidth: '680px',
-          maxHeight: '88vh',
+          maxHeight: '90vh',
           display: 'flex',
           flexDirection: 'column',
-          boxShadow: '0 25px 50px -12px rgba(2, 132, 199, 0.25), 0 0 0 1px rgba(186, 230, 253, 0.8)',
+          boxShadow: '0 25px 60px -15px rgba(2, 132, 199, 0.35), 0 0 0 1px rgba(186, 230, 253, 0.9)',
           overflow: 'hidden',
           fontFamily: "'Times New Roman', Times, serif",
-          animation: 'scaleUp 0.22s cubic-bezier(0.16, 1, 0.3, 1)'
+          boxSizing: 'border-box'
         }}
         onClick={(e) => e.stopPropagation()}
       >
@@ -80,7 +85,7 @@ export default function KimiKoliModal({ isOpen, onClose }) {
             ========================================================= */}
         <div
           style={{
-            padding: '1.25rem 1.5rem',
+            padding: '1.2rem 1.5rem',
             background: 'linear-gradient(135deg, #F0F9FF 0%, #E0F2FE 100%)',
             borderBottom: '1.5px solid #BAE6FD',
             display: 'flex',
@@ -257,7 +262,7 @@ export default function KimiKoliModal({ isOpen, onClose }) {
                 <p style={{ margin: 0, color: '#1E293B', fontSize: '0.95rem' }}>
                   KimiKoli adalah media pembelajaran kimia digital interaktif yang dirancang khusus untuk memandu siswa
                   kelas XI SMA memahami konsep <strong>Sifat Koligatif Larutan</strong> secara kontekstual, bertahap,
-                  dan menyenangkan melalui visualisasi fenomena sehari-hari serta simulasi laboratorium.
+                  dan menyenangkan melalui visualisasi fenomena sehari-hari serta simulasi laboratorium virtual.
                 </p>
               </div>
 
@@ -287,19 +292,19 @@ export default function KimiKoliModal({ isOpen, onClose }) {
                 >
                   <div style={{ background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: '10px', padding: '0.65rem 0.85rem' }}>
                     <strong style={{ color: '#0284C7' }}>1. Penurunan Tekanan Uap (ΔP):</strong>
-                    <div style={{ fontSize: '0.88rem', color: '#475569' }}>Hukum Raoult dan fraksi mol zat terlarut.</div>
+                    <div style={{ fontSize: '0.88rem', color: '#475569' }}>Hukum Raoult dan pengaruh fraksi mol zat terlarut terhadap penguapan.</div>
                   </div>
                   <div style={{ background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: '10px', padding: '0.65rem 0.85rem' }}>
                     <strong style={{ color: '#0284C7' }}>2. Kenaikan Titik Didih (ΔTb):</strong>
-                    <div style={{ fontSize: '0.88rem', color: '#475569' }}>Pengaruh konsentrasi molal dan tetapan Kb pelarut.</div>
+                    <div style={{ fontSize: '0.88rem', color: '#475569' }}>Pengaruh konsentrasi molal dan tetapan titik didih molal (Kb) pelarut.</div>
                   </div>
                   <div style={{ background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: '10px', padding: '0.65rem 0.85rem' }}>
                     <strong style={{ color: '#0284C7' }}>3. Penurunan Titik Beku (ΔTf):</strong>
-                    <div style={{ fontSize: '0.88rem', color: '#475569' }}>Prinsip pembuatan es puter dan tetapan Kf pelarut.</div>
+                    <div style={{ fontSize: '0.88rem', color: '#475569' }}>Prinsip es puter, cairan pendingin radiator, dan tetapan Kf pelarut.</div>
                   </div>
                   <div style={{ background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: '10px', padding: '0.65rem 0.85rem' }}>
                     <strong style={{ color: '#0284C7' }}>4. Tekanan Osmotik (Π):</strong>
-                    <div style={{ fontSize: '0.88rem', color: '#475569' }}>Hukum van &apos;t Hoff, membran semipermeabel, dan desalinasi.</div>
+                    <div style={{ fontSize: '0.88rem', color: '#475569' }}>Hukum van &apos;t Hoff, membran semipermeabel, cairan infus, dan desalinasi.</div>
                   </div>
                 </div>
                 <div
@@ -313,11 +318,11 @@ export default function KimiKoliModal({ isOpen, onClose }) {
                     color: '#86198F'
                   }}
                 >
-                  ⚡ <strong>Faktor van &apos;t Hoff (i):</strong> Perbedaan perhitungan sifat koligatif larutan nonelektrolit dengan larutan elektrolit akibat derajat ionisasi (α).
+                  ⚡ <strong>Faktor van &apos;t Hoff (i):</strong> Penyesuaian perhitungan sifat koligatif pada larutan elektrolit yang terdisosiasi menjadi ion-ion berdasarkan derajat ionisasi (α).
                 </div>
               </div>
 
-              {/* 3. Daftar Fitur Website (Masing-masing satu kalimat) */}
+              {/* 3. Daftar Fitur Website (Masing-masing tepat satu kalimat) */}
               <div>
                 <h3
                   style={{
@@ -381,7 +386,7 @@ export default function KimiKoliModal({ isOpen, onClose }) {
                   </strong>
                 </div>
                 <p style={{ margin: 0, color: '#064E3B', fontSize: '0.93rem' }}>
-                  Website KimiKoli dirancang menggunakan sistem gerbang misi bertahap agar pemahamanmu terbangun kokoh dari dasar hingga aplikasi tingkat lanjut.
+                  Ikuti alur pembelajaran berurutan berikut untuk membangun pemahaman kimia sifat koligatif larutan secara kokoh dan menyenangkan:
                 </p>
               </div>
 
@@ -420,7 +425,7 @@ export default function KimiKoliModal({ isOpen, onClose }) {
                       Kerjakan Pretest Prasyarat
                     </h4>
                     <p style={{ margin: 0, color: '#475569', fontSize: '0.91rem' }}>
-                      Mulai perjalananmu dengan menyelesaikan 8 butir soal Pretest Prasyarat untuk mengukur pemahaman awal konsep mol dan konsentrasi larutan sekaligus membuka materi Bab 1.
+                      Selesaikan 8 butir soal Pretest Prasyarat untuk mengukur pemahaman awal konsep mol dan konsentrasi larutan sekaligus membuka gerbang materi Bab 1.
                     </p>
                   </div>
                 </div>
@@ -458,7 +463,7 @@ export default function KimiKoliModal({ isOpen, onClose }) {
                       Pelajari Materi Bab 1 hingga Bab 5 Secara Bertahap
                     </h4>
                     <p style={{ margin: 0, color: '#475569', fontSize: '0.91rem' }}>
-                      Baca penjelasan konsep, amati simulasi molekuler, dan selesaikan latihan mandiri di akhir setiap bab. Begitu satu bab tuntas, bab berikutnya akan terbuka secara otomatis.
+                      Baca penjelasan materi, cermati visualisasi animasi partikel submikroskopis, dan selesaikan kuis latihan di setiap akhir bab agar bab selanjutnya terbuka otomatis.
                     </p>
                   </div>
                 </div>
@@ -496,7 +501,7 @@ export default function KimiKoliModal({ isOpen, onClose }) {
                       Coba Eksperimen di Lab Virtual
                     </h4>
                     <p style={{ margin: 0, color: '#475569', fontSize: '0.91rem' }}>
-                      Uji hipotesismu di Laboratorium Virtual dengan melarutkan glukosa atau garam (NaCl) ke dalam air untuk membuktikan secara visual perubahan titik didih dan titik beku larutan.
+                      Uji langsung pemahaman teorimu di Laboratorium Virtual dengan mencampurkan zat nonelektrolit (glukosa) atau elektrolit (garam) untuk melihat perbedaan titik didih dan titik beku.
                     </p>
                   </div>
                 </div>
@@ -534,7 +539,7 @@ export default function KimiKoliModal({ isOpen, onClose }) {
                       Kerjakan Kuis Evaluasi Akhir
                     </h4>
                     <p style={{ margin: 0, color: '#475569', fontSize: '0.91rem' }}>
-                      Tuntaskan kuis evaluasi komprehensif untuk menguji seluruh materi yang telah kamu pelajari, raih gelar &quot;Ahli Koligatif&quot;, dan lengkapi perolehan seluruh lencana prestasimu!
+                      Ikuti Kuis Evaluasi Akhir untuk menguji ketuntasan belajar secara menyeluruh, kumpulkan poin XP tertinggi, dan lengkapi seluruh koleksi lencana prestasimu!
                     </p>
                   </div>
                 </div>
@@ -589,4 +594,6 @@ export default function KimiKoliModal({ isOpen, onClose }) {
       </div>
     </div>
   );
+
+  return createPortal(modalElement, document.body);
 }

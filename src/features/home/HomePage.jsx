@@ -7,6 +7,7 @@ import imgOsmosis from '../../assets/icon-osmosis.png';
 import imgDesalinasi from '../../assets/fenomena-desalinasi.jpg';
 import imgElektrolit from '../../assets/icon-elektrolit.png';
 import kimikoliIcon from '../../assets/kimikoli-icon.jpg';
+import KimiKoliModal from './KimiKoliModal';
 
 /**
  * Komponen HomePage (Beranda KimiKoli)
@@ -23,6 +24,9 @@ export default function HomePage({
   onGoToChapter,
   onGoToLabVirtual
 }) {
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isIconHovered, setIsIconHovered] = useState(false);
+
   const isCh1Completed = completedChapters.includes('chapter1');
   const isCh2Completed = completedChapters.includes('chapter2');
   const isCh3Completed = completedChapters.includes('chapter3');
@@ -96,7 +100,27 @@ export default function HomePage({
         <div className="hero-grid">
           {/* Kolom Kiri: Headline & CTA */}
           <div>
-            <div className="hero-tag" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.55rem' }}>
+            <div 
+              className="hero-tag" 
+              onClick={() => setIsModalOpen(true)}
+              role="button"
+              tabIndex={0}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault();
+                  setIsModalOpen(true);
+                }
+              }}
+              title="Klik untuk membuka informasi website dan manual penggunaan"
+              style={{ 
+                display: 'inline-flex', 
+                alignItems: 'center', 
+                gap: '0.55rem', 
+                cursor: 'pointer',
+                transition: 'all 0.2s ease',
+                userSelect: 'none'
+              }}
+            >
               <img 
                 src={kimikoliIcon} 
                 alt="KimiKoli" 
@@ -105,27 +129,71 @@ export default function HomePage({
               <span>
                 {!isPretestDone ? '🎯 Misi 1 Wajib: Pretest Prasyarat Pembuka Materi' : 'KimiKoli · Sifat Koligatif Larutan Kelas XI SMA'}
               </span>
+              <span style={{ fontSize: '0.78rem', background: '#0284C7', color: '#FFFFFF', padding: '1px 6px', borderRadius: '6px', marginLeft: '2px' }}>
+                ℹ️ Info
+              </span>
             </div>
 
             <div style={{ display: 'flex', alignItems: 'center', gap: '1.25rem', marginBottom: '1.2rem', flexWrap: 'wrap' }}>
-              <div style={{
-                width: 84,
-                height: 84,
-                borderRadius: '22px',
-                background: '#FFFFFF',
-                border: '2px solid #BAE6FD',
-                boxShadow: '0 8px 24px rgba(2, 132, 199, 0.14)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                padding: '6px',
-                flexShrink: 0
-              }}>
+              <div 
+                role="button"
+                tabIndex={0}
+                aria-label="Buka Informasi Website dan Manual Penggunaan KimiKoli"
+                title="Klik untuk membuka informasi website & manual penggunaan KimiKoli"
+                onClick={() => setIsModalOpen(true)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    setIsModalOpen(true);
+                  }
+                }}
+                onMouseEnter={() => setIsIconHovered(true)}
+                onMouseLeave={() => setIsIconHovered(false)}
+                style={{
+                  width: 88,
+                  height: 88,
+                  borderRadius: '22px',
+                  background: '#FFFFFF',
+                  border: isIconHovered ? '2.5px solid #0284C7' : '2px solid #BAE6FD',
+                  boxShadow: isIconHovered 
+                    ? '0 12px 28px rgba(2, 132, 199, 0.32), 0 0 0 4px rgba(186, 230, 253, 0.5)' 
+                    : '0 8px 24px rgba(2, 132, 199, 0.14)',
+                  transform: isIconHovered ? 'scale(1.06) translateY(-2px)' : 'scale(1)',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  padding: '6px',
+                  flexShrink: 0,
+                  cursor: 'pointer',
+                  position: 'relative',
+                  transition: 'all 0.22s cubic-bezier(0.16, 1, 0.3, 1)',
+                  outline: 'none'
+                }}
+              >
                 <img 
                   src={kimikoliIcon} 
-                  alt="Ilustrasi Laboratorium KimiKoli" 
+                  alt="Ikon KimiKoli - Klik untuk Informasi dan Manual Penggunaan" 
                   style={{ width: '100%', height: '100%', objectFit: 'contain' }}
                 />
+                <span 
+                  style={{
+                    position: 'absolute',
+                    bottom: '-9px',
+                    background: isIconHovered ? '#0369A1' : '#0284C7',
+                    color: '#FFFFFF',
+                    fontSize: '0.64rem',
+                    fontWeight: 'bold',
+                    padding: '2px 7px',
+                    borderRadius: '9999px',
+                    whiteSpace: 'nowrap',
+                    boxShadow: '0 2px 6px rgba(2, 132, 199, 0.3)',
+                    transition: 'all 0.2s ease',
+                    pointerEvents: 'none'
+                  }}
+                >
+                  💡 Info Website
+                </span>
               </div>
 
               <h1 className="hero-title" style={{ fontFamily: "'Times New Roman', Times, serif", margin: 0, flex: 1, minWidth: '240px' }}>
@@ -1054,6 +1122,12 @@ export default function HomePage({
           </div>
         </div>
       </section>
+
+      {/* Modal Popup Informasi Website & Manual Penggunaan */}
+      <KimiKoliModal 
+        isOpen={isModalOpen} 
+        onClose={() => setIsModalOpen(false)} 
+      />
     </div>
   );
 }

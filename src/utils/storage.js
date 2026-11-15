@@ -93,18 +93,56 @@ export const getEmptyProgress = () => ({
 /**
  * Membaca progres belajar milik username tertentu.
  * Jika belum pernah menyimpan, mengembalikan data awal kosong (DI MEMORI SAJA, TANPA MENULIS KE STORAGE).
+ * Mendukung migrasi aman dari data sesi sebelumnya milik akun yang bersangkutan.
  */
 export function getCourseProgress(user = null) {
   const activeUser = user || getAuthUser();
   if (!activeUser) return getEmptyProgress();
 
+  const norm = normalizeUsername(activeUser);
   const key = getUserProgressKey(activeUser);
-  const data = getStoredData(key, null);
+  let data = getStoredData(key, null);
+
+  // Jika data belum lengkap di kunci baru, lakukan migrasi aman sekali jalan dari kunci lama milik username ini
+  if (!data || (!data.pretestCompleted && !data.completedChapters?.length)) {
+    const legacyCandidates = [
+      `koligatif_progress_student_${norm}_xi_mipa_1`,
+      `koligatif_progress_student_${encodeURIComponent(norm)}_xi%20mipa%201`,
+      `koligatif_progress_student_${norm.replace(/\s+/g, '_')}_xi_mipa_1`,
+      `koligatif_progress_student_${norm.replace(/\s+/g, '_')}_default`,
+      `koligatif_progress_v2_account_${norm.replace(/\s+/g, '_')}`,
+      `koligatif_progress_v2_student_${norm.replace(/\s+/g, '_')}_xi_mipa_1`,
+      `koligatif_progress_v2_uid_${norm}`
+    ];
+
+    for (const oldKey of legacyCandidates) {
+      const oldData = getStoredData(oldKey, null);
+      if (oldData && (oldData.pretestCompleted || oldData.completedChapters?.length || Object.keys(oldData.pretestAnswers || {}).length > 0)) {
+        data = {
+          ...(data || getEmptyProgress()),
+          ...oldData,
+          completedChapters: oldData.completedChapters || [],
+          pretestAnswers: oldData.pretestAnswers || {},
+          pretestCompleted: Boolean(oldData.pretestCompleted || (oldData.pretestAnswers && Object.keys(oldData.pretestAnswers).length >= 8))
+        };
+        setStoredData(key, data);
+        try { localStorage.removeItem(oldKey); } catch (e) {}
+        break;
+      }
+    }
+  }
 
   if (data) {
+    const isPretestDone = Boolean(
+      data.pretestCompleted || 
+      data.pretestFinished || 
+      (data.pretestAnswers && Object.keys(data.pretestAnswers).length >= 8)
+    );
+
     return {
       ...getEmptyProgress(),
       ...data,
+      pretestCompleted: isPretestDone,
       completedChapters: Array.isArray(data.completedChapters) ? data.completedChapters : [],
       pretestAnswers: data.pretestAnswers || {},
       badges: Array.isArray(data.badges) ? data.badges : [],
@@ -125,9 +163,16 @@ export function saveCourseProgress(progress, user = null) {
   if (!activeUser) return false;
 
   const key = getUserProgressKey(activeUser);
+  const isPretestDone = Boolean(
+    progress.pretestCompleted ||
+    progress.pretestFinished ||
+    (progress.pretestAnswers && Object.keys(progress.pretestAnswers).length >= 8)
+  );
+
   const dataToSave = {
     ...getEmptyProgress(),
     ...progress,
+    pretestCompleted: isPretestDone,
     updatedAt: new Date().toISOString()
   };
 

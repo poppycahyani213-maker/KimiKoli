@@ -125,10 +125,16 @@ export default function App() {
   // Callback simpan jawaban pretest per nomor soal secara instan
   const handleSavePretestAnswer = (updatedAnswers) => {
     setPretestAnswers(updatedAnswers);
+    const isAllAnswered = Object.keys(updatedAnswers || {}).length >= 8;
+    if (isAllAnswered) {
+      setIsPretestCompleted(true);
+      setIsPretestLocked(false);
+    }
     const saved = getCourseProgress(currentUser) || {};
     saveCourseProgress({
       ...saved,
-      pretestAnswers: updatedAnswers
+      pretestAnswers: updatedAnswers,
+      ...(isAllAnswered ? { pretestCompleted: true, pretestFinished: true } : {})
     }, currentUser);
   };
 
@@ -238,7 +244,15 @@ export default function App() {
         currentView={currentView}
         onSelectTab={(tabId) => {
           if (!isPretestLocked) {
-            setCurrentView(tabId);
+            if (tabId === 'chapter1') {
+              const latestChapter = completedChapters.includes('chapter4') ? 'chapter5' :
+                                    completedChapters.includes('chapter3') ? 'chapter4' :
+                                    completedChapters.includes('chapter2') ? 'chapter3' :
+                                    completedChapters.includes('chapter1') ? 'chapter2' : 'chapter1';
+              setCurrentView(latestChapter);
+            } else {
+              setCurrentView(tabId);
+            }
           }
         }}
         isExamLocked={isPretestLocked}
@@ -281,10 +295,21 @@ export default function App() {
             isPretestCompleted={isPretestCompleted}
             onBackToHome={() => {
               setIsPretestLocked(false);
+              const saved = getCourseProgress(currentUser) || {};
+              if (saved.pretestCompleted || saved.pretestFinished || Object.keys(pretestAnswers || {}).length >= 8) {
+                setIsPretestCompleted(true);
+              }
               setCurrentView('home');
             }}
             onGoToChapter1={() => {
               setIsPretestLocked(false);
+              setIsPretestCompleted(true);
+              const saved = getCourseProgress(currentUser) || {};
+              saveCourseProgress({
+                ...saved,
+                pretestCompleted: true,
+                pretestFinished: true
+              }, currentUser);
               setCurrentView('chapter1');
             }}
             onFinishPretest={handleFinishPretest}
@@ -321,6 +346,23 @@ export default function App() {
                     style={{ padding: '0.8rem 1.6rem', fontSize: '1rem', background: '#0284C7' }}
                   >
                     🚀 Mulai Kerjakan Pretest Sekarang →
+                  </button>
+                  <button
+                    type="button"
+                    className="btn btn-outline"
+                    onClick={() => {
+                      setIsPretestCompleted(true);
+                      setIsPretestLocked(false);
+                      const saved = getCourseProgress(currentUser) || {};
+                      saveCourseProgress({
+                        ...saved,
+                        pretestCompleted: true,
+                        pretestFinished: true
+                      }, currentUser);
+                    }}
+                    style={{ padding: '0.8rem 1.4rem', borderColor: '#10B981', color: '#047857', background: '#FFFFFF', fontWeight: 700 }}
+                  >
+                    ✓ Saya Sudah Selesai Pretest, Buka Bab 1 Sekarang
                   </button>
                   <button
                     type="button"

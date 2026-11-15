@@ -114,6 +114,13 @@ export default function PretestPage({
     if (onSaveAnswer) {
       onSaveAnswer(updatedHistory);
     }
+
+    // Jika seluruh 8 soal telah selesai diperiksa, langsung otomatis tandai pretest selesai
+    const isAllDone = Object.keys(updatedHistory).length >= totalQuestions;
+    if (isAllDone && onFinishPretest) {
+      const finalCorrect = Object.values(updatedHistory).filter(h => h.isCorrect).length;
+      onFinishPretest({ score: finalCorrect, total: totalQuestions, answers: updatedHistory });
+    }
   };
 
   // Navigasi ke soal berikutnya atau selesaikan pretest
@@ -215,7 +222,12 @@ export default function PretestPage({
             <button
               type="button"
               className="btn btn-secondary"
-              onClick={onBackToHome}
+              onClick={() => {
+                if (onFinishPretest) {
+                  onFinishPretest({ score: correctCount, total: totalQuestions, answers: history });
+                }
+                onBackToHome();
+              }}
               style={{ padding: '0.75rem 1.4rem', fontSize: '0.95rem' }}
             >
               ← Kembali ke Beranda
@@ -223,7 +235,12 @@ export default function PretestPage({
             <button
               type="button"
               className="btn btn-primary"
-              onClick={onGoToChapter1}
+              onClick={() => {
+                if (onFinishPretest) {
+                  onFinishPretest({ score: correctCount, total: totalQuestions, answers: history });
+                }
+                onGoToChapter1();
+              }}
               style={{ padding: '0.75rem 1.8rem', fontSize: '1rem', background: '#0284C7' }}
             >
               Lanjut Belajar Bab 1: Konsentrasi Larutan →

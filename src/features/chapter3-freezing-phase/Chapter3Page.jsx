@@ -13,7 +13,8 @@ import imgTitikBeku from '../../assets/fenomena-titik-beku.jpg';
 import KontrasDidihBeku from './KontrasDidihBeku';
 import OrientasiMasalah from './OrientasiMasalah';
 import DugaanHipotesis, { DUGAAN_OPTIONS, getCh3HypothesisKey } from './DugaanHipotesis';
-import SajikanHasil from './SajikanHasil';
+import SajikanHasil, { getCh3ResultsKey, checkIsPhase4Complete } from './SajikanHasil';
+import LatihanKPSBab3, { getCh3KpsKey } from './LatihanKPSBab3';
 
 // ── PBL Phase metadata ────────────────────────────────────────────────────────
 const PBL_PHASES = [
@@ -84,6 +85,36 @@ export default function Chapter3Page({ onComplete, isCompleted }) {
   const [hypothesisData, setHypothesisData] = useState(() => {
     return getStoredData(getCh3HypothesisKey(), null);
   });
+
+  // ── 3 Syarat Kelulusan Bab 3 ──────────────────────────────────────────────
+  const [isHypothesisSaved, setIsHypothesisSaved] = useState(() => {
+    if (isCompleted) return true;
+    const hyp = getStoredData(getCh3HypothesisKey(), null);
+    return Boolean(hyp && hyp.choice);
+  });
+
+  const [isPhase4Completed, setIsPhase4Completed] = useState(() => {
+    if (isCompleted) return true;
+    const res = getStoredData(getCh3ResultsKey(), null);
+    return checkIsPhase4Complete(res);
+  });
+
+  const [isKpsPassed, setIsKpsPassed] = useState(() => {
+    if (isCompleted) return true;
+    const kps = getStoredData(getCh3KpsKey(), null);
+    return Boolean(kps && kps.isPassed);
+  });
+
+  // Sinkronisasi jika bab berstatus isCompleted
+  useEffect(() => {
+    if (isCompleted) {
+      setIsHypothesisSaved(true);
+      setIsPhase4Completed(true);
+      setIsKpsPassed(true);
+    }
+  }, [isCompleted]);
+
+  const isReadyToProceed = (isHypothesisSaved && isPhase4Completed && isKpsPassed) || isCompleted;
 
   const { deltaTf, freezingPoint } = calculateFreezingPointDepression(
     water.kf, molality, 1, water.normalFreezingPoint
@@ -206,7 +237,10 @@ export default function Chapter3Page({ onComplete, isCompleted }) {
       ══════════════════════════════════════════════════════════════════════ */}
       <section id="fase-2" style={{ marginBottom: '3rem', scrollMarginTop: '64px' }}>
         <PhaseHeader number={2} title="Mengorganisasi Siswa untuk Belajar" />
-        <DugaanHipotesis onDataSaved={setHypothesisData} />
+        <DugaanHipotesis onDataSaved={(data) => {
+          setHypothesisData(data);
+          setIsHypothesisSaved(true);
+        }} />
       </section>
 
       {/* ══════════════════════════════════════════════════════════════════════

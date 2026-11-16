@@ -46,7 +46,20 @@ const ANALYSIS_OPTIONS = [
   { id: 'D', text: 'Naik lalu turun' },
 ];
 
-export default function SajikanHasil() {
+export function checkIsPhase4Complete(data) {
+  if (!data || !data.tableInputs) return false;
+  const isTableDone = DATA_ROWS.every((r) => {
+    const key = r.m === 0 ? 'row_0' : r.m === 0.5 ? 'row_0_5' : r.m === 1.0 ? 'row_1_0' : 'row_2_0';
+    const row = data.tableInputs[key];
+    if (!row) return false;
+    return checkTol(row.tf, r.targetTf, 0.05) === true && checkTol(row.deltaTf, r.targetDeltaTf, 0.05) === true;
+  });
+  const isAnalysisDone = data.selectedAnalysis === 'A';
+  const isConclusionDone = Boolean(data.conclusion && data.conclusion.trim().length >= 10);
+  return isTableDone && isAnalysisDone && isConclusionDone;
+}
+
+export default function SajikanHasil({ onCompletePhase4 }) {
   // State tabel: baris 0 m terisi contoh (0 dan 0), baris lain dimulai kosong
   const [tableInputs, setTableInputs] = useState({
     row_0:   { tf: '0', deltaTf: '0' },
@@ -147,6 +160,12 @@ export default function SajikanHasil() {
   const isAnalysisCorrect = selectedAnalysis === 'A';
   const isConclusionDone = conclusion.trim().length >= 10 && conclusionSubmitted;
   const isPhase4Complete = allTableFilledCorrectly && isAnalysisCorrect && isConclusionDone;
+
+  useEffect(() => {
+    if (onCompletePhase4) {
+      onCompletePhase4(isPhase4Complete);
+    }
+  }, [isPhase4Complete, onCompletePhase4]);
 
   // Simpan kesimpulan
   const handleConclusionSubmit = (e) => {

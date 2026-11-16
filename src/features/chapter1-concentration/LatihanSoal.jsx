@@ -52,7 +52,11 @@ export default function LatihanSoal({ onSemuaSelesai }) {
       question: "Sebanyak 3 gram urea (CO(NH₂)₂, Mr = 60) dilarutkan dalam 250 gram air murni. Berapakah molalitas (m) larutan tersebut?",
       target: 0.2,
       unit: "m (molal)",
-      hint: "Ubah massa air ke kg (250 g = 0,25 kg). Hitung mol urea: n = 3 / 60 = 0,05 mol. Kemudian m = n / p = 0,05 / 0,25.",
+      hint: [
+        "Langkah 1: Konversikan massa pelarut air ke satuan kilogram (p = 250 g / 1000).",
+        "Langkah 2: Hitung jumlah mol urea: n = massa / Mr.",
+        "Langkah 3: Hitung molalitas dengan membagi mol terlarut terhadap massa pelarut dalam kg: m = n / p(kg)."
+      ],
       solution: "n = 3 g / 60 g/mol = 0,05 mol. p = 250 g = 0,25 kg. Molalitas m = 0,05 / 0,25 = 0,2 m."
     },
     {
@@ -61,7 +65,11 @@ export default function LatihanSoal({ onSemuaSelesai }) {
       question: "Sebanyak 36 gram glukosa (Mr = 180) dilarutkan ke dalam 500 gram air. Berapakah molalitas larutan tersebut?",
       target: 0.4,
       unit: "m (molal)",
-      hint: "Hitung mol glukosa: n = 36 / 180 = 0,2 mol. Massa pelarut p = 500 g = 0,5 kg. Molalitas m = 0,2 / 0,5 = 0,4 m.",
+      hint: [
+        "Langkah 1: Hitung mol glukosa dengan rumus n = massa / Mr.",
+        "Langkah 2: Konversikan massa pelarut air 500 gram ke satuan kilogram (p = 500 / 1000).",
+        "Langkah 3: Masukkan nilai n dan p ke rumus molalitas: m = n / p(kg)."
+      ],
       solution: "n = 36 / 180 = 0,2 mol; p = 0,5 kg; m = 0,2 / 0,5 = 0,4 m."
     },
     {
@@ -70,7 +78,10 @@ export default function LatihanSoal({ onSemuaSelesai }) {
       question: "Sebuah larutan dibuat dengan mencampurkan 0,5 mol etanol ke dalam 4,5 mol air. Berapakah fraksi mol etanol (X_etanol)?",
       target: 0.1,
       unit: "tanpa satuan",
-      hint: "Hitung mol total larutan: n_total = 0,5 + 4,5 = 5,0 mol. Fraksi mol X = n_etanol / n_total.",
+      hint: [
+        "Langkah 1: Hitung total mol campuran di dalam larutan: n_total = n_etanol + n_air.",
+        "Langkah 2: Hitung fraksi mol etanol dengan membagi mol zat terhadap total mol: X_etanol = n_etanol / n_total."
+      ],
       solution: "n_total = 0,5 mol + 4,5 mol = 5,0 mol. X_etanol = 0,5 / 5,0 = 0,1."
     },
     {
@@ -79,7 +90,11 @@ export default function LatihanSoal({ onSemuaSelesai }) {
       question: "Berapa gram urea (Mr = 60) yang harus dilarutkan ke dalam 400 gram air agar diperoleh larutan dengan konsentrasi 0,25 m?",
       target: 6.0,
       unit: "gram",
-      hint: "Ubah massa air: p = 400 g = 0,4 kg. Cari mol urea: n = m × p = 0,25 × 0,4 = 0,1 mol. Lalu cari massa: massa = n × Mr = 0,1 × 60.",
+      hint: [
+        "Langkah 1: Ubah massa air ke satuan kg (p = 400 g / 1000).",
+        "Langkah 2: Dari rumus m = n / p(kg), tentukan mol urea yang dibutuhkan: n = m × p(kg).",
+        "Langkah 3: Konversikan jumlah mol ke satuan gram: massa = n × Mr."
+      ],
       solution: "p = 0,4 kg. n = 0,25 m × 0,4 kg = 0,1 mol. Massa urea = 0,1 mol × 60 g/mol = 6 gram."
     },
     {
@@ -88,7 +103,11 @@ export default function LatihanSoal({ onSemuaSelesai }) {
       question: "Suatu larutan glukosa dalam air memiliki fraksi mol glukosa sebesar 0,1. Berapakah nilai molalitas (m) larutan tersebut?",
       target: 6.17,
       unit: "m (molal)",
-      hint: "Anggap mol total = 1 mol. Maka n_glukosa = 0,1 mol dan n_air = 0,9 mol. Massa air = 0,9 × 18 = 16,2 g = 0,0162 kg. Hitung m = 0,1 / 0,0162.",
+      hint: [
+        "Langkah 1: Asumsikan jumlah mol total campuran = 1 mol, sehingga n_glukosa = 0,1 mol dan n_air = 0,9 mol.",
+        "Langkah 2: Cari massa pelarut air: massa air = n_air × Mr air (Mr H₂O = 18 g/mol), lalu ubah ke kg.",
+        "Langkah 3: Hitung molalitas dengan membagi n_glukosa terhadap massa pelarut air dalam kg: m = n_glukosa / p(kg)."
+      ],
       solution: "Basis 1 mol campuran: n_glukosa = 0,1 mol, n_air = 0,9 mol. Massa air = 0,9 mol × 18 g/mol = 16,2 g = 0,0162 kg. Molalitas m = 0,1 / 0,0162 = 6,17 m."
     }
   ];
@@ -297,7 +316,7 @@ export default function LatihanSoal({ onSemuaSelesai }) {
                   )}
                 </div>
 
-                {/* Box Petunjuk Terarah jika Salah */}
+                {/* Box Petunjuk Terarah jika Salah (Tanpa Bocoran Angka Jawaban) */}
                 {isIncorrect && showHint[q.id] && (
                   <div
                     className="fade-in"
@@ -305,13 +324,30 @@ export default function LatihanSoal({ onSemuaSelesai }) {
                       marginTop: '0.85rem',
                       background: '#FFFBEB',
                       borderLeft: '4px solid #F59E0B',
-                      borderRadius: '6px',
-                      padding: '0.75rem 1rem',
-                      fontSize: '0.9rem',
+                      borderRadius: '8px',
+                      padding: '0.85rem 1.1rem',
+                      fontSize: '0.88rem',
                       color: '#92400E'
                     }}
                   >
-                    <strong>💡 Petunjuk Pengerjaan:</strong> {q.hint}
+                    <div style={{ fontWeight: 800, color: '#B45309', marginBottom: '0.4rem', display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+                      <span>🧭</span> Panduan Langkah Pengerjaan (Tanpa Bocoran Angka):
+                    </div>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.3rem', lineHeight: 1.55 }}>
+                      {Array.isArray(q.hint) ? (
+                        q.hint.map((stepText, sIdx) => (
+                          <div key={sIdx} style={{ display: 'flex', alignItems: 'flex-start', gap: '0.4rem' }}>
+                            <span style={{ color: '#D97706', fontWeight: 800 }}>•</span>
+                            <span>{stepText}</span>
+                          </div>
+                        ))
+                      ) : (
+                        <div>{q.hint}</div>
+                      )}
+                    </div>
+                    <div style={{ marginTop: '0.45rem', fontSize: '0.8rem', fontStyle: 'italic', color: '#B45309', borderTop: '1px dashed #FDE68A', paddingTop: '0.35rem' }}>
+                      💡 Hitung kembali nilai di atas menggunakan kertas buram / kalkulator, lalu masukkan jawabanmu kembali!
+                    </div>
                   </div>
                 )}
 

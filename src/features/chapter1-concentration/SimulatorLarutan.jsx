@@ -427,6 +427,14 @@ export default function SimulatorLarutan({ onMisiSelesai }) {
                   <stop offset="75%" stopColor="#E2E8F0" />
                   <stop offset="100%" stopColor="#94A3B8" />
                 </linearGradient>
+
+                {/* Gradien Bola 3D Partikel Terlarut */}
+                <radialGradient id="soluteSphere3d" cx="32%" cy="28%" r="68%">
+                  <stop offset="0%" stopColor="#FEF08A" />
+                  <stop offset="30%" stopColor="#F59E0B" />
+                  <stop offset="75%" stopColor="#D97706" />
+                  <stop offset="100%" stopColor="#78350F" />
+                </radialGradient>
               </defs>
 
               {/* Dinding Kaca Belakang Gelas Kimia */}
@@ -480,22 +488,33 @@ export default function SimulatorLarutan({ onMisiSelesai }) {
                 }}
               />
 
-              {/* Titik Partikel Zat Terlarut (Jumlah titik mengikuti mol zat terlarut) */}
-              <g fill="#FDE047" stroke="#B45309" strokeWidth="0.8">
+              {/* Titik Partikel Zat Terlarut 3D Spheres */}
+              <g>
                 {PARTICLE_SEEDS.slice(0, particleCount).map((p, idx) => {
                   const cx = 45 + (p.x / 100) * 130;
                   const cy = liquidY + 12 + (p.y / 100) * (liquidHeight - 22);
 
                   return (
-                    <circle
-                      key={idx}
-                      cx={cx}
-                      cy={cy}
-                      r="3.2"
-                      style={{
-                        transition: 'cy 0.4s cubic-bezier(0.4, 0, 0.2, 1)'
-                      }}
-                    />
+                    <g key={idx}>
+                      <circle
+                        cx={cx}
+                        cy={cy}
+                        r="4"
+                        fill="url(#soluteSphere3d)"
+                        stroke="#FFFFFF"
+                        strokeWidth="0.8"
+                        style={{
+                          transition: 'cy 0.4s cubic-bezier(0.4, 0, 0.2, 1)'
+                        }}
+                      />
+                      <circle
+                        cx={cx - 1.2}
+                        cy={cy - 1.2}
+                        r="1.2"
+                        fill="#FFFFFF"
+                        opacity="0.9"
+                      />
+                    </g>
                   );
                 })}
               </g>

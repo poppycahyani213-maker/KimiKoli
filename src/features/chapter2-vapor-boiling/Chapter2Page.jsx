@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Card from '../../components/common/Card';
 import Button from '../../components/common/Button';
 import Badge from '../../components/common/Badge';
@@ -6,24 +6,87 @@ import TripleRepresentation from '../../components/chemistry/TripleRepresentatio
 import PrerequisiteRefresher from '../../components/chemistry/PrerequisiteRefresher';
 import MisconceptionCard from '../../components/chemistry/MisconceptionCard';
 import { FormulaRenderer } from '../../components/chemistry/FormulaRenderer';
-import { calculateBoilingPointElevation, calculateVaporPressureLowering } from '../../utils/colligative';
-import { formatIndonesianNumber } from '../../utils/formatNumber';
-import solventsData from '../../data/solvents.json';
+import { getStoredData, setStoredData, getAuthUser } from '../../utils/storage';
+import ContohSoalBab2 from './ContohSoalBab2';
+import SimulatorUapDidih from './SimulatorUapDidih';
+import LatihanSoalBab2 from './LatihanSoalBab2';
 import imgTitikDidih from '../../assets/fenomena-titik-didih.jpg';
 
+// Helper membuat kunci penyimpanan progres Bab 2 per akun siswa
+function getCh2StorageKey() {
+  const user = getAuthUser();
+  if (user && user.name) {
+    const cleanName = user.name.toLowerCase().trim().replace(/[^a-z0-9]/g, '_');
+    const cleanClass = (user.className || '').toLowerCase().trim().replace(/[^a-z0-9]/g, '_');
+    return `koligatif_ch2_requirements_v1_${cleanName}_${cleanClass}`;
+  }
+  return 'koligatif_ch2_requirements_v1_guest';
+}
+
 export default function Chapter2Page({ onComplete, isCompleted }) {
-  const water = solventsData[0]; // Air: Kb = 0.52, normal boiling = 100°C
-  const [molality, setMolality] = useState(1); // 1 molal
+  // State 1: Status Simulasi Telah Dilakukan
+  const [isSimDone, setIsSimDone] = useState(() => {
+    if (isCompleted) return true;
+    const key = getCh2StorageKey();
+    const saved = getStoredData(key, { isSimDone: false, isExerciseDone: false, exerciseScore: 0, exercisePercentage: 0 });
+    return Boolean(saved?.isSimDone);
+  });
 
-  // Boiling point calculation
-  const { deltaTb, boilingPoint } = calculateBoilingPointElevation(water.kb, molality, 1, water.normalBoilingPoint);
+  // State 2: Status Latihan Soal Minimal 80% Benar
+  const [isExerciseDone, setIsExerciseDone] = useState(() => {
+    if (isCompleted) return true;
+    const key = getCh2StorageKey();
+    const saved = getStoredData(key, { isSimDone: false, isExerciseDone: false, exerciseScore: 0, exercisePercentage: 0 });
+    return Boolean(saved?.isExerciseDone);
+  });
 
-  // Vapor pressure calculation (assuming 25°C where P0 = 23.76 mmHg)
-  const approximateXt = molality / (molality + 55.5);
-  const { deltaP, pSolution } = calculateVaporPressureLowering(water.vaporPressure25C, approximateXt);
+  const [exerciseDetails, setExerciseDetails] = useState(() => {
+    const key = getCh2StorageKey();
+    return getStoredData(key, { exerciseScore: 0, exerciseTotal: 6, exercisePercentage: 0 });
+  });
+
+  // Sinkronisasi jika bab berstatus isCompleted
+  useEffect(() => {
+    if (isCompleted) {
+      setIsSimDone(true);
+      setIsExerciseDone(true);
+    }
+  }, [isCompleted]);
+
+  // Handler saat Simulasi berhasil dilakukan siswa
+  const handleSimDone = () => {
+    setIsSimDone(true);
+    const key = getCh2StorageKey();
+    const saved = getStoredData(key, {});
+    setStoredData(key, { ...saved, isSimDone: true });
+  };
+
+  // Handler saat Latihan Soal dievaluasi (minimal 80% benar)
+  const handleExerciseEvaluation = ({ score, total, percentage, isPassed, answers }) => {
+    setIsExerciseDone(isPassed);
+    setExerciseDetails({
+      exerciseScore: score,
+      exerciseTotal: total,
+      exercisePercentage: percentage
+    });
+
+    const key = getCh2StorageKey();
+    const saved = getStoredData(key, {});
+    setStoredData(key, {
+      ...saved,
+      isExerciseDone: isPassed,
+      exerciseScore: score,
+      exerciseTotal: total,
+      exercisePercentage: percentage,
+      savedAnswers: answers
+    });
+  };
+
+  const isReadyToProceed = (isSimDone && isExerciseDone) || isCompleted;
 
   return (
     <div className="fade-in" style={{ fontFamily: "'Times New Roman', Times, serif" }}>
+      {/* HEADER BAB 2 */}
       <div style={{ marginBottom: '1.5rem' }}>
         <Badge variant="blue">Bab 2 • Tekanan Uap & Titik Didih</Badge>
         <h2 style={{ marginTop: '0.5rem', marginBottom: '0.25rem', fontSize: '1.8rem', fontWeight: 800 }}>
@@ -34,7 +97,7 @@ export default function Chapter2Page({ onComplete, isCompleted }) {
         </p>
       </div>
 
-      {/* D.1: MODUL PENYEGAR PRASYARAT (MOLALITAS, MOLARITAS, FRAKSI MOL) DENGAN 3 SOAL LATIHAN */}
+      {/* D.1: MODUL PENYEGAR PRASYARAT */}
       <PrerequisiteRefresher isOpenDefault={false} />
 
       {/* D.4: KOTAK MISKONSEPSI UMUM BAB 2 */}
@@ -58,13 +121,11 @@ export default function Chapter2Page({ onComplete, isCompleted }) {
             "Pemanasan yang lebih panas membuat bahan makanan di dalam kuah matang lebih cepat dan empuk",
             "Saat tutup panci dibuka, uap air yang mengembun di tutup panci adalah air murni (garam tetap berada di dalam panci)"
           ]
-          // TODO: Konten guru: Masukkan studi kasus titik didih air di dataran tinggi vs pantai
         }}
         submicroscopic={{
           title: "Skala Partikulat: Hambatan Permukaan Cairan",
           description: "Pada pelarut murni, seluruh permukaan cairan terbuka untuk penguapan molekul air. Namun pada larutan, sebagian luas permukaan ditempati oleh molekul zat terlarut nonvolatil.",
           mechanism: "Partikel zat terlarut yang sukar menguap menghalangi molekul air untuk meloncat lepas ke fase gas. Akibatnya, tekanan uap jenuh larutan menurun. Agar tekanan uap larutan dapat menyamai tekanan udara luar (syarat mendidih), energi kinetik rata-rata partikel harus dinaikkan dengan menaikkan suhu ke titik yang lebih tinggi (ΔTb naik)."
-          // TODO: Konten guru: Tambahkan visual interaktif molekul uap yang lepas vs terpantul kembali
         }}
         symbolic={{
           title: "Persamaan Hukum Raoult & Kenaikan Titik Didih",
@@ -82,76 +143,31 @@ export default function Chapter2Page({ onComplete, isCompleted }) {
             { symbol: "Tb", desc: "Titik didih larutan (Tb° = 100°C untuk air)", unit: "°C" }
           ],
           note: "Hukum Raoult ΔP = Xt × P° berlaku ketat untuk zat terlarut nonvolatil (sukar menguap). Nilai Kb hanya bergantung pada jenis pelarut, bukan jenis zat terlarut."
-          // TODO: Konten guru: Tambahkan contoh tabel tetapan Kb berbagai pelarut organik (benzena, kamfer)
         }}
       />
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '1.5rem' }}>
-        <Card title="Hukum Raoult & Kenaikan Titik Didih">
-          <p style={{ lineHeight: 1.7, fontSize: '1rem' }}>
+      {/* KARTU PRINSIP HUKUM RAOULT & RUMUS DASAR */}
+      <div style={{ marginBottom: '2rem' }}>
+        <Card title="Prinsip Hukum Raoult & Kenaikan Titik Didih">
+          <p style={{ lineHeight: 1.7, fontSize: '1rem', margin: '0 0 1rem 0' }}>
             Molekul terlarut memenuhi sebagian permukaan larutan, menurunkan laju penguapan molekul pelarut. Akibatnya, dibutuhkan suhu lebih tinggi agar tekanan uap larutan mencapai tekanan atmosfer (titik didih naik).
           </p>
-          <FormulaRenderer
-            formula={<span>ΔP = X<sub>t</sub> × P°</span>}
-            description="Hukum Raoult (Penurunan Tekanan Uap)"
-          />
-          <FormulaRenderer
-            formula={<span>ΔT<sub>b</sub> = K<sub>b</sub> × m</span>}
-            description="Kenaikan Titik Didih (Nonelektrolit)"
-          />
-        </Card>
-
-        <Card title="Laboratorium Termometer & Tekanan Uap" subtitle="Simulasi pada Pelarut Air (Kb = 0,52 °C/m, P° = 23,76 mmHg pada 25°C)">
-          <div className="control-group">
-            <div className="control-label" style={{ fontWeight: 700 }}>
-              <span>Konsentrasi Zat Terlarut:</span>
-              <strong>{molality} molal</strong>
-            </div>
-            <input
-              type="range"
-              min="0.1"
-              max="5"
-              step="0.1"
-              value={molality}
-              onChange={(e) => setMolality(Number(e.target.value))}
-              className="slider-input"
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1rem' }}>
+            <FormulaRenderer
+              formula={<span>ΔP = X<sub>t</sub> × P°</span>}
+              description="Hukum Raoult (Penurunan Tekanan Uap)"
             />
-          </div>
-
-          <div style={{
-            background: 'var(--bg-subtle)',
-            borderRadius: 'var(--radius-md)',
-            padding: '1.25rem',
-            marginTop: '1.25rem',
-            display: 'grid',
-            gridTemplateColumns: '1fr 1fr',
-            gap: '1rem'
-          }}>
-            <div>
-              <div style={{ fontSize: '0.825rem', color: 'var(--text-muted)' }}>Kenaikan Titik Didih (ΔTb)</div>
-              <div style={{ fontSize: '1.35rem', fontWeight: 800, color: 'var(--color-heat)' }}>
-                +{formatIndonesianNumber(deltaTb, 2)} °C
-              </div>
-              <div style={{ fontSize: '0.825rem', marginTop: '0.35rem' }}>
-                Titik Didih Larutan: <strong>{formatIndonesianNumber(boilingPoint, 2)} °C</strong>
-              </div>
-            </div>
-            <div>
-              <div style={{ fontSize: '0.825rem', color: 'var(--text-muted)' }}>Penurunan Tekanan Uap (ΔP)</div>
-              <div style={{ fontSize: '1.35rem', fontWeight: 800, color: 'var(--primary-600)' }}>
-                -{formatIndonesianNumber(deltaP, 2)} mmHg
-              </div>
-              <div style={{ fontSize: '0.825rem', marginTop: '0.35rem' }}>
-                Tekanan Uap Larutan: <strong>{formatIndonesianNumber(pSolution, 2)} mmHg</strong>
-              </div>
-            </div>
+            <FormulaRenderer
+              formula={<span>ΔT<sub>b</sub> = K<sub>b</sub> × m × i</span>}
+              description="Kenaikan Titik Didih Larutan"
+            />
           </div>
         </Card>
       </div>
 
-      {/* D.3: PENJELASAN AWAL FAKTOR VAN 'T HOFF & PERBANDINGAN ELEKTROLIT DI BAB 2 */}
+      {/* D.3: PENJELASAN FAKTOR VAN 'T HOFF & PERBANDINGAN ELEKTROLIT DI BAB 2 */}
       <div style={{
-        marginTop: '2rem',
+        marginBottom: '2rem',
         background: '#FFFFFF',
         border: '1.5px solid #E0E7FF',
         borderRadius: '16px',
@@ -221,7 +237,16 @@ export default function Chapter2Page({ onComplete, isCompleted }) {
         </div>
       </div>
 
-      {/* Tombol Lanjut ke Bab 3 */}
+      {/* FITUR 1: CONTOH SOAL & PEMBAHASAN TERBIMBING BAB 2 */}
+      <ContohSoalBab2 />
+
+      {/* FITUR 2: SIMULATOR INTERAKTIF PENGUAPAN & TITIK DIDIH */}
+      <SimulatorUapDidih onSimulasiSelesai={handleSimDone} />
+
+      {/* FITUR 3: LATIHAN SOAL MANDIRI BAB 2 (5 ISIAN PENDEK + 1 ISIAN PANJANG) */}
+      <LatihanSoalBab2 onEvaluasiLatihan={handleExerciseEvaluation} />
+
+      {/* FOOTER: TOMBOL LANJUT KE BAB 3 DENGAN SISTEM GATING */}
       <div style={{
         marginTop: '2.5rem',
         padding: '1.5rem',
@@ -232,30 +257,76 @@ export default function Chapter2Page({ onComplete, isCompleted }) {
         alignItems: 'center',
         justifyContent: 'space-between',
         flexWrap: 'wrap',
-        gap: '1rem',
+        gap: '1.25rem',
         boxShadow: '0 2px 8px rgba(15, 23, 42, 0.04)'
       }}>
         <div>
-          <span style={{ fontSize: '0.85rem', color: '#10B981', fontWeight: 700 }}>
-            {isCompleted ? '✓ Materi Bab 2 Selesai' : 'Siap Lanjut ke Tahap Selanjutnya?'}
+          <span style={{
+            fontSize: '0.85rem',
+            color: isCompleted ? '#10B981' : isReadyToProceed ? '#059669' : '#D97706',
+            fontWeight: 700
+          }}>
+            {isCompleted
+              ? '✓ Materi Bab 2 Selesai'
+              : isReadyToProceed
+                ? '✓ Seluruh Syarat Terpenuhi! Siap Lanjut'
+                : 'Selesaikan Syarat untuk Membuka Bab 3:'}
           </span>
           <h4 style={{ margin: '0.2rem 0 0', color: '#0F172A', fontSize: '1.1rem' }}>
             Bab 3: Penurunan Titik Beku & Diagram Fase P–T
           </h4>
         </div>
 
-        <Button
-          variant="primary"
-          onClick={onComplete}
-          style={{
-            padding: '0.85rem 1.8rem',
-            fontSize: '1.05rem',
-            background: '#0284C7',
-            boxShadow: '0 4px 14px rgba(2, 132, 199, 0.25)'
-          }}
-        >
-          Selesaikan Bab 2 & Buka Bab 3 →
-        </Button>
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '0.5rem' }}>
+          {/* DAFTAR CENTANG PERSYARATAN (SIMULASI + LATIHAN 80%) */}
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.75rem',
+            fontSize: '0.85rem',
+            background: isReadyToProceed ? '#ECFDF5' : '#F8FAFC',
+            border: isReadyToProceed ? '1px solid #A7F3D0' : '1px solid #CBD5E1',
+            borderRadius: '8px',
+            padding: '0.35rem 0.75rem'
+          }}>
+            <span style={{
+              color: isSimDone ? '#16A34A' : '#64748B',
+              fontWeight: isSimDone ? 800 : 500,
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '0.3rem'
+            }}>
+              <span>{isSimDone ? '✓' : '○'}</span> Melakukan Simulasi
+            </span>
+            <span style={{ color: '#CBD5E1' }}>•</span>
+            <span style={{
+              color: isExerciseDone ? '#16A34A' : '#64748B',
+              fontWeight: isExerciseDone ? 800 : 500,
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '0.3rem'
+            }}>
+              <span>{isExerciseDone ? '✓' : '○'}</span> Latihan Soal ≥80% ({exerciseDetails?.exercisePercentage || 0}%)
+            </span>
+          </div>
+
+          <Button
+            variant="primary"
+            onClick={onComplete}
+            disabled={!isReadyToProceed}
+            style={{
+              padding: '0.85rem 1.8rem',
+              fontSize: '1.05rem',
+              background: isReadyToProceed ? '#0284C7' : '#94A3B8',
+              boxShadow: isReadyToProceed ? '0 4px 14px rgba(2, 132, 199, 0.25)' : 'none',
+              cursor: isReadyToProceed ? 'pointer' : 'not-allowed',
+              opacity: isReadyToProceed ? 1 : 0.65
+            }}
+            title={!isReadyToProceed ? "Lakukan simulasi dan selesaikan minimal 80% latihan soal untuk membuka Bab 3" : "Buka Bab 3"}
+          >
+            {isReadyToProceed ? 'Selesaikan Bab 2 & Buka Bab 3 →' : '🔒 Selesaikan Bab 2 & Buka Bab 3'}
+          </Button>
+        </div>
       </div>
     </div>
   );

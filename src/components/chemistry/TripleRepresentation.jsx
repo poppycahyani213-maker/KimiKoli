@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import Particle3DChamber from './Particle3DChamber';
 
 /**
  * Komponen TripleRepresentation
@@ -283,81 +284,23 @@ export default function TripleRepresentation({
               </div>
             </div>
 
-            {/* Animasi / Ilustrasi Partikel Interaktif */}
+            {/* Animasi / Ilustrasi Partikel Interaktif 3D */}
             <div style={{
               background: '#FFFFFF',
               border: '1.5px solid #BAE6FD',
-              borderRadius: '12px',
-              padding: '0.85rem',
-              minHeight: '140px',
+              borderRadius: '16px',
+              padding: '1rem',
               display: 'flex',
               flexDirection: 'column',
               justifyContent: 'center',
               alignItems: 'center',
               position: 'relative',
-              overflow: 'hidden'
+              boxShadow: 'inset 0 1px 4px rgba(2, 132, 199, 0.05)'
             }}>
               {submicroscopic.customVisual ? (
                 submicroscopic.customVisual
               ) : (
-                <div style={{ width: '100%', textAlign: 'center' }}>
-                  {/* Legenda Partikel */}
-                  <div style={{ display: 'flex', justifyContent: 'center', gap: '1rem', fontSize: '0.78rem', marginBottom: '0.65rem' }}>
-                    <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.3rem' }}>
-                      <span style={{ width: 10, height: 10, borderRadius: '50%', background: '#0284C7' }}></span> Molekul Pelarut Air
-                    </span>
-                    <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.3rem' }}>
-                      <span style={{ width: 12, height: 12, borderRadius: '50%', background: '#EF4444' }}></span> Partikel Zat Terlarut
-                    </span>
-                  </div>
-
-                  {/* Visual Simulasi Partikel Mini */}
-                  <div style={{
-                    height: '80px',
-                    width: '100%',
-                    background: 'linear-gradient(180deg, #E0F2FE 0%, #BAE6FD 100%)',
-                    borderRadius: '8px',
-                    position: 'relative',
-                    border: '1px solid #7DD3FC',
-                    overflow: 'hidden'
-                  }}>
-                    {/* Partikel Air (Pelarut) */}
-                    {[15, 30, 48, 65, 82, 22, 55, 75, 40].map((leftVal, i) => (
-                      <span
-                        key={`w-${i}`}
-                        style={{
-                          position: 'absolute',
-                          left: `${leftVal}%`,
-                          top: `${20 + (i % 3) * 22}px`,
-                          width: '10px',
-                          height: '10px',
-                          borderRadius: '50%',
-                          background: '#0284C7',
-                          boxShadow: '0 1px 3px rgba(2,132,199,0.4)',
-                          animation: `floatParticle ${2 + (i % 2)}s ease-in-out infinite alternate`
-                        }}
-                      />
-                    ))}
-
-                    {/* Partikel Terlarut yang Merintangi */}
-                    {[28, 58, 70].map((leftVal, i) => (
-                      <span
-                        key={`s-${i}`}
-                        style={{
-                          position: 'absolute',
-                          left: `${leftVal}%`,
-                          top: `${14 + i * 20}px`,
-                          width: '14px',
-                          height: '14px',
-                          borderRadius: '50%',
-                          background: '#EF4444',
-                          border: '2px solid #FFFFFF',
-                          boxShadow: '0 2px 4px rgba(239,68,68,0.4)'
-                        }}
-                      />
-                    ))}
-                  </div>
-                </div>
+                <Particle3DChamber />
               )}
             </div>
 

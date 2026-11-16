@@ -838,3 +838,32 @@
   margin-bottom: 0 !important;
   height: 100%;
 }
+
+/* =========================================================
+   13. COMPACT THERMOMETER SIMULATION (BAB 3)
+   ========================================================= */
+.compact-sim-card {
+  max-height: 75vh;
+  display: flex;
+  flex-direction: column;
+  padding: 0.85rem 1rem !important;
+  overflow-y: auto;
+}
+
+.compact-sim-card .card-header {
+  margin-bottom: 0.4rem !important;
+  padding-bottom: 0.25rem !important;
+}
+
+.thermo-grid-dual {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.75rem;
+  margin-bottom: 0.65rem;
+}
+
+@media (min-width: 768px) {
+  .thermo-grid-dual {
+    grid-template-columns: 1fr 1fr;
+  }
+}

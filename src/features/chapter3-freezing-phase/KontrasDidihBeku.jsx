@@ -6,10 +6,11 @@ import { formatIndonesianNumber } from '../../utils/formatNumber';
  * Komponen KontrasDidihBeku
  *
  * Menghubungkan Bab 2 (Kenaikan Titik Didih) dan Bab 3 (Penurunan Titik Beku):
- * 1. Dua termometer SVG interaktif berdampingan dengan slider molalitas urea (0–3 m).
- * 2. Tiga kotak ringkasan angka (Tb, Tf, rentang fase cair Tb - Tf) & baris perhitungan.
- * 3. Tabel kontras komparatif dua kolom (Titik Didih vs Titik Beku).
- * 4. Kotak penutup "Satu zat, dua manfaat" (etilen glikol pada radiator mobil).
+ * 1. Dua termometer SVG realistis berdampingan (skala simetris di sekitar patokan air murni di tengah).
+ * 2. Slider molalitas urea 0–3 m dengan animasi halus dan panah tebal 5px berlabel pil.
+ * 3. Ringkasan satu baris rentang fase cair.
+ * 4. Tabel kontras komparatif dua kolom (Titik Didih vs Titik Beku).
+ * 5. Kotak penutup "Satu zat, dua manfaat" (etilen glikol pada radiator mobil).
  */
 export default function KontrasDidihBeku() {
   const [molality, setMolality] = useState(1.0);
@@ -27,75 +28,79 @@ export default function KontrasDidihBeku() {
 
   const liquidRange = Tb - Tf;
 
-  // -------------------------------------------------------------
-  // Perhitungan Koordinat Skala Termometer SVG
-  // -------------------------------------------------------------
-  // Skala Termometer Didih: 99.5°C s.d. 102.0°C (Rentang = 2.5°C)
-  const boilMin = 99.5;
-  const boilMax = 102.0;
-  const boilYTop = 50;
-  const boilYBottom = 260;
+  const formatTf = (val) => {
+    if (Math.abs(val) < 0.001) return '0,00';
+    if (val < 0) return `−${formatIndonesianNumber(Math.abs(val), 2)}`;
+    return formatIndonesianNumber(val, 2);
+  };
 
+  // -------------------------------------------------------------
+  // Perhitungan Koordinat Skala Termometer SVG (Simetris di Tengah)
+  // Patokan di tengah y = 112 (Rentang skala y: 32 s.d. 192, tinggi = 160px)
+  // -------------------------------------------------------------
+  const yCenter = 112;
+  const yTop = 32;
+  const yBottom = 192;
+
+  // Termometer Kiri (Didih): 98,4 – 101,6 °C (Tengah 100,0 °C, Rentang 3,2 °C)
+  const boilMin = 98.4;
+  const boilMax = 101.6;
   const getBoilY = (temp) => {
     const clamped = Math.max(boilMin, Math.min(boilMax, temp));
-    return boilYBottom - ((clamped - boilMin) / (boilMax - boilMin)) * (boilYBottom - boilYTop);
+    return yBottom - ((clamped - boilMin) / (boilMax - boilMin)) * (yBottom - yTop);
   };
 
-  // Skala Termometer Beku: -6.0°C s.d. 1.0°C (Rentang = 7.0°C)
+  // Termometer Kanan (Beku): −6,0 s.d. +6,0 °C (Tengah 0,0 °C, Rentang 12,0 °C)
   const freezeMin = -6.0;
-  const freezeMax = 1.0;
-  const freezeYTop = 50;
-  const freezeYBottom = 260;
-
+  const freezeMax = 6.0;
   const getFreezeY = (temp) => {
     const clamped = Math.max(freezeMin, Math.min(freezeMax, temp));
-    return freezeYBottom - ((clamped - freezeMin) / (freezeMax - freezeMin)) * (freezeYBottom - freezeYTop);
+    return yBottom - ((clamped - freezeMin) / (freezeMax - freezeMin)) * (yBottom - yTop);
   };
 
-  const yBoilWater = getBoilY(100.0);
-  const yBoilSolution = getBoilY(Tb);
+  const yTb = getBoilY(Tb);
+  const yTf = getFreezeY(Tf);
 
-  const yFreezeWater = getFreezeY(0.0);
-  const yFreezeSolution = getFreezeY(Tf);
+  // Ticks Skala
+  const boilMajorTicks = [98.5, 99.0, 99.5, 100.0, 100.5, 101.0, 101.5];
+  const boilMinorTicks = [];
+  for (let t = 98.4; t <= 101.65; t += 0.1) {
+    const rounded = Math.round(t * 10) / 10;
+    if (Math.abs((rounded * 10) % 5) !== 0) {
+      boilMinorTicks.push(rounded);
+    }
+  }
+
+  const freezeMajorTicks = [-6, -5, -4, -3, -2, -1, 0, 1, 2, 3, 4, 5, 6];
+  const freezeMinorTicks = [-5.5, -4.5, -3.5, -2.5, -1.5, -0.5, 0.5, 1.5, 2.5, 3.5, 4.5, 5.5];
+
+  // Posisi Y Pill Label di Samping Panah
+  const pillYBoil = Math.min(yCenter - 22, Math.max(yTop, (yCenter + yTb) / 2 - 10));
+  const pillYFreeze = Math.max(yCenter + 2, Math.min(yBottom - 18, (yCenter + yTf) / 2 - 10));
 
   return (
     <div style={{ marginBottom: '2rem', fontFamily: "'Times New Roman', Times, serif" }}>
-      {/* 1. CARD SIMULASI TERMORETIS BERDAMPINGAN DENGAN SLIDER */}
+      {/* 1. CARD SIMULASI TERMORETIS KOMPAK (MAX-HEIGHT 75vh) */}
       <Card
-        title="Simulasi Kontras: Termometer Titik Didih (Bab 2) vs Titik Beku (Bab 3)"
-        subtitle="Geser konsentrasi molalitas urea untuk mengamati bagaimana fase cair melebar ke atas dan ke bawah secara bersamaan."
+        className="compact-sim-card"
+        title="Simulasi Rentang Fase Cair (Didih vs Beku)"
+        subtitle="Amati pergeseran simetris titik didih (naik) dan titik beku (turun) saat konsentrasi larutan urea diubah."
       >
-        {/* Slider Pengatur Molalitas */}
+        {/* Slider Pengatur Molalitas (Kompak & Elegan) */}
         <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: '0.85rem',
           background: '#F8FAFC',
           border: '1px solid #E2E8F0',
-          borderRadius: '12px',
-          padding: '1rem 1.25rem',
-          marginBottom: '1.5rem'
+          borderRadius: '10px',
+          padding: '0.45rem 0.85rem',
+          marginBottom: '0.65rem',
+          flexWrap: 'wrap'
         }}>
-          <div style={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            flexWrap: 'wrap',
-            gap: '0.5rem',
-            marginBottom: '0.5rem'
-          }}>
-            <label htmlFor="molality-slider" style={{ fontWeight: 700, fontSize: '1rem', color: '#0F172A' }}>
-              Konsentrasi Molalitas Urea (Nonelektrolit, i = 1):
-            </label>
-            <span style={{
-              background: '#0284C7',
-              color: '#FFFFFF',
-              padding: '0.25rem 0.75rem',
-              borderRadius: '20px',
-              fontWeight: 800,
-              fontSize: '1rem'
-            }}>
-              m = {formatIndonesianNumber(molality, 1)} m
-            </span>
-          </div>
-
+          <label htmlFor="molality-slider" style={{ fontSize: '0.9rem', fontWeight: 700, color: '#334155' }}>
+            Molalitas Urea (Nonelektrolit, i = 1):
+          </label>
           <input
             id="molality-slider"
             type="range"
@@ -104,182 +109,206 @@ export default function KontrasDidihBeku() {
             step="0.1"
             value={molality}
             onChange={(e) => setMolality(parseFloat(e.target.value))}
-            style={{ width: '100%', cursor: 'pointer', accentColor: '#0284C7' }}
+            style={{ flex: 1, minWidth: '140px', cursor: 'pointer', accentColor: '#0284C7' }}
           />
-
-          <div style={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            fontSize: '0.8rem',
-            color: '#64748B',
-            marginTop: '0.25rem'
+          <span style={{
+            background: '#0284C7',
+            color: '#FFFFFF',
+            padding: '0.2rem 0.65rem',
+            borderRadius: '12px',
+            fontWeight: 800,
+            fontSize: '0.88rem'
           }}>
-            <span>0 m (Air Murni)</span>
-            <span>1,0 m</span>
-            <span>2,0 m</span>
-            <span>3,0 m (Pekat)</span>
-          </div>
+            m = {formatIndonesianNumber(molality, 1)} m
+          </span>
         </div>
 
-        {/* Baris Dua Termometer SVG Berdampingan */}
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(290px, 1fr))',
-          gap: '1.25rem',
-          marginBottom: '1.5rem'
-        }}>
+        {/* Dua Termometer SVG Realistis Berdampingan di Layar Lebar */}
+        <div className="thermo-grid-dual">
           {/* Termometer Kiri: Titik Didih (Bab 2) */}
           <div style={{
             background: 'linear-gradient(180deg, #FFF7ED 0%, #FFFFFF 100%)',
             border: '1.5px solid #FDBA74',
-            borderRadius: '14px',
-            padding: '1rem',
-            boxShadow: '0 2px 8px rgba(234, 88, 12, 0.06)'
+            borderRadius: '12px',
+            padding: '0.5rem 0.75rem',
+            boxShadow: '0 2px 6px rgba(234, 88, 12, 0.05)'
           }}>
-            <div style={{ textAlign: 'center', marginBottom: '0.5rem' }}>
-              <span style={{
-                fontSize: '0.8rem',
-                fontWeight: 800,
-                color: '#C2410C',
-                background: '#FFEDD5',
-                padding: '0.2rem 0.6rem',
-                borderRadius: '6px'
-              }}>
-                BAB 2 · KENAIKAN TITIK DIDIH
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.25rem' }}>
+              <span style={{ fontSize: '0.8rem', fontWeight: 800, color: '#9A3412', textTransform: 'uppercase' }}>
+                🔥 Titik Didih (Bab 2)
               </span>
-              <h4 style={{ margin: '0.35rem 0 0', color: '#9A3412', fontSize: '1.1rem', fontWeight: 800 }}>
-                Titik Didih (Skala 99,5 – 102 °C)
-              </h4>
+              <span style={{ fontSize: '0.85rem', fontWeight: 800, color: '#EA580C' }}>
+                Tb = {formatIndonesianNumber(Tb, 2)} °C
+              </span>
             </div>
 
-            <svg viewBox="0 0 310 320" style={{ width: '100%', height: 'auto', display: 'block' }}>
+            <svg viewBox="0 0 340 236" style={{ width: '100%', maxHeight: '200px', display: 'block' }}>
               <defs>
-                <linearGradient id="boilGrad" x1="0" y1="0" x2="0" y2="1">
+                <linearGradient id="boilGrad" x1="0" y1="0" x2="1" y2="0">
                   <stop offset="0%" stopColor="#EA580C" />
-                  <stop offset="100%" stopColor="#FB923C" />
+                  <stop offset="60%" stopColor="#EF4444" />
+                  <stop offset="100%" stopColor="#DC2626" />
                 </linearGradient>
-                <marker
-                  id="arrowBoilUp"
-                  viewBox="0 0 10 10"
-                  refX="5"
-                  refY="3"
-                  markerWidth="6"
-                  markerHeight="6"
-                  orient="auto"
-                >
-                  <path d="M 0 6 L 5 0 L 10 6 z" fill="#DC2626" />
-                </marker>
+                <linearGradient id="glassReflection" x1="0" y1="0" x2="1" y2="0">
+                  <stop offset="0%" stopColor="rgba(255,255,255,0.9)" />
+                  <stop offset="100%" stopColor="rgba(255,255,255,0.2)" />
+                </linearGradient>
               </defs>
 
-              {/* Skala & Angka Penggaris */}
-              {[99.5, 100.0, 100.5, 101.0, 101.5, 102.0].map((t) => {
+              {/* Teks Kecil Samar: di atas / di bawah patokan */}
+              <text x="145" y="24" fontSize="8.5" fill="#94A3B8" fontStyle="italic" fontFamily="Times New Roman, serif">
+                ▲ di atas patokan
+              </text>
+              <text x="145" y="206" fontSize="8.5" fill="#94A3B8" fontStyle="italic" fontFamily="Times New Roman, serif">
+                ▼ di bawah patokan
+              </text>
+
+              {/* Skala Minor Ticks (Langkah 0,1 °C) */}
+              {boilMinorTicks.map((t) => {
+                const y = getBoilY(t);
+                return (
+                  <line
+                    key={`b-min-${t}`}
+                    x1="49"
+                    y1={y}
+                    x2="55"
+                    y2={y}
+                    stroke="#CBD5E1"
+                    strokeWidth="0.8"
+                  />
+                );
+              })}
+
+              {/* Skala Major Ticks & Label (Langkah 0,5 °C) */}
+              {boilMajorTicks.map((t) => {
                 const y = getBoilY(t);
                 const isBase = t === 100.0;
                 return (
-                  <g key={`boil-scale-${t}`}>
+                  <g key={`b-maj-${t}`}>
                     <line
-                      x1={isBase ? "40" : "50"}
+                      x1={isBase ? "40" : "44"}
                       y1={y}
-                      x2="70"
+                      x2="56"
                       y2={y}
-                      stroke={isBase ? "#0F172A" : "#94A3B8"}
-                      strokeWidth={isBase ? "2" : "1"}
+                      stroke={isBase ? "#0F172A" : "#64748B"}
+                      strokeWidth={isBase ? "1.8" : "1.2"}
                     />
                     <text
-                      x="35"
-                      y={y + 4}
+                      x="39"
+                      y={y + 3.5}
                       textAnchor="end"
-                      fontSize="11"
-                      fontWeight={isBase ? "700" : "500"}
+                      fontSize="9"
+                      fontWeight={isBase ? "800" : "500"}
                       fill={isBase ? "#0F172A" : "#64748B"}
                       fontFamily="Times New Roman, serif"
                     >
-                      {formatIndonesianNumber(t, 1)}°
+                      {formatIndonesianNumber(t, 1)}
                     </text>
                   </g>
                 );
               })}
 
-              {/* Badan Tabung Termometer Kaca Luar */}
-              <rect x="70" y="40" width="22" height="230" rx="11" fill="#F1F5F9" stroke="#94A3B8" strokeWidth="2" />
-              <circle cx="81" cy="275" r="22" fill="#F1F5F9" stroke="#94A3B8" strokeWidth="2" />
-
-              {/* Cairan Termometer di Dalam */}
-              <circle cx="81" cy="275" r="18" fill="url(#boilGrad)" />
-              <rect
-                x="74"
-                y={yBoilSolution}
-                width="14"
-                height={275 - yBoilSolution}
-                fill="url(#boilGrad)"
-                rx="4"
-              />
-
-              {/* Garis Putus-putus Air Murni (100°C) */}
+              {/* Garis Patokan di Tengah (Air Murni 100 °C) */}
               <line
-                x1="70"
-                y1={yBoilWater}
-                x2="225"
-                y2={yBoilWater}
-                stroke="#64748B"
-                strokeWidth="1.5"
-                strokeDasharray="4 3"
-              />
-              <text x="230" y={yBoilWater + 4} fontSize="11" fill="#475569" fontWeight="600" fontFamily="Times New Roman, serif">
-                100,00 °C (Air)
-              </text>
-
-              {/* Garis Merah/Oranye Larutan */}
-              <line
-                x1="70"
-                y1={yBoilSolution}
-                x2="225"
-                y2={yBoilSolution}
-                stroke="#DC2626"
+                x1="58"
+                y1={yCenter}
+                x2="295"
+                y2={yCenter}
+                stroke="#475569"
                 strokeWidth="2.5"
+                strokeDasharray="6 4"
               />
-              <text x="230" y={yBoilSolution + 4} fontSize="12" fill="#DC2626" fontWeight="800" fontFamily="Times New Roman, serif">
-                {formatIndonesianNumber(Tb, 2)} °C
+              <text x="145" y={yCenter - 6} fontSize="9.5" fontWeight="700" fill="#334155" fontFamily="Times New Roman, serif">
+                patokan: air murni 100 °C
               </text>
 
-              {/* Panah Indikator Kenaikan (Naik x °C) */}
-              {deltaTb > 0.01 ? (
-                <g>
+              {/* Badan Kaca Termometer Realistis */}
+              <rect x="58" y="16" width="16" height="186" rx="8" fill="rgba(241, 245, 249, 0.7)" stroke="#94A3B8" strokeWidth="1.5" />
+              <circle cx="66" cy="208" r="16" fill="rgba(241, 245, 249, 0.7)" stroke="#94A3B8" strokeWidth="1.5" />
+
+              {/* Cairan Didih (Oranye-Merah dengan Animasi Transisi Halus) */}
+              <circle cx="66" cy="208" r="13" fill="url(#boilGrad)" />
+              <rect
+                x="61"
+                y={yTb}
+                width="10"
+                height={Math.max(0, 208 - yTb)}
+                rx="3"
+                fill="url(#boilGrad)"
+                style={{ transition: 'all 0.35s cubic-bezier(0.4, 0, 0.2, 1)' }}
+              />
+
+              {/* Kilau Kaca Tipis di Sisi Kiri Tabung */}
+              <line x1="60" y1="20" x2="60" y2="198" stroke="url(#glassReflection)" strokeWidth="1.8" strokeLinecap="round" />
+              <path d="M 56 202 A 11 11 0 0 1 66 197" stroke="rgba(255,255,255,0.8)" strokeWidth="1.6" fill="none" strokeLinecap="round" />
+
+              {/* Posisi Titik Didih Larutan & Panah Naik (Hanya Muncul Jika m > 0) */}
+              {molality > 0 && (
+                <g style={{ transition: 'all 0.35s cubic-bezier(0.4, 0, 0.2, 1)' }}>
+                  {/* Garis Horizontal Larutan */}
                   <line
-                    x1="165"
-                    y1={yBoilWater - 2}
-                    x2="165"
-                    y2={yBoilSolution + 6}
-                    stroke="#DC2626"
+                    x1="66"
+                    y1={yTb}
+                    x2="275"
+                    y2={yTb}
+                    stroke="#EA580C"
                     strokeWidth="2"
-                    markerEnd="url(#arrowBoilUp)"
-                  />
-                  <rect
-                    x="172"
-                    y={(yBoilWater + yBoilSolution) / 2 - 10}
-                    width="54"
-                    height="18"
-                    rx="4"
-                    fill="#FEF2F2"
-                    stroke="#FCA5A5"
-                    strokeWidth="1"
+                    style={{ transition: 'all 0.35s cubic-bezier(0.4, 0, 0.2, 1)' }}
                   />
                   <text
-                    x="199"
-                    y={(yBoilWater + yBoilSolution) / 2 + 3}
-                    textAnchor="middle"
+                    x="280"
+                    y={yTb + 3.5}
                     fontSize="11"
                     fontWeight="800"
-                    fill="#DC2626"
+                    fill="#EA580C"
                     fontFamily="Times New Roman, serif"
+                    style={{ transition: 'all 0.35s cubic-bezier(0.4, 0, 0.2, 1)' }}
                   >
-                    naik {formatIndonesianNumber(deltaTb, 2)} °C
+                    {formatIndonesianNumber(Tb, 2)} °C
                   </text>
+
+                  {/* Panah Tebal 5px dengan Kepala Segitiga */}
+                  <line
+                    x1="108"
+                    y1={yCenter}
+                    x2="108"
+                    y2={yTb + 8}
+                    stroke="#EA580C"
+                    strokeWidth="5"
+                    strokeLinecap="round"
+                    style={{ transition: 'all 0.35s cubic-bezier(0.4, 0, 0.2, 1)' }}
+                  />
+                  <polygon
+                    points={`108,${yTb} 102,${yTb + 9} 114,${yTb + 9}`}
+                    fill="#EA580C"
+                    style={{ transition: 'all 0.35s cubic-bezier(0.4, 0, 0.2, 1)' }}
+                  />
+
+                  {/* Label Berbentuk Pil Berwarna di Samping Panah */}
+                  <g style={{ transition: 'all 0.35s cubic-bezier(0.4, 0, 0.2, 1)' }}>
+                    <rect
+                      x="118"
+                      y={pillYBoil}
+                      width="80"
+                      height="20"
+                      rx="10"
+                      fill="#FFF7ED"
+                      stroke="#F97316"
+                      strokeWidth="1.2"
+                    />
+                    <text
+                      x="158"
+                      y={pillYBoil + 14}
+                      textAnchor="middle"
+                      fontSize="9.5"
+                      fontWeight="800"
+                      fill="#C2410C"
+                      fontFamily="Times New Roman, serif"
+                    >
+                      naik {formatIndonesianNumber(deltaTb, 2)} °C
+                    </text>
+                  </g>
                 </g>
-              ) : (
-                <text x="160" y={yBoilWater - 8} fontSize="11" fill="#64748B" fontStyle="italic" fontFamily="Times New Roman, serif">
-                  (belum naik)
-                </text>
               )}
             </svg>
           </div>
@@ -288,243 +317,205 @@ export default function KontrasDidihBeku() {
           <div style={{
             background: 'linear-gradient(180deg, #F0F9FF 0%, #FFFFFF 100%)',
             border: '1.5px solid #7DD3FC',
-            borderRadius: '14px',
-            padding: '1rem',
-            boxShadow: '0 2px 8px rgba(2, 132, 199, 0.06)'
+            borderRadius: '12px',
+            padding: '0.5rem 0.75rem',
+            boxShadow: '0 2px 6px rgba(2, 132, 199, 0.05)'
           }}>
-            <div style={{ textAlign: 'center', marginBottom: '0.5rem' }}>
-              <span style={{
-                fontSize: '0.8rem',
-                fontWeight: 800,
-                color: '#0369A1',
-                background: '#E0F2FE',
-                padding: '0.2rem 0.6rem',
-                borderRadius: '6px'
-              }}>
-                BAB 3 · PENURUNAN TITIK BEKU
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.25rem' }}>
+              <span style={{ fontSize: '0.8rem', fontWeight: 800, color: '#075985', textTransform: 'uppercase' }}>
+                ❄️ Titik Beku (Bab 3)
               </span>
-              <h4 style={{ margin: '0.35rem 0 0', color: '#075985', fontSize: '1.1rem', fontWeight: 800 }}>
-                Titik Beku (Skala −6 s.d. 1 °C)
-              </h4>
+              <span style={{ fontSize: '0.85rem', fontWeight: 800, color: '#0284C7' }}>
+                Tf = {formatTf(Tf)} °C
+              </span>
             </div>
 
-            <svg viewBox="0 0 310 320" style={{ width: '100%', height: 'auto', display: 'block' }}>
+            <svg viewBox="0 0 340 236" style={{ width: '100%', maxHeight: '200px', display: 'block' }}>
               <defs>
-                <linearGradient id="freezeGrad" x1="0" y1="0" x2="0" y2="1">
+                <linearGradient id="freezeGrad" x1="0" y1="0" x2="1" y2="0">
                   <stop offset="0%" stopColor="#38BDF8" />
-                  <stop offset="100%" stopColor="#0284C7" />
+                  <stop offset="60%" stopColor="#0284C7" />
+                  <stop offset="100%" stopColor="#1D4ED8" />
                 </linearGradient>
-                <marker
-                  id="arrowFreezeDown"
-                  viewBox="0 0 10 10"
-                  refX="5"
-                  refY="7"
-                  markerWidth="6"
-                  markerHeight="6"
-                  orient="auto"
-                >
-                  <path d="M 0 0 L 5 6 L 10 0 z" fill="#0284C7" />
-                </marker>
               </defs>
 
-              {/* Skala & Angka Penggaris */}
-              {[1.0, 0.0, -1.0, -2.0, -3.0, -4.0, -5.0, -6.0].map((t) => {
+              {/* Teks Kecil Samar: di atas / di bawah patokan */}
+              <text x="145" y="24" fontSize="8.5" fill="#94A3B8" fontStyle="italic" fontFamily="Times New Roman, serif">
+                ▲ di atas patokan
+              </text>
+              <text x="145" y="206" fontSize="8.5" fill="#94A3B8" fontStyle="italic" fontFamily="Times New Roman, serif">
+                ▼ di bawah patokan
+              </text>
+
+              {/* Skala Minor Ticks (Langkah 0,5 °C) */}
+              {freezeMinorTicks.map((t) => {
                 const y = getFreezeY(t);
-                const isBase = t === 0.0;
                 return (
-                  <g key={`freeze-scale-${t}`}>
+                  <line
+                    key={`f-min-${t}`}
+                    x1="49"
+                    y1={y}
+                    x2="55"
+                    y2={y}
+                    stroke="#CBD5E1"
+                    strokeWidth="0.8"
+                  />
+                );
+              })}
+
+              {/* Skala Major Ticks & Label (Langkah 1 °C) */}
+              {freezeMajorTicks.map((t) => {
+                const y = getFreezeY(t);
+                const isBase = t === 0;
+                let labelText = `${t}`;
+                if (t > 0) labelText = `+${t}`;
+                else if (t < 0) labelText = `−${Math.abs(t)}`;
+
+                return (
+                  <g key={`f-maj-${t}`}>
                     <line
-                      x1={isBase ? "40" : "50"}
+                      x1={isBase ? "40" : "44"}
                       y1={y}
-                      x2="70"
+                      x2="56"
                       y2={y}
-                      stroke={isBase ? "#0F172A" : "#94A3B8"}
-                      strokeWidth={isBase ? "2" : "1"}
+                      stroke={isBase ? "#0F172A" : "#64748B"}
+                      strokeWidth={isBase ? "1.8" : "1.2"}
                     />
                     <text
-                      x="35"
-                      y={y + 4}
+                      x="39"
+                      y={y + 3.5}
                       textAnchor="end"
-                      fontSize="11"
-                      fontWeight={isBase ? "700" : "500"}
+                      fontSize="9"
+                      fontWeight={isBase ? "800" : "500"}
                       fill={isBase ? "#0F172A" : "#64748B"}
                       fontFamily="Times New Roman, serif"
                     >
-                      {t > 0 ? `+${formatIndonesianNumber(t, 0)}` : formatIndonesianNumber(t, 0)}°
+                      {labelText}
                     </text>
                   </g>
                 );
               })}
 
-              {/* Badan Tabung Termometer Kaca Luar */}
-              <rect x="70" y="40" width="22" height="230" rx="11" fill="#F1F5F9" stroke="#94A3B8" strokeWidth="2" />
-              <circle cx="81" cy="275" r="22" fill="#F1F5F9" stroke="#94A3B8" strokeWidth="2" />
-
-              {/* Cairan Termometer di Dalam */}
-              <circle cx="81" cy="275" r="18" fill="url(#freezeGrad)" />
-              <rect
-                x="74"
-                y={yFreezeSolution}
-                width="14"
-                height={275 - yFreezeSolution}
-                fill="url(#freezeGrad)"
-                rx="4"
-              />
-
-              {/* Garis Putus-putus Air Murni (0°C) */}
+              {/* Garis Patokan di Tengah (Air Murni 0 °C) */}
               <line
-                x1="70"
-                y1={yFreezeWater}
-                x2="225"
-                y2={yFreezeWater}
-                stroke="#64748B"
-                strokeWidth="1.5"
-                strokeDasharray="4 3"
-              />
-              <text x="230" y={yFreezeWater + 4} fontSize="11" fill="#475569" fontWeight="600" fontFamily="Times New Roman, serif">
-                0,00 °C (Air)
-              </text>
-
-              {/* Garis Biru Larutan */}
-              <line
-                x1="70"
-                y1={yFreezeSolution}
-                x2="225"
-                y2={yFreezeSolution}
-                stroke="#0284C7"
+                x1="58"
+                y1={yCenter}
+                x2="295"
+                y2={yCenter}
+                stroke="#475569"
                 strokeWidth="2.5"
+                strokeDasharray="6 4"
               />
-              <text x="230" y={yFreezeSolution + 4} fontSize="12" fill="#0284C7" fontWeight="800" fontFamily="Times New Roman, serif">
-                {formatIndonesianNumber(Tf, 2)} °C
+              <text x="145" y={yCenter - 6} fontSize="9.5" fontWeight="700" fill="#334155" fontFamily="Times New Roman, serif">
+                patokan: air murni 0 °C
               </text>
 
-              {/* Panah Indikator Penurunan (Turun x °C) */}
-              {deltaTf > 0.01 ? (
-                <g>
+              {/* Badan Kaca Termometer Realistis */}
+              <rect x="58" y="16" width="16" height="186" rx="8" fill="rgba(241, 245, 249, 0.7)" stroke="#94A3B8" strokeWidth="1.5" />
+              <circle cx="66" cy="208" r="16" fill="rgba(241, 245, 249, 0.7)" stroke="#94A3B8" strokeWidth="1.5" />
+
+              {/* Cairan Beku (Biru dengan Animasi Transisi Halus) */}
+              <circle cx="66" cy="208" r="13" fill="url(#freezeGrad)" />
+              <rect
+                x="61"
+                y={yTf}
+                width="10"
+                height={Math.max(0, 208 - yTf)}
+                rx="3"
+                fill="url(#freezeGrad)"
+                style={{ transition: 'all 0.35s cubic-bezier(0.4, 0, 0.2, 1)' }}
+              />
+
+              {/* Kilau Kaca Tipis di Sisi Kiri Tabung */}
+              <line x1="60" y1="20" x2="60" y2="198" stroke="url(#glassReflection)" strokeWidth="1.8" strokeLinecap="round" />
+              <path d="M 56 202 A 11 11 0 0 1 66 197" stroke="rgba(255,255,255,0.8)" strokeWidth="1.6" fill="none" strokeLinecap="round" />
+
+              {/* Posisi Titik Beku Larutan & Panah Turun (Hanya Muncul Jika m > 0) */}
+              {molality > 0 && (
+                <g style={{ transition: 'all 0.35s cubic-bezier(0.4, 0, 0.2, 1)' }}>
+                  {/* Garis Horizontal Larutan */}
                   <line
-                    x1="165"
-                    y1={yFreezeWater + 2}
-                    x2="165"
-                    y2={yFreezeSolution - 6}
+                    x1="66"
+                    y1={yTf}
+                    x2="275"
+                    y2={yTf}
                     stroke="#0284C7"
                     strokeWidth="2"
-                    markerEnd="url(#arrowFreezeDown)"
-                  />
-                  <rect
-                    x="170"
-                    y={(yFreezeWater + yFreezeSolution) / 2 - 10}
-                    width="58"
-                    height="18"
-                    rx="4"
-                    fill="#F0F9FF"
-                    stroke="#BAE6FD"
-                    strokeWidth="1"
+                    style={{ transition: 'all 0.35s cubic-bezier(0.4, 0, 0.2, 1)' }}
                   />
                   <text
-                    x="199"
-                    y={(yFreezeWater + yFreezeSolution) / 2 + 3}
-                    textAnchor="middle"
+                    x="280"
+                    y={yTf + 3.5}
                     fontSize="11"
                     fontWeight="800"
                     fill="#0284C7"
                     fontFamily="Times New Roman, serif"
+                    style={{ transition: 'all 0.35s cubic-bezier(0.4, 0, 0.2, 1)' }}
                   >
-                    turun {formatIndonesianNumber(deltaTf, 2)} °C
+                    {formatTf(Tf)} °C
                   </text>
+
+                  {/* Panah Tebal 5px dengan Kepala Segitiga */}
+                  <line
+                    x1="108"
+                    y1={yCenter}
+                    x2="108"
+                    y2={yTf - 8}
+                    stroke="#0284C7"
+                    strokeWidth="5"
+                    strokeLinecap="round"
+                    style={{ transition: 'all 0.35s cubic-bezier(0.4, 0, 0.2, 1)' }}
+                  />
+                  <polygon
+                    points={`108,${yTf} 102,${yTf - 9} 114,${yTf - 9}`}
+                    fill="#0284C7"
+                    style={{ transition: 'all 0.35s cubic-bezier(0.4, 0, 0.2, 1)' }}
+                  />
+
+                  {/* Label Berbentuk Pil Berwarna di Samping Panah */}
+                  <g style={{ transition: 'all 0.35s cubic-bezier(0.4, 0, 0.2, 1)' }}>
+                    <rect
+                      x="118"
+                      y={pillYFreeze}
+                      width="84"
+                      height="20"
+                      rx="10"
+                      fill="#F0F9FF"
+                      stroke="#0284C7"
+                      strokeWidth="1.2"
+                    />
+                    <text
+                      x="160"
+                      y={pillYFreeze + 14}
+                      textAnchor="middle"
+                      fontSize="9.5"
+                      fontWeight="800"
+                      fill="#0369A1"
+                      fontFamily="Times New Roman, serif"
+                    >
+                      turun {formatIndonesianNumber(deltaTf, 2)} °C
+                    </text>
+                  </g>
                 </g>
-              ) : (
-                <text x="160" y={yFreezeWater + 16} fontSize="11" fill="#64748B" fontStyle="italic" fontFamily="Times New Roman, serif">
-                  (belum turun)
-                </text>
               )}
             </svg>
           </div>
         </div>
 
-        {/* Tiga Kotak Ringkasan Angka */}
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(210px, 1fr))',
-          gap: '1rem',
-          marginBottom: '1.25rem'
-        }}>
-          {/* Kotak 1: Titik Didih */}
-          <div style={{
-            background: '#FFF7ED',
-            border: '1.5px solid #FDBA74',
-            borderRadius: '12px',
-            padding: '1rem',
-            textAlign: 'center'
-          }}>
-            <div style={{ fontSize: '0.85rem', color: '#9A3412', fontWeight: 700 }}>
-              Titik Didih Larutan (Tb)
-            </div>
-            <div style={{ fontSize: '1.6rem', fontWeight: 800, color: '#EA580C', margin: '0.25rem 0' }}>
-              {formatIndonesianNumber(Tb, 2)} °C
-            </div>
-            <div style={{ fontSize: '0.8rem', color: '#C2410C' }}>
-              100,00 °C + {formatIndonesianNumber(deltaTb, 2)} °C (Naik)
-            </div>
-          </div>
-
-          {/* Kotak 2: Titik Beku */}
-          <div style={{
-            background: '#F0F9FF',
-            border: '1.5px solid #7DD3FC',
-            borderRadius: '12px',
-            padding: '1rem',
-            textAlign: 'center'
-          }}>
-            <div style={{ fontSize: '0.85rem', color: '#075985', fontWeight: 700 }}>
-              Titik Beku Larutan (Tf)
-            </div>
-            <div style={{ fontSize: '1.6rem', fontWeight: 800, color: '#0284C7', margin: '0.25rem 0' }}>
-              {formatIndonesianNumber(Tf, 2)} °C
-            </div>
-            <div style={{ fontSize: '0.8rem', color: '#0369A1' }}>
-              0,00 °C − {formatIndonesianNumber(deltaTf, 2)} °C (Turun)
-            </div>
-          </div>
-
-          {/* Kotak 3: Rentang Fase Cair */}
-          <div style={{
-            background: '#ECFDF5',
-            border: '1.5px solid #6EE7B7',
-            borderRadius: '12px',
-            padding: '1rem',
-            textAlign: 'center'
-          }}>
-            <div style={{ fontSize: '0.85rem', color: '#065F46', fontWeight: 700 }}>
-              Rentang Fase Cair (Tb − Tf)
-            </div>
-            <div style={{ fontSize: '1.6rem', fontWeight: 800, color: '#059669', margin: '0.25rem 0' }}>
-              {formatIndonesianNumber(liquidRange, 2)} °C
-            </div>
-            <div style={{ fontSize: '0.8rem', color: '#047857' }}>
-              Melebar +{formatIndonesianNumber(deltaTb + deltaTf, 2)} °C (Semula 100,00 °C)
-            </div>
-          </div>
-        </div>
-
-        {/* Baris Perhitungan ΔTb dan ΔTf */}
+        {/* Ringkasan Satu Baris di Bawah */}
         <div style={{
           background: '#F8FAFC',
-          border: '1px solid #E2E8F0',
+          border: '1.5px solid #CBD5E1',
           borderRadius: '10px',
-          padding: '0.9rem 1.25rem',
+          padding: '0.45rem 1rem',
+          textAlign: 'center',
           fontSize: '0.92rem',
-          color: '#1E293B',
-          lineHeight: 1.6
+          color: '#0F172A',
+          fontWeight: 700
         }}>
-          <div style={{ fontWeight: 700, color: '#0F172A', marginBottom: '0.35rem' }}>
-            Detail Baris Perhitungan (Air: Kb = 0,52 °C/m; Kf = 1,86 °C/m; Urea i = 1):
-          </div>
-          <div>
-            • <strong>Kenaikan Titik Didih:</strong> ΔTb = Kb × m × i = 0,52 × {formatIndonesianNumber(molality, 1)} × 1 = <strong>{formatIndonesianNumber(deltaTb, 2)} °C</strong> &nbsp;→&nbsp; Tb = 100,00 + {formatIndonesianNumber(deltaTb, 2)} = <strong>{formatIndonesianNumber(Tb, 2)} °C</strong>
-          </div>
-          <div style={{ marginTop: '0.2rem' }}>
-            • <strong>Penurunan Titik Beku:</strong> ΔTf = Kf × m × i = 1,86 × {formatIndonesianNumber(molality, 1)} × 1 = <strong>{formatIndonesianNumber(deltaTf, 2)} °C</strong> &nbsp;→&nbsp; Tf = 0,00 − {formatIndonesianNumber(deltaTf, 2)} = <strong>{formatIndonesianNumber(Tf, 2)} °C</strong>
-          </div>
+          Rentang fase cair: <span style={{ color: '#0284C7' }}>{formatTf(Tf)} °C</span> sampai{' '}
+          <span style={{ color: '#EA580C' }}>{formatIndonesianNumber(Tb, 2)} °C</span>{' '}
+          (lebar <span style={{ color: '#059669' }}>{formatIndonesianNumber(liquidRange, 2)} °C</span>)
         </div>
       </Card>
 
@@ -688,4 +679,3 @@ export default function KontrasDidihBeku() {
     </div>
   );
 }
-

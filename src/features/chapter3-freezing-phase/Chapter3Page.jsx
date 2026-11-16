@@ -13,6 +13,7 @@ import imgTitikBeku from '../../assets/fenomena-titik-beku.jpg';
 import KontrasDidihBeku from './KontrasDidihBeku';
 import OrientasiMasalah from './OrientasiMasalah';
 import DugaanHipotesis, { DUGAAN_OPTIONS, getCh3HypothesisKey } from './DugaanHipotesis';
+import SajikanHasil from './SajikanHasil';
 
 // ── PBL Phase metadata ────────────────────────────────────────────────────────
 const PBL_PHASES = [
@@ -316,7 +317,7 @@ export default function Chapter3Page({ onComplete, isCompleted }) {
       ══════════════════════════════════════════════════════════════════════ */}
       <section id="fase-4" style={{ marginBottom: '3rem', scrollMarginTop: '64px' }}>
         <PhaseHeader number={4} title="Mengembangkan dan Menyajikan Hasil" />
-        <PlaceholderBox text="tabel data dan kesimpulan" />
+        <SajikanHasil />
       </section>
 
       {/* ══════════════════════════════════════════════════════════════════════

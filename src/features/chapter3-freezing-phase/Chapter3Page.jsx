@@ -7,9 +7,12 @@ import MisconceptionCard from '../../components/chemistry/MisconceptionCard';
 import { FormulaRenderer } from '../../components/chemistry/FormulaRenderer';
 import { calculateFreezingPointDepression } from '../../utils/colligative';
 import { formatIndonesianNumber } from '../../utils/formatNumber';
+import { getStoredData } from '../../utils/storage';
 import solventsData from '../../data/solvents.json';
 import imgTitikBeku from '../../assets/fenomena-titik-beku.jpg';
 import KontrasDidihBeku from './KontrasDidihBeku';
+import OrientasiMasalah from './OrientasiMasalah';
+import DugaanHipotesis, { DUGAAN_OPTIONS, getCh3HypothesisKey } from './DugaanHipotesis';
 
 // ── PBL Phase metadata ────────────────────────────────────────────────────────
 const PBL_PHASES = [
@@ -77,10 +80,19 @@ export default function Chapter3Page({ onComplete, isCompleted }) {
   const water = solventsData[0]; // Air: Kf = 1.86, normal freezing = 0.0°C
   const [molality, setMolality] = useState(1);
   const [activePhase, setActivePhase] = useState(1);
+  const [hypothesisData, setHypothesisData] = useState(() => {
+    return getStoredData(getCh3HypothesisKey(), null);
+  });
 
   const { deltaTf, freezingPoint } = calculateFreezingPointDepression(
     water.kf, molality, 1, water.normalFreezingPoint
   );
+
+  // ── Muat ulang hypothesisData bila akun/localStorage berganti ──────────────
+  useEffect(() => {
+    const data = getStoredData(getCh3HypothesisKey(), null);
+    if (data) setHypothesisData(data);
+  }, []);
 
   // ── IntersectionObserver: highlight active phase in nav ───────────────────
   useEffect(() => {
@@ -101,6 +113,10 @@ export default function Chapter3Page({ onComplete, isCompleted }) {
   const scrollToPhase = (n) => {
     document.getElementById(`fase-${n}`)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   };
+
+  const selectedDugaanObj = hypothesisData?.choice
+    ? DUGAAN_OPTIONS.find(o => o.id === hypothesisData.choice)
+    : null;
 
   return (
     <div className="fade-in" style={{ fontFamily: "'Times New Roman', Times, serif" }}>
@@ -181,7 +197,7 @@ export default function Chapter3Page({ onComplete, isCompleted }) {
       ══════════════════════════════════════════════════════════════════════ */}
       <section id="fase-1" style={{ marginBottom: '3rem', scrollMarginTop: '64px' }}>
         <PhaseHeader number={1} title="Orientasi Siswa pada Masalah" />
-        <PlaceholderBox text="kasus gerobak es puter" />
+        <OrientasiMasalah />
       </section>
 
       {/* ══════════════════════════════════════════════════════════════════════
@@ -189,7 +205,7 @@ export default function Chapter3Page({ onComplete, isCompleted }) {
       ══════════════════════════════════════════════════════════════════════ */}
       <section id="fase-2" style={{ marginBottom: '3rem', scrollMarginTop: '64px' }}>
         <PhaseHeader number={2} title="Mengorganisasi Siswa untuk Belajar" />
-        <PlaceholderBox text="dugaan awal dan hipotesis" />
+        <DugaanHipotesis onDataSaved={setHypothesisData} />
       </section>
 
       {/* ══════════════════════════════════════════════════════════════════════
@@ -214,13 +230,11 @@ export default function Chapter3Page({ onComplete, isCompleted }) {
               "Adonan es di dalam tabung logam membeku sempurna tanpa bantuan mesin pendingin listrik / freezer",
               "Di negara 4 musim, garam NaCl/CaCl2 ditaburkan ke jalan raya bersalju agar es meleleh pada suhu di bawah 0°C dan jalan tidak licin"
             ]
-            // TODO: Konten guru: Tambahkan studi kasus salju di negara subtropis
           }}
           submicroscopic={{
             title: "Skala Partikulat: Runtuhnya Kisi Kristal Es",
             description: "Air murni membeku menjadi es ketika molekul-molekul H2O menata diri menjadi kisi kristal heksagonal yang sangat teratur melalui ikatan hidrogen.",
             mechanism: "Kehadiran partikel zat terlarut (seperti ion Na⁺, Cl⁻, atau molekul gula) bertindak sebagai pengotor mekanis yang menyusup di antara molekul air. Partikel ini merusak kestabilan kisi kristal es. Agar molekul air tetap dapat mengatasi gangguan ini dan membentuk ikatan padat, energi kinetik molekul harus diperlambat lebih jauh lagi melalui pendinginan ke suhu yang lebih rendah (Tf < 0°C)."
-            // TODO: Konten guru: Tambahkan animasi perbandingan kisi kristal es murni vs larutan terganggu
           }}
           symbolic={{
             title: "Persamaan Penurunan Titik Beku & Suhu Beku",
@@ -235,7 +249,6 @@ export default function Chapter3Page({ onComplete, isCompleted }) {
               { symbol: "Tf",  desc: "Titik beku larutan yang terukur (selalu lebih rendah dari Tf°)", unit: "°C" }
             ],
             note: "Nilai Kf air (1,86 °C/m) jauh lebih besar daripada Kb air (0,52 °C/m), sehingga efek penurunan titik beku selalu tampak lebih signifikan dibandingkan kenaikan titik didih pada konsentrasi yang sama."
-            // TODO: Konten guru: Tambahkan diagram fase P-T interaktif kurva pelarut vs larutan
           }}
         />
 
@@ -311,6 +324,91 @@ export default function Chapter3Page({ onComplete, isCompleted }) {
       ══════════════════════════════════════════════════════════════════════ */}
       <section id="fase-5" style={{ marginBottom: '3rem', scrollMarginTop: '64px' }}>
         <PhaseHeader number={5} title="Menganalisis dan Mengevaluasi Proses" />
+
+        {/* ── Evaluasi Dugaan Awal dari Fase 2 ────────────────────────────── */}
+        <div style={{
+          background: '#FFFFFF',
+          border: '1.5px solid #CBD5E1',
+          borderRadius: '12px',
+          padding: '1.25rem 1.5rem',
+          marginBottom: '1.75rem',
+          boxShadow: '0 2px 8px rgba(15, 23, 42, 0.04)'
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1rem' }}>
+            <span style={{ fontSize: '1.3rem' }}>🔍</span>
+            <h4 style={{ margin: 0, fontSize: '1.15rem', fontWeight: 800, color: '#0F172A' }}>
+              Refleksi Dugaan Awalmu
+            </h4>
+          </div>
+
+          {hypothesisData && hypothesisData.choice ? (
+            <div style={{
+              background: '#F8FAFC',
+              padding: '1rem 1.25rem',
+              borderRadius: '10px',
+              border: '1px solid #E2E8F0',
+              marginBottom: '1rem'
+            }}>
+              <div style={{ marginBottom: hypothesisData.reason ? '0.6rem' : 0 }}>
+                <span style={{ fontSize: '0.8rem', color: '#64748B', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                  Dugaan awalmu:
+                </span>
+                <div style={{ fontSize: '1.05rem', fontWeight: 700, color: '#1E293B', marginTop: '0.2rem' }}>
+                  Pilihan {hypothesisData.choice}: {selectedDugaanObj ? selectedDugaanObj.text : ''}
+                </div>
+              </div>
+
+              {hypothesisData.reason && (
+                <div style={{ paddingTop: '0.6rem', borderTop: '1px dashed #E2E8F0' }}>
+                  <span style={{ fontSize: '0.8rem', color: '#64748B', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                    Alasanmu:
+                  </span>
+                  <p style={{ margin: '0.25rem 0 0', color: '#334155', fontStyle: 'italic', fontSize: '0.975rem', lineHeight: 1.5 }}>
+                    “{hypothesisData.reason}”
+                  </p>
+                </div>
+              )}
+            </div>
+          ) : (
+            <div style={{
+              background: '#FFFBEB',
+              padding: '0.85rem 1.25rem',
+              borderRadius: '8px',
+              border: '1px solid #FCD34D',
+              color: '#92400E',
+              fontSize: '0.95rem',
+              marginBottom: '1rem'
+            }}>
+              ℹ️ Kamu belum memilih dugaan awal di <strong>Fase 2</strong>. Kamu dapat kembali ke bagian atas untuk memilih dan menyimpannya.
+            </div>
+          )}
+
+          {/* Penjelasan bahwa jawaban yang tepat adalah B */}
+          <div style={{
+            background: hypothesisData?.choice === 'B' ? '#F0FDF4' : '#EFF6FF',
+            border: hypothesisData?.choice === 'B' ? '1.5px solid #86EFAC' : '1.5px solid #93C5FD',
+            borderRadius: '10px',
+            padding: '1rem 1.25rem',
+            color: hypothesisData?.choice === 'B' ? '#166534' : '#1E40AF'
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.4rem' }}>
+              <span style={{ fontSize: '1.3rem' }}>
+                {hypothesisData?.choice === 'B' ? '🎉' : '💡'}
+              </span>
+              <strong style={{ fontSize: '1.05rem' }}>
+                Jawaban yang Tepat: B
+              </strong>
+            </div>
+            <p style={{ margin: 0, fontSize: '0.975rem', lineHeight: 1.6 }}>
+              <strong>Garam menurunkan titik beku</strong>, sehingga campuran es dan garam menjadi lebih dingin dari 0 °C (dapat mencapai −5 °C hingga −10 °C) dan menyerap panas dari adonan es puter di dalam tabung logam sampai adonan membeku.
+            </p>
+            {hypothesisData?.choice && hypothesisData.choice !== 'B' && (
+              <p style={{ margin: '0.5rem 0 0', fontSize: '0.9rem', fontStyle: 'italic', color: '#475569' }}>
+                Pilihan {hypothesisData.choice} adalah anggapan yang sering muncul sebelum mempelajari konsep ini. Simak kotak miskonsepsi di bawah untuk meluruskan pemahamanmu!
+              </p>
+            )}
+          </div>
+        </div>
 
         <p style={{
           fontSize: '1rem',

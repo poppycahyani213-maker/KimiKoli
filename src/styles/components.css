@@ -867,3 +867,18 @@
     grid-template-columns: 1fr 1fr;
   }
 }
+
+
+/* =========================================================
+   PBL PHASE NAV: responsive label visibility
+   ========================================================= */
+
+/* Mobile-first: show only the short number */
+.pbl-nav-full  { display: none; }
+.pbl-nav-short { display: inline; }
+
+/* Desktop (≥ 640px): show full label, hide short number */
+@media (min-width: 640px) {
+  .pbl-nav-full  { display: inline; }
+  .pbl-nav-short { display: none; }
+}

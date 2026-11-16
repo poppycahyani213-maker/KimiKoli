@@ -9,6 +9,7 @@ import { calculateFreezingPointDepression } from '../../utils/colligative';
 import { formatIndonesianNumber } from '../../utils/formatNumber';
 import solventsData from '../../data/solvents.json';
 import imgTitikBeku from '../../assets/fenomena-titik-beku.jpg';
+import KontrasDidihBeku from './KontrasDidihBeku';
 
 export default function Chapter3Page({ onComplete, isCompleted }) {
   const water = solventsData[0]; // Air: Kf = 1.86, normal freezing = 0.0°C
@@ -28,13 +29,27 @@ export default function Chapter3Page({ onComplete, isCompleted }) {
         </p>
       </div>
 
-      {/* D.4: KOTAK MISKONSEPSI UMUM BAB 3 */}
-      <MisconceptionCard
-        badge="Miskonsepsi Bab 3"
-        myth="Garam membuat es batu cepat mencair karena garam menghasilkan sifat panas atau menghangatkan es."
-        fact="SALAH! Garam justru MENURUNKAN titik beku air. Campuran es dan garam melebur pada suhu di bawah 0°C sambil menyerap kalor dari sekitarnya, sehingga suhu larutan anjlok drastis mencapai -5°C hingga -10°C!"
-        explanation="Suhu super dingin di bawah titik beku normal inilah yang menyerap panas dari adonan es puter di dalam tabung logam, memungkinkan adonan membeku padat menjadi es krim lezat tanpa bantuan freezer listrik."
-      />
+      {/* D.4: DUA KOTAK MISKONSEPSI BAB 3 (DUA KOLOM SAMA TINGGI DI LAYAR LEBAR, ATAS-BAWAH DI HP) */}
+      <div className="misconception-grid-dual">
+        <MisconceptionCard
+          badge="Miskonsepsi 1: Garam menghangatkan es"
+          myth="Garam membuat es batu cepat mencair karena garam menghasilkan sifat panas atau menghangatkan es."
+          fact="SALAH! Garam justru MENURUNKAN titik beku air. Campuran es dan garam melebur pada suhu di bawah 0°C sambil menyerap kalor dari sekitarnya, sehingga suhu larutan anjlok drastis mencapai -5°C hingga -10°C!"
+          explanation="Suhu super dingin di bawah titik beku normal inilah yang menyerap panas dari adonan es puter di dalam tabung logam, memungkinkan adonan membeku padat menjadi es krim lezat tanpa bantuan freezer listrik."
+          style={{ height: '100%', marginBottom: 0 }}
+        />
+
+        <MisconceptionCard
+          badge="Miskonsepsi 2: Didih naik, beku ikut naik?"
+          myth="Zat terlarut menaikkan titik didih, jadi titik beku juga ikut naik."
+          fact="Titik beku justru TURUN. Zat terlarut membuat larutan ‘betah’ di fase cair: lebih sulit mendidih sekaligus lebih sulit membeku, sehingga rentang suhu fase cair melebar ke dua arah."
+          explanation="Partikel terlarut menghalangi pelarut lepas ke udara (tekanan uap turun, butuh suhu >100°C untuk mendidih), sekaligus mengganggu keteraturan molekul pelarut menyusun kisi kristal es (butuh pendinginan ekstra <0°C untuk membeku)."
+          style={{ height: '100%', marginBottom: 0 }}
+        />
+      </div>
+
+      {/* D.5: KONTRAS TITIK DIDIH (BAB 2) VS TITIK BEKU (BAB 3) */}
+      <KontrasDidihBeku />
 
       {/* C. PEDAGOGIS: TIGA LEVEL REPRESENTASI KIMIA (BAB 3) */}
       <TripleRepresentation

@@ -816,3 +816,25 @@
   text-align: center;
   box-shadow: 0 8px 30px rgba(15, 23, 42, 0.08);
 }
+
+/* =========================================================
+   12. DUAL MISCONCEPTION GRID (RESPONSIVE DUA KOLOM SAMA TINGGI)
+   ========================================================= */
+.misconception-grid-dual {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.25rem;
+  margin-bottom: 1.5rem;
+  align-items: stretch;
+}
+
+@media (min-width: 768px) {
+  .misconception-grid-dual {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.misconception-grid-dual > * {
+  margin-bottom: 0 !important;
+  height: 100%;
+}

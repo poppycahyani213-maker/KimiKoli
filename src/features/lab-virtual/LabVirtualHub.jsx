@@ -81,9 +81,11 @@ export default function LabVirtualHub({
     saveCourseProgress(updatedProgress, currentUser);
   };
 
-  // Navigasi memilih tahap (hanya bisa jika tahap sudah unlocked)
+  const isTeacher = currentUser?.role === 'teacher';
+
+  // Navigasi memilih tahap (hanya bisa jika tahap sudah unlocked atau akun guru)
   const handleSelectStage = (stageId) => {
-    const isUnlocked = stageId === 1 || labState.completedStages.includes(stageId - 1);
+    const isUnlocked = isTeacher || stageId === 1 || labState.completedStages.includes(stageId - 1);
     if (isUnlocked) {
       const updated = {
         ...labState,
@@ -208,6 +210,7 @@ export default function LabVirtualHub({
         completedStages={labState.completedStages}
         onSelectStage={handleSelectStage}
         totalXpEarned={labState.xpEarned}
+        isTeacher={isTeacher}
       />
 
       {/* 4. Konten Sesuai Tahap Aktif */}

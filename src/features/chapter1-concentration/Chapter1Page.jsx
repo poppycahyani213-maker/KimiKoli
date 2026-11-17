@@ -85,7 +85,9 @@ export default function Chapter1Page({ onComplete, isCompleted }) {
     setStoredData(modernKey, { ...savedModern, isExerciseDone: true });
   };
 
-  const isReadyToProceed = (isMissionDone && isExerciseDone) || isCompleted;
+  const activeUser = getAuthUser();
+  const isTeacher = activeUser?.role === 'teacher';
+  const isReadyToProceed = isTeacher || (isMissionDone && isExerciseDone) || isCompleted;
 
   return (
     <div className="fade-in" style={{ fontFamily: "'Times New Roman', Times, serif" }}>

@@ -59,7 +59,8 @@ export default function LabVirtualStepper({
   currentStage = 1,
   completedStages = [],
   onSelectStage,
-  totalXpEarned = 0
+  totalXpEarned = 0,
+  isTeacher = false
 }) {
   const totalStages = STAGES_CONFIG.length;
   const completedCount = completedStages.length;
@@ -156,8 +157,8 @@ export default function LabVirtualStepper({
         {STAGES_CONFIG.map((stage) => {
           const isCompleted = completedStages.includes(stage.id);
           const isCurrent = currentStage === stage.id;
-          // Tahap 1 selalu unlocked; Tahap k unlocked jika tahap k-1 selesai
-          const isUnlocked = stage.id === 1 || completedStages.includes(stage.id - 1);
+          // Tahap 1 selalu unlocked; Guru selalu bebas akses; Tahap k unlocked jika tahap k-1 selesai
+          const isUnlocked = isTeacher || stage.id === 1 || completedStages.includes(stage.id - 1);
 
           let bg = '#F8FAFC';
           let border = '#E2E8F0';

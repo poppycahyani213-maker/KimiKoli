@@ -245,8 +245,8 @@ export default function App() {
       <Header
         currentView={currentView}
         onSelectTab={(tabId) => {
-          if (!isPretestLocked) {
-            if (tabId === 'chapter1') {
+          if (!isPretestLocked || currentUser?.role === 'teacher') {
+            if (tabId === 'chapter1' && currentUser?.role !== 'teacher') {
               const latestChapter = completedChapters.includes('chapter4') ? 'chapter5' :
                                     completedChapters.includes('chapter3') ? 'chapter4' :
                                     completedChapters.includes('chapter2') ? 'chapter3' :
@@ -281,6 +281,7 @@ export default function App() {
         {/* Tampilan 1: Beranda KimiKoli (Peta Misi Dinamis) */}
         {currentView === 'home' && (
           <HomePage
+            currentUser={currentUser}
             isPretestDone={isPretestCompleted}
             completedChapters={completedChapters}
             isLabVirtualCompleted={isLabVirtualCompleted}
@@ -768,7 +769,7 @@ export default function App() {
             ) : (
               <LabVirtualHub
                 currentUser={currentUser}
-                isCompleted={isLabVirtualCompleted}
+                isCompleted={isLabVirtualCompleted || currentUser?.role === 'teacher'}
                 onCompleteLab={() => {
                   setIsLabVirtualCompleted(true);
                   const saved = getCourseProgress(currentUser) || {};
@@ -810,7 +811,7 @@ export default function App() {
               </span>
             </div>
 
-            {!isLabVirtualCompleted ? (
+            {!isLabVirtualCompleted && currentUser?.role !== 'teacher' ? (
               <div style={{
                 background: '#FFFBEB',
                 border: '1.5px solid #FDE68A',

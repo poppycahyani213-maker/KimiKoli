@@ -50,7 +50,7 @@ const NUMERIC_QUESTIONS = [
   {
     id: 'q3',
     number: 3,
-    question: '0,25 mol glukosa dicampurkan dengan 4,75 mol air. Berapakah fraksi mol glukosa (X\u209c\u1d49\u02b3\u1d43\u02b3\u1d43\u02b3\u1d43)?',
+    question: '0,25 mol glukosa dicampurkan dengan 4,75 mol air. Berapakah fraksi mol glukosa (X_glukosa)?',
     target: 0.05,
     unit: '(tanpa satuan)',
     hint: 'Bagi mol glukosa dengan mol total (glukosa + air).',
@@ -389,10 +389,13 @@ export default function LatihanSoal({ onSemuaSelesai }) {
                 {isIncorrect && (
                   <div className="fade-in" style={{
                     marginTop: '0.85rem', background: '#FFFBEB',
-                    borderLeft: '4px solid #F59E0B', borderRadius: '6px',
-                    padding: '0.75rem 1rem', fontSize: '0.9rem', color: '#92400E'
+                    borderLeft: '4px solid #F59E0B', borderRadius: '8px',
+                    padding: '0.85rem 1.1rem', fontSize: '0.88rem', color: '#92400E'
                   }}>
-                    <strong>💡 Petunjuk:</strong> {q.hint}
+                    <div style={{ fontWeight: 800, color: '#B45309', marginBottom: '0.35rem', display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+                      <span>🧭</span> Panduan Langkah Pengerjaan:
+                    </div>
+                    <div style={{ lineHeight: 1.5 }}>{q.hint}</div>
                   </div>
                 )}
 

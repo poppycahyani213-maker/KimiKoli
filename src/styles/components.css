@@ -882,3 +882,14 @@
   .pbl-nav-full  { display: inline; }
   .pbl-nav-short { display: none; }
 }
+
+/* =========================================================
+   PBL STEPPER TABS (Bab 3): responsive visibility & scrolling
+   ========================================================= */
+.pbl-tab-full  { display: inline; }
+.pbl-tab-short { display: none; }
+
+@media (max-width: 640px) {
+  .pbl-tab-full  { display: none; }
+  .pbl-tab-short { display: inline; }
+}

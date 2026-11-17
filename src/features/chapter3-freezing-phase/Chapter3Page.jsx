@@ -15,6 +15,7 @@ import OrientasiMasalah from './OrientasiMasalah';
 import DugaanHipotesis, { DUGAAN_OPTIONS, getCh3HypothesisKey } from './DugaanHipotesis';
 import SajikanHasil, { getCh3ResultsKey, checkIsPhase4Complete } from './SajikanHasil';
 import LatihanKPSBab3, { getCh3KpsKey } from './LatihanKPSBab3';
+import PetunjukBelajarBab3 from './PetunjukBelajarBab3';
 
 // ── PBL Phase metadata ────────────────────────────────────────────────────────
 const PBL_PHASES = [
@@ -81,7 +82,7 @@ function PhaseHeader({ number, title }) {
 export default function Chapter3Page({ onComplete, isCompleted }) {
   const water = solventsData[0]; // Air: Kf = 1.86, normal freezing = 0.0°C
   const [molality, setMolality] = useState(1);
-  const [activePhase, setActivePhase] = useState(1);
+  const [activePhase, setActivePhase] = useState(null);
   const [hypothesisData, setHypothesisData] = useState(() => {
     return getStoredData(getCh3HypothesisKey(), null);
   });
@@ -138,23 +139,50 @@ export default function Chapter3Page({ onComplete, isCompleted }) {
     }
   }, [isCompleted]);
 
-  // ── IntersectionObserver: highlight active phase in nav ───────────────────
+  // ── Scroll Listener: Sorot fase yang aktif saat scroll ───────────────────────
   useEffect(() => {
-    const observers = [];
-    PBL_PHASES.forEach(p => {
-      const el = document.getElementById(`fase-${p.id}`);
-      if (!el) return;
-      const obs = new IntersectionObserver(
-        ([entry]) => { if (entry.isIntersecting) setActivePhase(p.id); },
-        { threshold: 0.25 }
-      );
-      obs.observe(el);
-      observers.push(obs);
-    });
-    return () => observers.forEach(o => o.disconnect());
+    const handleScroll = () => {
+      const fase1El = document.getElementById('fase-1');
+      if (!fase1El) return;
+
+      const navOffset = 110;
+      const fase1Top = fase1El.getBoundingClientRect().top;
+
+      // 1. Jika posisi scroll masih di atas Fase 1 (di area judul dan petunjuk belajar)
+      if (fase1Top > navOffset) {
+        setActivePhase(null); // belum ada fase yang disorot
+        return;
+      }
+
+      // 2. Jika scroll sudah mendekati dasar halaman, sorot Fase 5
+      if ((window.innerHeight + window.scrollY) >= (document.documentElement.scrollHeight - 60)) {
+        setActivePhase(5);
+        return;
+      }
+
+      // 3. Cari fase terakhir yang sudah mencapai/melewati batas navOffset
+      let currentPhase = 1;
+      for (let i = 0; i < PBL_PHASES.length; i++) {
+        const p = PBL_PHASES[i];
+        const el = document.getElementById(`fase-${p.id}`);
+        if (el) {
+          const rect = el.getBoundingClientRect();
+          if (rect.top <= navOffset) {
+            currentPhase = p.id;
+          }
+        }
+      }
+      setActivePhase(currentPhase);
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    handleScroll();
+
+    return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
   const scrollToPhase = (n) => {
+    setActivePhase(n);
     document.getElementById(`fase-${n}`)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   };
 
@@ -175,6 +203,9 @@ export default function Chapter3Page({ onComplete, isCompleted }) {
           Mengapa penambahan garam dapat mencairkan salju atau membuat es krim membeku pada suhu di bawah 0°C?
         </p>
       </div>
+
+      {/* ── Petunjuk Belajar (PBL Bab 3) ─────────────────────────────────── */}
+      <PetunjukBelajarBab3 onNavigatePhase={scrollToPhase} />
 
       {/* ── Sticky Phase Nav Bar ───────────────────────────────────────────── */}
       <nav style={{

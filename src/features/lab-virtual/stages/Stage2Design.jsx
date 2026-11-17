@@ -4,15 +4,67 @@ import Button from '../../../components/common/Button';
 import skemaArduino from '../../../assets/skema-rangkaian-arduino.png';
 
 /**
- * Tahap 2: Rancang Percobaan & Panduan Praktik Arduino (Sintaks PjBL 2)
- * Menampilkan:
- * 1. Penentuan variabel penelitian (bebas, terikat, kontrol).
- * 2. Skema rangkaian Arduino UNO + sensor DS18B20 + resistor pull-up 4.7kΩ (dari gambar user).
- * 3. Kode Arduino (sketch) dengan tombol "Salin" dan format output `waktu_detik,suhu_c`.
- * 4. Checklist langkah kerja & keselamatan kerja.
- * 5. Troubleshooting singkat sensor DS18B20.
- * 6. Tombol unduh panduan PDF & lembar pengamatan cetak.
+ * Tahap 2: Rancang Percobaan (Fase 2, Bagian Rancangan LKPD)
+ *
+ * Komponen mencakup:
+ * 1. Tantangan Tim Teknisi Laboratorium
+ * 2. Aktivitas 2.1: Tabel Enam Bagian Sistem & Keputusan Kelompok
+ * 3. Skema Rangkaian Arduino UNO + DS18B20 + Pull-up resistor (dengan modal/pop-up viewer)
+ * 4. Kalkulator Persiapan Sampel Larutan (Mr, molalitas, massa pelarut, neraca 0.1g, & molalitas aktual)
  */
+
+const SYSTEM_PARTS = [
+  {
+    id: 'sensor',
+    part: 'Rangkaian Sensor',
+    icon: '🔌',
+    task: 'Rakit DS18B20 + resistor 4,7 kΩ ke Arduino, upload kode, kalibrasi di air es',
+    testMethod: 'Sensor membaca sekitar 0 °C di air es; catat nilai koreksinya',
+    defaultDecision: 'Menggunakan pin digital D2 Arduino, resistor 4,7 kΩ di antara pin Data dan 5V VCC, serta kalibrasi awal pada air es batu.',
+    hasSchematicButton: true
+  },
+  {
+    id: 'container',
+    part: 'Wadah Sampel',
+    icon: '🧪',
+    task: 'Pilih ukuran tabung/gelas dan volume sampel',
+    testMethod: 'Bandingkan kerapian kurva dua ukuran wadah',
+    defaultDecision: 'Menggunakan tabung reaksi kaca tipis dengan volume 25 mL agar transfer panas pendinginan berlangsung merata.'
+  },
+  {
+    id: 'probeHolder',
+    part: 'Penahan Probe',
+    icon: '📎',
+    task: 'Buat penjepit agar probe tepat di tengah dan tidak menyentuh dinding/dasar',
+    testMethod: 'Posisi probe sama setiap ulangan',
+    defaultDecision: 'Memakai sumbat gabus berlubang di mulut tabung reaksi agar ujung logam sensor menggantung tepat di pusat cairan.'
+  },
+  {
+    id: 'stirrer',
+    part: 'Pengaduk',
+    icon: '🥄',
+    task: 'Rancang cara mengaduk yang konsisten (kecepatan dan pola)',
+    testMethod: 'Kurva tidak bergerigi',
+    defaultDecision: 'Pengadukan vertikal perlahan 1 ketukan tiap 2 detik menggunakan kawat pengaduk berujung melingkar tanpa menyenggol probe.'
+  },
+  {
+    id: 'coolingBath',
+    part: 'Penangas Pendingin',
+    icon: '🧊',
+    task: 'Tentukan perbandingan es : garam',
+    testMethod: 'Suhu penangas stabil di bawah -8 °C',
+    defaultDecision: 'Perbandingan massa es batu hancur : garam kasar sekitar 3 : 1 dalam gelas beker 500 mL yang dibalut isolator kain.'
+  },
+  {
+    id: 'electronicShield',
+    part: 'Pelindung Elektronik',
+    icon: '🛡️',
+    task: 'Lindungi Arduino dan sambungan dari percikan air garam',
+    testMethod: 'Tidak ada kabel basah',
+    defaultDecision: 'Papan Arduino dan breadboard diletakkan di dalam kotak plastik berjarak 30 cm dari wadah pendingin es-garam.'
+  }
+];
+
 export default function Stage2Design({
   data = {},
   onSave,
@@ -21,102 +73,86 @@ export default function Stage2Design({
   onNextStage,
   onPrevStage
 }) {
-  const [soluteType, setSoluteType] = useState(data.soluteType || 'nonelektrolit');
-  const [soluteName, setSoluteName] = useState(data.soluteName || 'sukrosa');
-  const [molality, setMolality] = useState(data.molality || 1.0);
-  const [checklist, setChecklist] = useState(data.checklist || {
-    alatBahan: false,
-    skemaRangkaian: false,
-    resistorPullUp: false,
-    safetyRules: false,
-    serialMonitor: false
+  // === 2. Keputusan Kelompok untuk 6 Bagian Sistem ===
+  const [decisions, setDecisions] = useState(() => {
+    const initial = {};
+    SYSTEM_PARTS.forEach((p) => {
+      initial[p.id] = data.decisions?.[p.id] || p.defaultDecision;
+    });
+    return initial;
   });
-  const [copySuccess, setCopySuccess] = useState(false);
+
+  // Modal / expand skema rangkaian
+  const [showSchematicModal, setShowSchematicModal] = useState(false);
+
+  // === 4. Kalkulator Persiapan Sampel ===
+  const [soluteType, setSoluteType] = useState(data.soluteType || 'sugar'); // 'sugar' | 'salt' | 'custom'
+  const [customMr, setCustomMr] = useState(data.customMr || 60);
+  const [targetMolality, setTargetMolality] = useState(data.targetMolality ?? 1.0);
+  const [solventMassGram, setSolventMassGram] = useState(data.solventMassGram ?? 25.0);
+  const [weighedMass, setWeighedMass] = useState(data.weighedMass ?? '');
+
   const [isSavedFeedback, setIsSavedFeedback] = useState(false);
 
-  // Kode Sketch Arduino Template
-  const arduinoSketchCode = `/*
- * ========================================================
- * PRAKTIKUM KIMIA SIFAT KOLIGATIF: KURVA PENDINGINAN TITIK BEKU
- * Sensor Suhu Digital Dallas DS18B20 Waterproof + Arduino Uno
- * ========================================================
- * Rangkaian:
- * - VCC (Merah)   -> 5V Arduino
- * - GND (Hitam)   -> GND Arduino
- * - DATA (Kuning) -> Pin Digital 2 (D2)
- * - Resistor 4.7kΩ dipasang antara VCC (5V) dan DATA (D2) sebagai Pull-up
- *
- * Format Output Serial Monitor: waktu_detik,suhu_c (contoh: 0,25.40)
- */
+  // Nilai Mr zat
+  const mrValue = soluteType === 'sugar' ? 342 : (soluteType === 'salt' ? 58.5 : Number(customMr) || 1);
+  const soluteNameLabel = soluteType === 'sugar' ? 'Gula (Sukrosa, C₁₂H₂₂O₁₁)' : (soluteType === 'salt' ? 'Garam Dapur (NaCl)' : 'Zat Kustom');
 
-#include <OneWire.h>
-#include <DallasTemperature.h>
+  // Perhitungan massa zat terlarut teoretis:
+  // massa = m * (massa pelarut / 1000) * Mr
+  const theoreticalSoluteMass = Number(targetMolality) * (Number(solventMassGram) / 1000) * mrValue;
 
-// Pin data DS18B20 terhubung ke pin Digital 2 Arduino
-#define ONE_WIRE_BUS 2
+  // Perhitungan molalitas aktual dari massa yang ditimbang:
+  // m_aktual = (massa_timbang / Mr) * (1000 / massa_pelarut)
+  const actualMolality = (weighedMass !== '' && !isNaN(Number(weighedMass)) && Number(solventMassGram) > 0)
+    ? (Number(weighedMass) / mrValue) * (1000 / Number(solventMassGram))
+    : null;
 
-OneWire oneWire(ONE_WIRE_BUS);
-DallasTemperature sensors(&oneWire);
-
-unsigned long startTime = 0;
-const unsigned long intervalWaktu = 10000; // Pembacaan tiap 10 detik (dapat diubah ke 30000 untuk 30 detik)
-
-void setup() {
-  Serial.begin(9600);
-  sensors.begin();
-  
-  // Header CSV untuk kemudahan perekaman data ke website
-  Serial.println("waktu_detik,suhu_c");
-  
-  startTime = millis();
-}
-
-void loop() {
-  unsigned long currentMillis = millis();
-  
-  // Ambil data setiap interval
-  sensors.requestTemperatures();
-  float suhuC = sensors.getTempCByIndex(0);
-  
-  // Hitung waktu berjalan dalam satuan detik
-  unsigned long waktuDetik = (currentMillis - startTime) / 1000;
-  
-  // Cek apakah sensor membaca dengan benar
-  if (suhuC != DEVICE_DISCONNECTED_C) {
-    Serial.print(waktuDetik);
-    Serial.print(",");
-    Serial.println(suhuC, 2);
-  } else {
-    Serial.println("ERR,-127.00");
-  }
-  
-  delay(10000); // Tunda pembacaan selama 10 detik
-}
-`;
-
-  const handleCopyCode = () => {
-    navigator.clipboard.writeText(arduinoSketchCode);
-    setCopySuccess(true);
-    setTimeout(() => setCopySuccess(false), 2500);
+  // Handler update keputusan bagian sistem
+  const handleDecisionChange = (id, value) => {
+    setDecisions((prev) => ({ ...prev, [id]: value }));
   };
 
-  const toggleCheck = (key) => {
-    setChecklist((prev) => ({
-      ...prev,
-      [key]: !prev[key]
-    }));
-  };
-
-  const handleSaveAndComplete = () => {
-    const updated = {
+  // Simpan progres draf
+  const handleSaveProgress = () => {
+    const currentData = {
+      decisions,
       soluteType,
-      soluteName,
-      molality: Number(molality),
-      checklist
+      customMr: Number(customMr),
+      targetMolality: Number(targetMolality),
+      solventMassGram: Number(solventMassGram),
+      weighedMass: weighedMass !== '' ? Number(weighedMass) : null,
+      theoreticalSoluteMass,
+      actualMolality
+    };
+    if (onSave) onSave(currentData);
+    setIsSavedFeedback(true);
+    setTimeout(() => setIsSavedFeedback(false), 2500);
+  };
+
+  // Selesaikan Tahap 2
+  const handleCompleteStage2 = () => {
+    // Validasi bahwa 6 keputusan telah terisi
+    const hasEmptyDecision = SYSTEM_PARTS.some((p) => !decisions[p.id] || !decisions[p.id].trim());
+    if (hasEmptyDecision) {
+      alert('⚠️ Mohon lengkapi keputusan kelompok untuk seluruh 6 bagian sistem rancangan percobaan.');
+      return;
+    }
+
+    const finalData = {
+      decisions,
+      soluteType,
+      customMr: Number(customMr),
+      targetMolality: Number(targetMolality),
+      solventMassGram: Number(solventMassGram),
+      weighedMass: weighedMass !== '' ? Number(weighedMass) : null,
+      theoreticalSoluteMass,
+      actualMolality,
+      designCompleted: true
     };
 
-    if (onSave) onSave(updated);
-    if (onCompleteStage) onCompleteStage(2, updated);
+    if (onSave) onSave(finalData);
+    if (onCompleteStage) onCompleteStage(2, finalData);
     setIsSavedFeedback(true);
     setTimeout(() => setIsSavedFeedback(false), 3000);
   };
@@ -124,354 +160,389 @@ void loop() {
   return (
     <div className="fade-in" style={{ fontFamily: "'Times New Roman', Times, serif" }}>
       <Card
-        title="Tahap 2: Merancang Eksperimen & Skema Rangkaian Arduino"
-        subtitle="Sintaks PjBL 2 • Menentukan Variabel Penelitian, Skema Sensor DS18B20 & Kode Sketch"
+        title="Tahap 2: Rancang Percobaan & Persiapan Sistem Praktik (Fase 2)"
+        subtitle="Sintaks PjBL 2 • Merancang Enam Bagian Sistem Laboratorium & Menghitung Massa Sampel"
       >
-        {/* Banner Penjelasan */}
+        {/* ============================================================== */}
+        {/* 1. Tantangan Tim Teknisi Laboratorium                          */}
+        {/* ============================================================== */}
         <div style={{
-          background: '#F0F9FF',
-          border: '1.5px solid #BAE6FD',
+          background: 'linear-gradient(135deg, #0284C7, #0369A1)',
+          color: '#FFFFFF',
           borderRadius: '14px',
-          padding: '1.15rem',
-          marginBottom: '1.5rem'
+          padding: '1.25rem 1.5rem',
+          marginBottom: '1.5rem',
+          boxShadow: '0 6px 18px rgba(2, 132, 199, 0.25)',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '1rem'
         }}>
-          <strong style={{ fontSize: '1.05rem', color: '#0369A1' }}>
-            🎯 Tujuan Perancangan Eksperimen
-          </strong>
-          <p style={{ margin: '0.35rem 0 0 0', color: '#334155', fontSize: '0.95rem', lineHeight: 1.55 }}>
-            Rancanglah parameter larutan yang akan diuji dan pelajari susunan rangkaian sensor suhu digital
-            Dallas DS18B20 pada breadboard agar pembacaan suhu titik beku akurat tanpa gangguan kelistrikan.
-          </p>
+          <span style={{ fontSize: '2.4rem' }}>🛠️</span>
+          <div>
+            <div style={{ fontSize: '0.8rem', textTransform: 'uppercase', letterSpacing: '0.05em', opacity: 0.9, fontWeight: 700 }}>
+              Tantangan Rekayasa Laboratorium
+            </div>
+            <strong style={{ fontSize: '1.15rem', display: 'block', margin: '0.2rem 0' }}>
+              &ldquo;Kamu adalah tim teknisi laboratorium. Tugasmu: bangun sistem yang menghasilkan kurva pendinginan paling bersih dan paling bisa diulang.&rdquo;
+            </strong>
+            <p style={{ margin: 0, fontSize: '0.88rem', opacity: 0.95 }}>
+              Ketelitian dalam merakit sensor, memilih wadah, dan mengaduk secara konsisten akan menentukan kejelasan plateau titik beku pada grafik.
+            </p>
+          </div>
         </div>
 
-        {/* 1. Variabel Penelitian */}
-        <div style={{ marginBottom: '1.75rem' }}>
-          <h4 style={{ margin: '0 0 0.75rem 0', color: '#0F172A', fontSize: '1.08rem' }}>
-            1. Penentuan Variabel Penelitian:
-          </h4>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '1rem' }}>
-            {/* Variabel Bebas: Jenis Zat */}
-            <div style={{ background: '#F8FAFC', padding: '1rem', borderRadius: '12px', border: '1px solid #E2E8F0' }}>
-              <label style={{ display: 'block', fontWeight: 700, fontSize: '0.92rem', color: '#1E293B', marginBottom: '0.4rem' }}>
-                Variabel Bebas (Jenis Zat Terlarut):
+        {/* ============================================================== */}
+        {/* 2. Aktivitas 2.1: Tabel Enam Bagian Sistem                     */}
+        {/* ============================================================== */}
+        <div style={{
+          background: '#FFFFFF',
+          border: '1.5px solid #CBD5E1',
+          borderRadius: '14px',
+          padding: '1.25rem',
+          marginBottom: '1.5rem'
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.75rem', flexWrap: 'wrap', gap: '0.5rem' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+              <span style={{ fontSize: '1.3rem' }}>📋</span>
+              <strong style={{ fontSize: '1.05rem', color: '#0F172A' }}>
+                Aktivitas 2.1: Keputusan Desain Enam Bagian Sistem Praktikum
+              </strong>
+            </div>
+          </div>
+
+          <p style={{ margin: '0 0 1rem 0', fontSize: '0.88rem', color: '#64748B' }}>
+            Diskusikan bersama kelompok dan tentukan keputusan desain untuk tiap bagian sistem agar data kurva pendinginan yang diperoleh minim gangguan (noise).
+          </p>
+
+          {/* Tabel Sistem (Responsive Scrollable) */}
+          <div style={{ overflowX: 'auto' }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', minWidth: '680px', fontSize: '0.9rem' }}>
+              <thead>
+                <tr style={{ background: '#E0F2FE', color: '#0369A1' }}>
+                  <th style={{ padding: '0.75rem 0.85rem', borderBottom: '2px solid #BAE6FD', width: '22%' }}>Bagian Sistem</th>
+                  <th style={{ padding: '0.75rem 0.85rem', borderBottom: '2px solid #BAE6FD', width: '28%' }}>Tugas Desain</th>
+                  <th style={{ padding: '0.75rem 0.85rem', borderBottom: '2px solid #BAE6FD', width: '22%' }}>Cara Menguji</th>
+                  <th style={{ padding: '0.75rem 0.85rem', borderBottom: '2px solid #BAE6FD', width: '28%' }}>Keputusan Kelompok Kami</th>
+                </tr>
+              </thead>
+              <tbody>
+                {SYSTEM_PARTS.map((item, idx) => (
+                  <tr key={item.id} style={{ borderBottom: '1px solid #E2E8F0', background: idx % 2 === 0 ? '#FAFCFF' : '#FFFFFF' }}>
+                    <td style={{ padding: '0.75rem 0.85rem', verticalAlign: 'top' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', fontWeight: 700, color: '#0F172A' }}>
+                        <span>{item.icon}</span>
+                        <span>{item.part}</span>
+                      </div>
+                      {item.hasSchematicButton && (
+                        <button
+                          type="button"
+                          onClick={() => setShowSchematicModal(!showSchematicModal)}
+                          style={{
+                            marginTop: '0.5rem',
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: '0.3rem',
+                            background: '#EFF6FF',
+                            border: '1.5px solid #0284C7',
+                            color: '#0284C7',
+                            padding: '0.35rem 0.65rem',
+                            borderRadius: '6px',
+                            fontSize: '0.8rem',
+                            fontWeight: 700,
+                            cursor: 'pointer'
+                          }}
+                        >
+                          <span>🔍 Lihat Skema Rangkaian</span>
+                        </button>
+                      )}
+                    </td>
+                    <td style={{ padding: '0.75rem 0.85rem', verticalAlign: 'top', color: '#334155', lineHeight: 1.45 }}>
+                      {item.task}
+                    </td>
+                    <td style={{ padding: '0.75rem 0.85rem', verticalAlign: 'top', color: '#475569', fontStyle: 'italic', lineHeight: 1.45 }}>
+                      {item.testMethod}
+                    </td>
+                    <td style={{ padding: '0.75rem 0.85rem', verticalAlign: 'top' }}>
+                      <textarea
+                        rows={3}
+                        value={decisions[item.id] || ''}
+                        onChange={(e) => handleDecisionChange(item.id, e.target.value)}
+                        placeholder={`Tuliskan keputusan kelompok mengenai ${item.part.toLowerCase()}...`}
+                        style={{
+                          width: '100%',
+                          padding: '0.5rem 0.65rem',
+                          borderRadius: '6px',
+                          border: '1px solid #CBD5E1',
+                          fontSize: '0.85rem',
+                          fontFamily: "'Times New Roman', Times, serif",
+                          resize: 'vertical',
+                          boxSizing: 'border-box'
+                        }}
+                      />
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          {/* Modal / Panel Pratinjau Skema Arduino */}
+          {showSchematicModal && (
+            <div style={{
+              marginTop: '1.25rem',
+              background: '#F8FAFC',
+              border: '2px solid #0284C7',
+              borderRadius: '12px',
+              padding: '1.25rem',
+              boxShadow: '0 4px 14px rgba(2, 132, 199, 0.15)'
+            }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem' }}>
+                <strong style={{ fontSize: '1rem', color: '#0369A1' }}>
+                  📐 Skema Rangkaian Sensor Suhu DS18B20 + Arduino UNO
+                </strong>
+                <button
+                  type="button"
+                  onClick={() => setShowSchematicModal(false)}
+                  style={{
+                    background: 'transparent',
+                    border: 'none',
+                    fontSize: '1.2rem',
+                    color: '#64748B',
+                    cursor: 'pointer',
+                    fontWeight: 'bold'
+                  }}
+                >
+                  ✕ Tutup
+                </button>
+              </div>
+
+              <div style={{ textAlign: 'center', background: '#FFFFFF', padding: '0.75rem', borderRadius: '8px', border: '1px solid #E2E8F0' }}>
+                <img
+                  src={skemaArduino}
+                  alt="Skema Rangkaian Arduino UNO dan Sensor DS18B20"
+                  style={{ maxWidth: '100%', maxHeight: '420px', height: 'auto', borderRadius: '6px' }}
+                />
+              </div>
+
+              {/* Keterangan pin kabel */}
+              <div style={{ marginTop: '0.85rem', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '0.5rem', fontSize: '0.84rem' }}>
+                <div style={{ background: '#FEE2E2', padding: '0.45rem 0.75rem', borderRadius: '6px', border: '1px solid #FECACA', color: '#991B1B' }}>
+                  <strong>Kabel Merah:</strong> VCC (5V Arduino)
+                </div>
+                <div style={{ background: '#F1F5F9', padding: '0.45rem 0.75rem', borderRadius: '6px', border: '1px solid #CBD5E1', color: '#0F172A' }}>
+                  <strong>Kabel Hitam:</strong> GND (Ground Arduino)
+                </div>
+                <div style={{ background: '#FEF9C3', padding: '0.45rem 0.75rem', borderRadius: '6px', border: '1px solid #FDE047', color: '#854D0E' }}>
+                  <strong>Kabel Kuning:</strong> Data pin (Digital Pin 2)
+                </div>
+                <div style={{ background: '#EDE9FE', padding: '0.45rem 0.75rem', borderRadius: '6px', border: '1px solid #DDD6FE', color: '#5B21B6' }}>
+                  <strong>Resistor 4,7 kΩ:</strong> Pull-up (antara Data & 5V)
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* ============================================================== */}
+        {/* 4. Kalkulator Persiapan Sampel Larutan                         */}
+        {/* ============================================================== */}
+        <div style={{
+          background: '#EFF6FF',
+          border: '1.5px solid #BAE6FD',
+          borderRadius: '14px',
+          padding: '1.25rem',
+          marginBottom: '1.5rem'
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.75rem' }}>
+            <span style={{ fontSize: '1.3rem' }}>⚖️</span>
+            <strong style={{ fontSize: '1.05rem', color: '#0369A1' }}>
+              4. Kalkulator Persiapan Sampel Larutan (Neraca Teknis 0,1 g)
+            </strong>
+          </div>
+          <p style={{ margin: '0 0 1rem 0', fontSize: '0.88rem', color: '#334155', lineHeight: 1.55 }}>
+            Gunakan kalkulator ini untuk menghitung massa zat terlarut yang harus ditimbang sebelum dilarutkan ke dalam pelarut air.
+            Rumus: <strong>massa zat = m × (massa pelarut / 1000) × Mr</strong>.
+          </p>
+
+          {/* Form Input Kalkulator */}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '1rem', marginBottom: '1.25rem' }}>
+            {/* Pilihan Zat */}
+            <div style={{ background: '#FFFFFF', padding: '0.85rem', borderRadius: '10px', border: '1px solid #BAE6FD' }}>
+              <label style={{ display: 'block', fontWeight: 700, fontSize: '0.86rem', color: '#1E293B', marginBottom: '0.35rem' }}>
+                Zat Terlarut:
               </label>
               <select
                 value={soluteType}
-                onChange={(e) => {
-                  const val = e.target.value;
-                  setSoluteType(val);
-                  setSoluteName(val === 'elektrolit' ? 'garam' : 'sukrosa');
-                }}
+                onChange={(e) => setSoluteType(e.target.value)}
                 style={{
                   width: '100%',
-                  padding: '0.55rem',
-                  borderRadius: '8px',
+                  padding: '0.45rem',
+                  borderRadius: '6px',
                   border: '1.5px solid #CBD5E1',
-                  fontFamily: "'Times New Roman', Times, serif",
-                  fontSize: '0.95rem'
+                  fontSize: '0.88rem',
+                  fontFamily: "'Times New Roman', Times, serif"
                 }}
               >
-                <option value="nonelektrolit">Nonelektrolit (Sukrosa / Gula Pasir, i = 1)</option>
-                <option value="elektrolit">Elektrolit Biner Kuat (Garam Dapur / NaCl, i ≈ 2)</option>
+                <option value="sugar">Gula Sukrosa (Mr = 342 g/mol)</option>
+                <option value="salt">Garam NaCl (Mr = 58,5 g/mol)</option>
+                <option value="custom">Zat Lain (Input Mr Manual)</option>
               </select>
+
+              {soluteType === 'custom' && (
+                <div style={{ marginTop: '0.5rem' }}>
+                  <label style={{ display: 'block', fontSize: '0.8rem', color: '#64748B' }}>Massa Molar (Mr, g/mol):</label>
+                  <input
+                    type="number"
+                    value={customMr}
+                    onChange={(e) => setCustomMr(e.target.value)}
+                    style={{ width: '100%', padding: '0.35rem', borderRadius: '4px', border: '1px solid #CBD5E1', fontSize: '0.85rem' }}
+                  />
+                </div>
+              )}
             </div>
 
-            {/* Variabel Bebas: Molalitas */}
-            <div style={{ background: '#F8FAFC', padding: '1rem', borderRadius: '12px', border: '1px solid #E2E8F0' }}>
-              <label style={{ display: 'block', fontWeight: 700, fontSize: '0.92rem', color: '#1E293B', marginBottom: '0.4rem' }}>
-                Variabel Bebas (Molalitas Larutan, m):
+            {/* Target Molalitas (m) */}
+            <div style={{ background: '#FFFFFF', padding: '0.85rem', borderRadius: '10px', border: '1px solid #BAE6FD' }}>
+              <label style={{ display: 'block', fontWeight: 700, fontSize: '0.86rem', color: '#1E293B', marginBottom: '0.35rem' }}>
+                Molalitas Target (m, mol/kg):
               </label>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                <input
-                  type="range"
-                  min="0.5"
-                  max="3.0"
-                  step="0.5"
-                  value={molality}
-                  onChange={(e) => setMolality(e.target.value)}
-                  style={{ flex: 1 }}
-                />
-                <span style={{ fontWeight: 700, color: '#0284C7', minWidth: '55px', fontSize: '1rem' }}>
-                  {molality} m
-                </span>
-              </div>
-              <span style={{ fontSize: '0.8rem', color: '#64748B' }}>
-                *Pilihan konsentrasi: 0.5 m, 1.0 m, 1.5 m, 2.0 m
-              </span>
-            </div>
-
-            {/* Variabel Terikat & Kontrol */}
-            <div style={{ background: '#F8FAFC', padding: '1rem', borderRadius: '12px', border: '1px solid #E2E8F0' }}>
-              <div style={{ marginBottom: '0.5rem' }}>
-                <strong style={{ fontSize: '0.92rem', color: '#1E293B' }}>Variabel Terikat:</strong>
-                <div style={{ fontSize: '0.85rem', color: '#475569' }}>
-                  Suhu penurunan titik beku (ΔTf) dan kurva plateau pendinginan.
-                </div>
-              </div>
-              <div>
-                <strong style={{ fontSize: '0.92rem', color: '#1E293B' }}>Variabel Kontrol:</strong>
-                <div style={{ fontSize: '0.85rem', color: '#475569' }}>
-                  Massa pelarut air (50 g), wadah pendingin es + garam kasar, sensor suhu yang sama.
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* 2. Skema Rangkaian Arduino (Sesuai Gambar User) */}
-        <div style={{ marginBottom: '1.75rem' }}>
-          <h4 style={{ margin: '0 0 0.75rem 0', color: '#0F172A', fontSize: '1.08rem' }}>
-            2. Skema Rangkaian Arduino UNO + Sensor DS18B20 + Resistor Pull-up 4,7 kΩ:
-          </h4>
-          <div style={{
-            background: '#F8FAFC',
-            border: '1.5px solid #CBD5E1',
-            borderRadius: '16px',
-            padding: '1.25rem',
-            textAlign: 'center'
-          }}>
-            {/* Gambar Skema Nyata */}
-            <div style={{
-              maxWidth: '680px',
-              margin: '0 auto',
-              background: '#FFFFFF',
-              borderRadius: '12px',
-              border: '1px solid #E2E8F0',
-              overflow: 'hidden',
-              boxShadow: '0 4px 14px rgba(0,0,0,0.06)'
-            }}>
-              <img
-                src={skemaArduino}
-                alt="Skema Rangkaian Arduino UNO dengan Sensor DS18B20 dan Resistor Pull-Up 4.7k ohm"
+              <input
+                type="number"
+                step="0.1"
+                min="0.1"
+                max="5.0"
+                value={targetMolality}
+                onChange={(e) => setTargetMolality(e.target.value)}
                 style={{
                   width: '100%',
-                  height: 'auto',
-                  display: 'block',
-                  objectFit: 'contain'
+                  padding: '0.45rem',
+                  borderRadius: '6px',
+                  border: '1.5px solid #CBD5E1',
+                  fontSize: '0.88rem',
+                  fontFamily: "'Times New Roman', Times, serif"
                 }}
               />
+              <span style={{ fontSize: '0.78rem', color: '#64748B' }}>Standar LKPD: 1,0 m</span>
             </div>
 
-            {/* Keterangan Jalur Kabel & Komponen */}
-            <div style={{
-              marginTop: '1rem',
-              display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-              gap: '0.65rem',
-              textAlign: 'left'
-            }}>
-              <div style={{ background: '#FFFFFF', padding: '0.65rem 0.85rem', borderRadius: '10px', border: '1px solid #E2E8F0' }}>
-                <span style={{ color: '#EF4444', fontWeight: 700 }}>🔴 Kabel Merah (VCC 5V):</span>
-                <div style={{ fontSize: '0.85rem', color: '#475569' }}>Dari Pin 5V Arduino ke Pin Kanan DS18B20 & kaki Resistor 4,7kΩ.</div>
-              </div>
-              <div style={{ background: '#FFFFFF', padding: '0.65rem 0.85rem', borderRadius: '10px', border: '1px solid #E2E8F0' }}>
-                <span style={{ color: '#0F172A', fontWeight: 700 }}>⚫ Kabel Hitam (GND):</span>
-                <div style={{ fontSize: '0.85rem', color: '#475569' }}>Dari Pin GND Arduino ke Pin Kiri DS18B20.</div>
-              </div>
-              <div style={{ background: '#FFFFFF', padding: '0.65rem 0.85rem', borderRadius: '10px', border: '1px solid #E2E8F0' }}>
-                <span style={{ color: '#EAB308', fontWeight: 700 }}>🟡 Kabel Kuning (DATA):</span>
-                <div style={{ fontSize: '0.85rem', color: '#475569' }}>Dari Pin Digital 2 (D2) ke Pin Tengah DS18B20 & kaki Resistor.</div>
-              </div>
-              <div style={{ background: '#FFFFFF', padding: '0.65rem 0.85rem', borderRadius: '10px', border: '1px solid #E2E8F0' }}>
-                <span style={{ color: '#8B5CF6', fontWeight: 700 }}>🟣 Resistor Pull-up 4,7 kΩ:</span>
-                <div style={{ fontSize: '0.85rem', color: '#475569' }}>Menghubungkan jalur DATA (Kuning) ke jalur VCC (Merah).</div>
-              </div>
+            {/* Massa Pelarut Air (gram) */}
+            <div style={{ background: '#FFFFFF', padding: '0.85rem', borderRadius: '10px', border: '1px solid #BAE6FD' }}>
+              <label style={{ display: 'block', fontWeight: 700, fontSize: '0.86rem', color: '#1E293B', marginBottom: '0.35rem' }}>
+                Massa Pelarut Air (g):
+              </label>
+              <input
+                type="number"
+                step="0.5"
+                min="5"
+                max="500"
+                value={solventMassGram}
+                onChange={(e) => setSolventMassGram(e.target.value)}
+                style={{
+                  width: '100%',
+                  padding: '0.45rem',
+                  borderRadius: '6px',
+                  border: '1.5px solid #CBD5E1',
+                  fontSize: '0.88rem',
+                  fontFamily: "'Times New Roman', Times, serif"
+                }}
+              />
+              <span style={{ fontSize: '0.78rem', color: '#64748B' }}>Bawaan: 25,0 gram</span>
             </div>
           </div>
-        </div>
 
-        {/* 3. Kode Sketch Arduino dengan Tombol Salin */}
-        <div style={{ marginBottom: '1.75rem' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.65rem', flexWrap: 'wrap', gap: '0.5rem' }}>
-            <h4 style={{ margin: 0, color: '#0F172A', fontSize: '1.08rem' }}>
-              3. Kode Program Arduino (Sketch Template):
-            </h4>
-            <button
-              type="button"
-              onClick={handleCopyCode}
-              style={{
-                background: copySuccess ? '#059669' : '#0284C7',
-                color: '#FFFFFF',
-                border: 'none',
-                borderRadius: '8px',
-                padding: '0.45rem 1rem',
-                fontSize: '0.86rem',
-                fontWeight: 700,
-                cursor: 'pointer',
-                transition: 'background 0.2s ease'
-              }}
-            >
-              {copySuccess ? '✓ Kode Tersalin!' : '📋 Salin Kode Sketch'}
-            </button>
-          </div>
-
-          <p style={{ margin: '0 0 0.5rem 0', fontSize: '0.88rem', color: '#64748B' }}>
-            Sketch ini otomatis mencetak data ke Serial Monitor dengan format <code>waktu_detik,suhu_c</code> yang kompatibel dengan fitur input data KimiKoli.
-          </p>
-
-          <pre style={{
-            background: '#0F172A',
-            color: '#F8FAFC',
-            padding: '1rem 1.25rem',
-            borderRadius: '12px',
-            fontSize: '0.88rem',
-            lineHeight: 1.5,
-            overflowX: 'auto',
-            maxHeight: '260px',
-            fontFamily: 'Consolas, Monaco, "Courier New", monospace'
+          {/* Kotak Langkah Perhitungan & Output Massa Teoretis */}
+          <div style={{
+            background: '#FFFFFF',
+            border: '1px solid #BAE6FD',
+            borderRadius: '10px',
+            padding: '1rem',
+            marginBottom: '1rem'
           }}>
-            {arduinoSketchCode}
-          </pre>
-        </div>
-
-        {/* 4. Checklist Langkah Kerja Praktikum (Tersimpan per Username) */}
-        <div style={{ marginBottom: '1.75rem' }}>
-          <h4 style={{ margin: '0 0 0.65rem 0', color: '#0F172A', fontSize: '1.08rem' }}>
-            4. Checklist Prosedur & Kesiapan Praktikum:
-          </h4>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.55rem' }}>
-            <label style={{ display: 'flex', alignItems: 'center', gap: '0.65rem', background: '#F8FAFC', padding: '0.75rem 1rem', borderRadius: '10px', border: '1px solid #E2E8F0', cursor: 'pointer' }}>
-              <input
-                type="checkbox"
-                checked={Boolean(checklist.alatBahan)}
-                onChange={() => toggleCheck('alatBahan')}
-              />
-              <span style={{ fontSize: '0.94rem', color: '#1E293B' }}>
-                <strong>Alat & Bahan Siap:</strong> Arduino UNO, breadboard, sensor DS18B20 waterproof, resistor 4,7kΩ, kabel jumper, es batu, garam krosok, tabung reaksi, gelas kimia, dan akuades.
-              </span>
-            </label>
-
-            <label style={{ display: 'flex', alignItems: 'center', gap: '0.65rem', background: '#F8FAFC', padding: '0.75rem 1rem', borderRadius: '10px', border: '1px solid #E2E8F0', cursor: 'pointer' }}>
-              <input
-                type="checkbox"
-                checked={Boolean(checklist.skemaRangkaian)}
-                onChange={() => toggleCheck('skemaRangkaian')}
-              />
-              <span style={{ fontSize: '0.94rem', color: '#1E293B' }}>
-                <strong>Perakitan Sirkuit:</strong> Kabel merah terhubung ke 5V, kabel hitam ke GND, dan kabel kuning terhubung ke Pin D2 Arduino.
-              </span>
-            </label>
-
-            <label style={{ display: 'flex', alignItems: 'center', gap: '0.65rem', background: '#F8FAFC', padding: '0.75rem 1rem', borderRadius: '10px', border: '1px solid #E2E8F0', cursor: 'pointer' }}>
-              <input
-                type="checkbox"
-                checked={Boolean(checklist.resistorPullUp)}
-                onChange={() => toggleCheck('resistorPullUp')}
-              />
-              <span style={{ fontSize: '0.94rem', color: '#1E293B' }}>
-                <strong>Resistor Pull-up Terpasang:</strong> Resistor 4,7 kΩ telah menghubungkan jalur Pin D2 ke jalur 5V pada breadboard untuk stabilitas protokol OneWire.
-              </span>
-            </label>
-
-            <label style={{ display: 'flex', alignItems: 'center', gap: '0.65rem', background: '#F8FAFC', padding: '0.75rem 1rem', borderRadius: '10px', border: '1px solid #E2E8F0', cursor: 'pointer' }}>
-              <input
-                type="checkbox"
-                checked={Boolean(checklist.safetyRules)}
-                onChange={() => toggleCheck('safetyRules')}
-              />
-              <span style={{ fontSize: '0.94rem', color: '#1E293B' }}>
-                <strong>Protokol Keselamatan:</strong> Campuran es-garam sangat dingin (hingga -10°C), jangan menyentuh langsung dengan tangan kosong, dan pastikan papan Arduino jauh dari tumpahan air.
-              </span>
-            </label>
-
-            <label style={{ display: 'flex', alignItems: 'center', gap: '0.65rem', background: '#F8FAFC', padding: '0.75rem 1rem', borderRadius: '10px', border: '1px solid #E2E8F0', cursor: 'pointer' }}>
-              <input
-                type="checkbox"
-                checked={Boolean(checklist.serialMonitor)}
-                onChange={() => toggleCheck('serialMonitor')}
-              />
-              <span style={{ fontSize: '0.94rem', color: '#1E293B' }}>
-                <strong>Uji Serial Monitor:</strong> Serial Monitor Arduino IDE disetel pada baudrate <code>9600 baud</code> dan nilai suhu kamar (±24°C s.d. 28°C) terbaca normal.
-              </span>
-            </label>
-          </div>
-        </div>
-
-        {/* 5. Kotak Troubleshooting Singkat */}
-        <div style={{
-          background: '#FFFBEB',
-          border: '1.5px solid #FDE68A',
-          borderRadius: '14px',
-          padding: '1.15rem',
-          marginBottom: '1.75rem'
-        }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.4rem' }}>
-            <span style={{ fontSize: '1.3rem' }}>🛠️</span>
-            <strong style={{ fontSize: '1rem', color: '#92400E' }}>
-              Panduan Troubleshooting Cepat Sensor DS18B20:
+            <strong style={{ fontSize: '0.92rem', color: '#0369A1', display: 'block', marginBottom: '0.4rem' }}>
+              Langkah Perhitungan Massa Zat Terlarut:
             </strong>
-          </div>
-          <ul style={{ margin: 0, paddingLeft: '1.4rem', fontSize: '0.9rem', color: '#78350F', lineHeight: 1.6 }}>
-            <li><strong>Suhu terbaca -127.00°C:</strong> Menandakan pin Data tidak terhubung, kabel longgar, atau resistor pull-up 4,7 kΩ belum terpasang dengan baik.</li>
-            <li><strong>Suhu terbaca 85.00°C:</strong> Sensor belum selesai melakukan konversi suhu atau kekurangan daya listrik saat pertama kali dinyalakan.</li>
-            <li><strong>LCD I2C menyala tapi tidak ada tulisan:</strong> Putar potensiometer kontras di bagian belakang modul I2C LCD menggunakan obeng kecil, atau periksa alamat I2C (biasanya <code>0x27</code> atau <code>0x3F</code>).</li>
-          </ul>
-        </div>
+            <div style={{
+              background: '#F8FAFC',
+              padding: '0.65rem 0.85rem',
+              borderRadius: '8px',
+              fontFamily: 'monospace',
+              fontSize: '0.88rem',
+              color: '#0F172A',
+              marginBottom: '0.75rem',
+              lineHeight: 1.6
+            }}>
+              <div>massa zat = m × (massa pelarut / 1000) × Mr</div>
+              <div>massa zat = {targetMolality} × ({solventMassGram} / 1000) × {mrValue}</div>
+              <div style={{ fontWeight: 800, color: '#0284C7' }}>
+                massa zat = {theoreticalSoluteMass.toFixed(2)} gram
+                {soluteType === 'sugar' && targetMolality === 1 && solventMassGram === 25 && ' (≈ 8,6 g)'}
+                {soluteType === 'salt' && targetMolality === 1 && solventMassGram === 25 && ' (≈ 1,46 g)'}
+              </div>
+            </div>
 
-        {/* 6. Tombol Unduh Dokumen */}
-        <div style={{
-          background: '#F8FAFC',
-          borderRadius: '12px',
-          border: '1px solid #E2E8F0',
-          padding: '1rem 1.25rem',
-          marginBottom: '1.75rem',
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          flexWrap: 'wrap',
-          gap: '1rem'
-        }}>
-          <div>
-            <strong style={{ fontSize: '0.95rem', color: '#0F172A' }}>📄 Berkas Praktikum Fisik:</strong>
-            <div style={{ fontSize: '0.84rem', color: '#64748B' }}>
-              Unduh modul panduan langkah demi langkah dan lembar pencatatan data cetak untuk diisi saat eksperimen di laboratorium sekolah.
+            <div style={{ fontSize: '0.85rem', color: '#475569' }}>
+              💡 <em>Catatan:</em> Untuk <strong>{soluteNameLabel}</strong> pada konsentrasi <strong>{targetMolality} m</strong> dan <strong>{solventMassGram} g air</strong>,
+              timbanglah sebanyak <strong>{theoreticalSoluteMass.toFixed(2)} g</strong> pada neraca.
             </div>
           </div>
-          <div style={{ display: 'flex', gap: '0.65rem' }}>
-            <a
-              href="/docs/Panduan_Praktikum_Titik_Beku_Arduino.pdf"
-              target="_blank"
-              rel="noreferrer"
-              style={{
-                textDecoration: 'none',
-                background: '#FFFFFF',
-                border: '1.5px solid #0284C7',
-                color: '#0284C7',
-                padding: '0.5rem 0.95rem',
-                borderRadius: '8px',
-                fontSize: '0.88rem',
-                fontWeight: 700,
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '0.35rem'
-              }}
-            >
-              📥 Panduan Praktik (PDF)
-            </a>
-            <a
-              href="/docs/Lembar_Pengamatan_Cetak.pdf"
-              target="_blank"
-              rel="noreferrer"
-              style={{
-                textDecoration: 'none',
-                background: '#FFFFFF',
-                border: '1.5px solid #059669',
-                color: '#059669',
-                padding: '0.5rem 0.95rem',
-                borderRadius: '8px',
-                fontSize: '0.88rem',
-                fontWeight: 700,
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '0.35rem'
-              }}
-            >
-              🖨️ Lembar Pengamatan (Cetak)
-            </a>
+
+          {/* Kolom Massa yang Ditimbang di Neraca 0,1 g & Molalitas Sebenarnya */}
+          <div style={{
+            background: '#F0FDF4',
+            border: '1.5px solid #BBF7D0',
+            borderRadius: '10px',
+            padding: '1rem'
+          }}>
+            <strong style={{ fontSize: '0.92rem', color: '#15803D', display: 'block', marginBottom: '0.4rem' }}>
+              Pencatatan Penimbangan Nyata (Neraca 0,1 g):
+            </strong>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '1rem', alignItems: 'center' }}>
+              <div>
+                <label style={{ display: 'block', fontSize: '0.84rem', color: '#166534', fontWeight: 700, marginBottom: '0.3rem' }}>
+                  Massa yang Ditimbang (gram):
+                </label>
+                <input
+                  type="number"
+                  step="0.1"
+                  placeholder={theoreticalSoluteMass.toFixed(1)}
+                  value={weighedMass}
+                  onChange={(e) => setWeighedMass(e.target.value)}
+                  style={{
+                    width: '100%',
+                    padding: '0.5rem',
+                    borderRadius: '6px',
+                    border: '1.5px solid #86EFAC',
+                    fontSize: '0.92rem',
+                    fontFamily: "'Times New Roman', Times, serif"
+                  }}
+                />
+                <span style={{ fontSize: '0.78rem', color: '#4B5563' }}>Ketikkan massa riil hasil timbangan</span>
+              </div>
+
+              <div>
+                <label style={{ display: 'block', fontSize: '0.84rem', color: '#166534', fontWeight: 700, marginBottom: '0.3rem' }}>
+                  Molalitas Sebenarnya (Aktual):
+                </label>
+                <div style={{
+                  padding: '0.5rem 0.75rem',
+                  borderRadius: '6px',
+                  background: '#FFFFFF',
+                  border: '1.5px solid #86EFAC',
+                  fontSize: '1.05rem',
+                  fontWeight: 800,
+                  color: '#15803D'
+                }}>
+                  {actualMolality !== null ? `${actualMolality.toFixed(3)} m` : '- m'}
+                </div>
+                <span style={{ fontSize: '0.78rem', color: '#4B5563' }}>m = (massa ditimbang / Mr) × (1000 / {solventMassGram})</span>
+              </div>
+            </div>
           </div>
         </div>
 
-        {/* Footer Navigasi & Simpan */}
+        {/* ============================================================== */}
+        {/* Footer Navigasi & Simpan                                       */}
+        {/* ============================================================== */}
         <div style={{
           display: 'flex',
           justifyContent: 'space-between',
@@ -482,7 +553,11 @@ void loop() {
           borderTop: '1px solid #E2E8F0'
         }}>
           {onPrevStage && (
-            <Button variant="secondary" onClick={onPrevStage} style={{ padding: '0.65rem 1.15rem' }}>
+            <Button
+              variant="secondary"
+              onClick={onPrevStage}
+              style={{ padding: '0.65rem 1.15rem', fontSize: '0.92rem' }}
+            >
               ← Kembali ke Tahap 1
             </Button>
           )}
@@ -490,18 +565,42 @@ void loop() {
           <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
             {isSavedFeedback && (
               <span style={{ color: '#059669', fontWeight: 700, fontSize: '0.92rem' }}>
-                ✓ Rancangan & checklist berhasil disimpan (+15 XP)
+                ✓ Rancangan & kalkulasi berhasil disimpan (+15 XP)
               </span>
             )}
+            {isCompleted && !isSavedFeedback && (
+              <span style={{ color: '#059669', fontSize: '0.9rem', fontWeight: 600 }}>
+                ✓ Tahap 2 telah selesai (+15 XP diraih)
+              </span>
+            )}
+
+            <Button
+              variant="secondary"
+              onClick={handleSaveProgress}
+              style={{ padding: '0.65rem 1rem', fontSize: '0.92rem' }}
+            >
+              💾 Simpan Draf
+            </Button>
+
             <Button
               variant="primary"
-              onClick={handleSaveAndComplete}
-              style={{ padding: '0.75rem 1.4rem', fontWeight: 700, background: '#0284C7' }}
+              onClick={handleCompleteStage2}
+              style={{
+                padding: '0.75rem 1.4rem',
+                fontSize: '0.98rem',
+                fontWeight: 700,
+                background: '#0284C7'
+              }}
             >
-              {isCompleted ? '✓ Simpan Perubahan Rancangan' : '✓ Simpan & Selesaikan Tahap 2 (+15 XP) →'}
+              {isCompleted ? '✓ Simpan Perubahan Tahap 2' : '✓ Selesaikan Tahap 2 (+15 XP) →'}
             </Button>
+
             {isCompleted && onNextStage && (
-              <Button variant="secondary" onClick={onNextStage} style={{ padding: '0.75rem 1.25rem' }}>
+              <Button
+                variant="secondary"
+                onClick={onNextStage}
+                style={{ padding: '0.75rem 1.25rem', fontSize: '0.98rem' }}
+              >
                 Lanjut ke Tahap 3 →
               </Button>
             )}

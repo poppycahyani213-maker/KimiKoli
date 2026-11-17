@@ -271,6 +271,7 @@ export default function LabVirtualHub({
           <Stage6Conclusion
             data={labState.stage6}
             stage1Data={labState.stage1}
+            stage5Data={labState.stage5}
             onSave={(data) => handleSaveStageData('stage6', data)}
             isCompleted={labState.completedStages.includes(6)}
             onCompleteStage={handleCompleteStage}

@@ -168,7 +168,10 @@ export default function LatihanKPSBab3({ onCompleteKps }) {
         setReflection(existing.reflection);
         setReflectionSubmitted(true);
       }
-      if (existing.showSummary) setShowSummary(true);
+      const ansCount = existing.answers ? Object.keys(existing.answers).length : 0;
+      if (existing.showSummary || (ansCount === KPS_QUESTIONS.length && existing.reflection)) {
+        setShowSummary(true);
+      }
       if (existing.isPassed !== undefined) {
         setIsPassed(existing.isPassed);
         if (onCompleteKps) {
@@ -196,6 +199,7 @@ export default function LatihanKPSBab3({ onCompleteKps }) {
         status,
         score: correctCount,
         isPassed: passed,
+        showSummary: true,
         reflection,
         savedAt: new Date().toISOString(),
       };
@@ -226,6 +230,7 @@ export default function LatihanKPSBab3({ onCompleteKps }) {
       status: newStatus,
       score: Object.values(newStatus).filter((s) => s === 'correct').length,
       isPassed: false,
+      showSummary: false,
       reflection,
       savedAt: new Date().toISOString(),
     };
@@ -240,6 +245,13 @@ export default function LatihanKPSBab3({ onCompleteKps }) {
       return;
     }
     setReflectionSubmitted(true);
+    const existing = getStoredData(getCh3KpsKey(), null) || {};
+    const payload = {
+      ...existing,
+      reflection: reflection.trim(),
+      savedAt: new Date().toISOString(),
+    };
+    setStoredData(getCh3KpsKey(), payload);
   };
 
   // Handler ulangi latihan (jika skor < 6)
@@ -254,6 +266,7 @@ export default function LatihanKPSBab3({ onCompleteKps }) {
       status: {},
       score: 0,
       isPassed: false,
+      showSummary: false,
       reflection,
       savedAt: new Date().toISOString(),
     };

@@ -122,9 +122,21 @@ export default function Chapter3Page({ onComplete, isCompleted }) {
 
   // ── Muat ulang hypothesisData bila akun/localStorage berganti ──────────────
   useEffect(() => {
+    if (isCompleted) return;
     const data = getStoredData(getCh3HypothesisKey(), null);
-    if (data) setHypothesisData(data);
-  }, []);
+    if (data) {
+      setHypothesisData(data);
+      if (data.choice) setIsHypothesisSaved(true);
+    }
+    const res = getStoredData(getCh3ResultsKey(), null);
+    if (checkIsPhase4Complete(res)) {
+      setIsPhase4Completed(true);
+    }
+    const kps = getStoredData(getCh3KpsKey(), null);
+    if (kps && kps.isPassed) {
+      setIsKpsPassed(true);
+    }
+  }, [isCompleted]);
 
   // ── IntersectionObserver: highlight active phase in nav ───────────────────
   useEffect(() => {
@@ -351,7 +363,7 @@ export default function Chapter3Page({ onComplete, isCompleted }) {
       ══════════════════════════════════════════════════════════════════════ */}
       <section id="fase-4" style={{ marginBottom: '3rem', scrollMarginTop: '64px' }}>
         <PhaseHeader number={4} title="Mengembangkan dan Menyajikan Hasil" />
-        <SajikanHasil />
+        <SajikanHasil onCompletePhase4={(done) => setIsPhase4Completed(done)} />
       </section>
 
       {/* ══════════════════════════════════════════════════════════════════════
@@ -472,6 +484,9 @@ export default function Chapter3Page({ onComplete, isCompleted }) {
             style={{ height: '100%', marginBottom: 0 }}
           />
         </div>
+
+        {/* Latihan Keterampilan Proses Sains (KPS) Bab 3 */}
+        <LatihanKPSBab3 onCompleteKps={(passed) => setIsKpsPassed(passed)} />
       </section>
 
       {/* ── Tombol Lanjut ke Bab 4 ─────────────────────────────────────────── */}
@@ -489,26 +504,82 @@ export default function Chapter3Page({ onComplete, isCompleted }) {
         boxShadow: '0 2px 8px rgba(15, 23, 42, 0.04)'
       }}>
         <div>
-          <span style={{ fontSize: '0.85rem', color: '#10B981', fontWeight: 700 }}>
-            {isCompleted ? '✓ Materi Bab 3 Selesai' : 'Siap Lanjut ke Tahap Selanjutnya?'}
+          <span style={{
+            fontSize: '0.85rem',
+            color: isCompleted ? '#10B981' : isReadyToProceed ? '#059669' : '#D97706',
+            fontWeight: 700
+          }}>
+            {isCompleted
+              ? '✓ Materi Bab 3 Selesai'
+              : isReadyToProceed
+              ? '✓ Seluruh Syarat Terpenuhi! Siap Lanjut'
+              : 'Selesaikan Syarat untuk Membuka Bab 4:'}
           </span>
           <h4 style={{ margin: '0.2rem 0 0', color: '#0F172A', fontSize: '1.1rem' }}>
             Bab 4: Tekanan Osmotik &amp; Membran Semipermeabel
           </h4>
         </div>
 
-        <Button
-          variant="primary"
-          onClick={onComplete}
-          style={{
-            padding: '0.85rem 1.8rem',
-            fontSize: '1.05rem',
-            background: '#0284C7',
-            boxShadow: '0 4px 14px rgba(2, 132, 199, 0.25)'
-          }}
-        >
-          Selesaikan Bab 3 &amp; Buka Bab 4 →
-        </Button>
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '0.6rem' }}>
+          {/* Daftar Centang 3 Syarat Pembuka Bab 4 */}
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            flexWrap: 'wrap',
+            gap: '0.65rem',
+            fontSize: '0.85rem',
+            background: isReadyToProceed ? '#ECFDF5' : '#F8FAFC',
+            border: isReadyToProceed ? '1px solid #A7F3D0' : '1px solid #CBD5E1',
+            borderRadius: '8px',
+            padding: '0.4rem 0.85rem'
+          }}>
+            <span style={{
+              color: isHypothesisSaved ? '#16A34A' : '#64748B',
+              fontWeight: isHypothesisSaved ? 800 : 500,
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '0.3rem'
+            }}>
+              <span>{isHypothesisSaved ? '✓' : '○'}</span> Dugaan Fase 2
+            </span>
+            <span style={{ color: '#CBD5E1' }}>•</span>
+            <span style={{
+              color: isPhase4Completed ? '#16A34A' : '#64748B',
+              fontWeight: isPhase4Completed ? 800 : 500,
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '0.3rem'
+            }}>
+              <span>{isPhase4Completed ? '✓' : '○'}</span> Data Fase 4
+            </span>
+            <span style={{ color: '#CBD5E1' }}>•</span>
+            <span style={{
+              color: isKpsPassed ? '#16A34A' : '#64748B',
+              fontWeight: isKpsPassed ? 800 : 500,
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '0.3rem'
+            }}>
+              <span>{isKpsPassed ? '✓' : '○'}</span> Latihan KPS (≥ 6/8)
+            </span>
+          </div>
+
+          <Button
+            variant="primary"
+            onClick={onComplete}
+            disabled={!isReadyToProceed}
+            style={{
+              padding: '0.85rem 1.8rem',
+              fontSize: '1.05rem',
+              background: isReadyToProceed ? '#0284C7' : '#94A3B8',
+              boxShadow: isReadyToProceed ? '0 4px 14px rgba(2, 132, 199, 0.25)' : 'none',
+              cursor: isReadyToProceed ? 'pointer' : 'not-allowed',
+              opacity: isReadyToProceed ? 1 : 0.7
+            }}
+          >
+            Selesaikan Bab 3 &amp; Buka Bab 4 →
+          </Button>
+        </div>
       </div>
 
     </div>

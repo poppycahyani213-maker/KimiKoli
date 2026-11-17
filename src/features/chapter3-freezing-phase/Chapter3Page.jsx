@@ -15,6 +15,7 @@ import OrientasiMasalah from './OrientasiMasalah';
 import DugaanHipotesis, { DUGAAN_OPTIONS, getCh3HypothesisKey } from './DugaanHipotesis';
 import SajikanHasil, { getCh3ResultsKey, checkIsPhase4Complete } from './SajikanHasil';
 import LatihanKPSBab3, { getCh3KpsKey } from './LatihanKPSBab3';
+import SubmikroskopikTitikBeku from './SubmikroskopikTitikBeku';
 
 // ── Helper Penyimpanan Progres Navigasi Bab 3 per Akun Siswa ─────────────────
 export function getCh3NavKey() {
@@ -619,9 +620,10 @@ export default function Chapter3Page({ onComplete, isCompleted }) {
               ],
             }}
             submicroscopic={{
-              title: 'Skala Partikulat: Runtuhnya Kisi Kristal Es',
-              description: 'Air murni membeku menjadi es ketika molekul-molekul H2O menata diri menjadi kisi kristal heksagonal yang sangat teratur melalui ikatan hidrogen.',
-              mechanism: 'Kehadiran partikel zat terlarut (seperti ion Na⁺, Cl⁻, atau molekul gula) bertindak sebagai pengotor mekanis yang menyusup di antara molekul air. Partikel ini merusak kestabilan kisi kristal es. Agar molekul air tetap dapat mengatasi gangguan ini dan membentuk ikatan padat, energi kinetik molekul harus diperlambat lebih jauh lagi melalui pendinginan ke suhu yang lebih rendah (Tf < 0°C).',
+              title: 'Skala Partikulat: Kesetimbangan Dinamis Kristal Es & Larutan',
+              description: 'Di tingkat molekuler, pembekuan adalah proses kesetimbangan dinamis antara molekul air yang bergabung ke kisi kristal es dan yang lepas kembali ke fase cair.',
+              customVisual: <SubmikroskopikTitikBeku />,
+              mechanism: 'Di permukaan es, molekul air terus-menerus bergabung ke kristal dan lepas dari kristal. Titik beku adalah suhu saat keduanya seimbang. Partikel zat terlarut menempati sebagian permukaan sehingga lebih sedikit molekul air yang bisa bergabung, sedangkan yang lepas tetap sama. Akibatnya es mencair pada 0 °C. Agar seimbang lagi, suhu harus diturunkan supaya molekul es bergerak lebih lambat dan lebih sedikit yang lepas. Itulah sebabnya titik beku larutan lebih rendah dari 0 °C.',
             }}
             symbolic={{
               title: 'Persamaan Penurunan Titik Beku & Suhu Beku',

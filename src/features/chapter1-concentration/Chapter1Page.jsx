@@ -5,14 +5,14 @@ import Badge from '../../components/common/Badge';
 import TripleRepresentation from '../../components/chemistry/TripleRepresentation';
 import MisconceptionCard from '../../components/chemistry/MisconceptionCard';
 import { FormulaRenderer } from '../../components/chemistry/FormulaRenderer';
-import { getStoredData, setStoredData, getAuthUser } from '../../utils/storage';
+import { getStoredData, setStoredData, getAuthUser, normalizeUsername } from '../../utils/storage';
 import SugarGlassesIllustration from './SugarGlassesIllustration';
 import PerbandinganKonsentrasi from './PerbandinganKonsentrasi';
 import ContohSoal from './ContohSoal';
 import SimulatorLarutan from './SimulatorLarutan';
 import LatihanSoal from './LatihanSoal';
 
-// Helper membuat kunci penyimpanan unik per siswa (nama dan kelas yang sedang login)
+// Helper membuat kunci penyimpanan persyaratan Bab 1 per username
 function getCh1StorageKey() {
   const user = getAuthUser();
   if (user && user.name) {
@@ -23,18 +23,31 @@ function getCh1StorageKey() {
   return 'koligatif_ch1_requirements_v1_guest';
 }
 
+function getCh1SavedData() {
+  const legacyKey = getCh1StorageKey();
+  const user = getAuthUser();
+  const norm = normalizeUsername(user);
+  const modernKey = `kimikoli:v1:${norm}:ch1`;
+
+  const savedModern = getStoredData(modernKey, null);
+  const savedLegacy = getStoredData(legacyKey, null);
+
+  return {
+    isMissionDone: Boolean(savedModern?.isMissionDone || savedLegacy?.isMissionDone),
+    isExerciseDone: Boolean(savedModern?.isExerciseDone || savedLegacy?.isExerciseDone)
+  };
+}
+
 export default function Chapter1Page({ onComplete, isCompleted }) {
   const [isMissionDone, setIsMissionDone] = useState(() => {
     if (isCompleted) return true;
-    const storageKey = getCh1StorageKey();
-    const saved = getStoredData(storageKey, { isMissionDone: false, isExerciseDone: false });
+    const saved = getCh1SavedData();
     return Boolean(saved?.isMissionDone);
   });
 
   const [isExerciseDone, setIsExerciseDone] = useState(() => {
     if (isCompleted) return true;
-    const storageKey = getCh1StorageKey();
-    const saved = getStoredData(storageKey, { isMissionDone: false, isExerciseDone: false });
+    const saved = getCh1SavedData();
     return Boolean(saved?.isExerciseDone);
   });
 
@@ -48,16 +61,28 @@ export default function Chapter1Page({ onComplete, isCompleted }) {
 
   const handleMissionDone = () => {
     setIsMissionDone(true);
-    const storageKey = getCh1StorageKey();
-    const saved = getStoredData(storageKey, { isMissionDone: false, isExerciseDone: false });
-    setStoredData(storageKey, { ...saved, isMissionDone: true });
+    const legacyKey = getCh1StorageKey();
+    const user = getAuthUser();
+    const norm = normalizeUsername(user);
+    const modernKey = `kimikoli:v1:${norm}:ch1`;
+
+    const savedLegacy = getStoredData(legacyKey, { isMissionDone: false, isExerciseDone: false });
+    setStoredData(legacyKey, { ...savedLegacy, isMissionDone: true });
+    const savedModern = getStoredData(modernKey, { isMissionDone: false, isExerciseDone: false });
+    setStoredData(modernKey, { ...savedModern, isMissionDone: true });
   };
 
   const handleExerciseDone = () => {
     setIsExerciseDone(true);
-    const storageKey = getCh1StorageKey();
-    const saved = getStoredData(storageKey, { isMissionDone: false, isExerciseDone: false });
-    setStoredData(storageKey, { ...saved, isExerciseDone: true });
+    const legacyKey = getCh1StorageKey();
+    const user = getAuthUser();
+    const norm = normalizeUsername(user);
+    const modernKey = `kimikoli:v1:${norm}:ch1`;
+
+    const savedLegacy = getStoredData(legacyKey, { isMissionDone: false, isExerciseDone: false });
+    setStoredData(legacyKey, { ...savedLegacy, isExerciseDone: true });
+    const savedModern = getStoredData(modernKey, { isMissionDone: false, isExerciseDone: false });
+    setStoredData(modernKey, { ...savedModern, isExerciseDone: true });
   };
 
   const isReadyToProceed = (isMissionDone && isExerciseDone) || isCompleted;

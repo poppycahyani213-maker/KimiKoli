@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
 import imgTekananUap from '../../assets/icon-tekanan-uap.png';
 import imgTitikDidih from '../../assets/icon-titik-didih.png';
-import imgTitikBeku from '../../assets/fenomena-titik-beku.jpg';
-import imgRadiator from '../../assets/fenomena-radiator.jpg';
-import imgMentimun from '../../assets/fenomena-mentimun.jpg';
+import imgTitikBeku from '../../assets/icon-titik-beku.png';
+import imgRadiator from '../../assets/icon-radiator.png';
+import imgOsmosis from '../../assets/icon-osmosis.png';
 import imgDesalinasi from '../../assets/fenomena-desalinasi.jpg';
-import imgElektrolit from '../../assets/fenomena-elektrolit.jpg';
+import imgElektrolit from '../../assets/icon-elektrolit.png';
 import kimikoliIcon from '../../assets/kimikoli-icon.jpg';
+import KimiKoliModal from './KimiKoliModal';
 
 /**
  * Komponen HomePage (Beranda KimiKoli)
@@ -21,8 +22,20 @@ export default function HomePage({
   isLabVirtualCompleted = false,
   onStartPretest, 
   onGoToChapter,
-  onGoToLabVirtual
+  onGoToLabVirtual,
+  onOpenInfoModal
 }) {
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isIconHovered, setIsIconHovered] = useState(false);
+
+  const handleOpenInfoModal = () => {
+    if (onOpenInfoModal) {
+      onOpenInfoModal();
+    } else {
+      setIsModalOpen(true);
+    }
+  };
+
   const isCh1Completed = completedChapters.includes('chapter1');
   const isCh2Completed = completedChapters.includes('chapter2');
   const isCh3Completed = completedChapters.includes('chapter3');
@@ -96,7 +109,27 @@ export default function HomePage({
         <div className="hero-grid">
           {/* Kolom Kiri: Headline & CTA */}
           <div>
-            <div className="hero-tag" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.55rem' }}>
+            <div 
+              className="hero-tag" 
+              onClick={handleOpenInfoModal}
+              role="button"
+              tabIndex={0}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault();
+                  handleOpenInfoModal();
+                }
+              }}
+              title="Klik untuk membuka informasi website dan manual penggunaan"
+              style={{ 
+                display: 'inline-flex', 
+                alignItems: 'center', 
+                gap: '0.55rem', 
+                cursor: 'pointer',
+                transition: 'all 0.2s ease',
+                userSelect: 'none'
+              }}
+            >
               <img 
                 src={kimikoliIcon} 
                 alt="KimiKoli" 
@@ -105,27 +138,71 @@ export default function HomePage({
               <span>
                 {!isPretestDone ? '🎯 Misi 1 Wajib: Pretest Prasyarat Pembuka Materi' : 'KimiKoli · Sifat Koligatif Larutan Kelas XI SMA'}
               </span>
+              <span style={{ fontSize: '0.78rem', background: '#0284C7', color: '#FFFFFF', padding: '1px 6px', borderRadius: '6px', marginLeft: '2px' }}>
+                ℹ️ Info
+              </span>
             </div>
 
             <div style={{ display: 'flex', alignItems: 'center', gap: '1.25rem', marginBottom: '1.2rem', flexWrap: 'wrap' }}>
-              <div style={{
-                width: 84,
-                height: 84,
-                borderRadius: '22px',
-                background: '#FFFFFF',
-                border: '2px solid #BAE6FD',
-                boxShadow: '0 8px 24px rgba(2, 132, 199, 0.14)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                padding: '6px',
-                flexShrink: 0
-              }}>
+              <div 
+                role="button"
+                tabIndex={0}
+                aria-label="Buka Informasi Website dan Manual Penggunaan KimiKoli"
+                title="Klik untuk membuka informasi website & manual penggunaan KimiKoli"
+                onClick={handleOpenInfoModal}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    handleOpenInfoModal();
+                  }
+                }}
+                onMouseEnter={() => setIsIconHovered(true)}
+                onMouseLeave={() => setIsIconHovered(false)}
+                style={{
+                  width: 88,
+                  height: 88,
+                  borderRadius: '22px',
+                  background: '#FFFFFF',
+                  border: isIconHovered ? '2.5px solid #0284C7' : '2px solid #BAE6FD',
+                  boxShadow: isIconHovered 
+                    ? '0 12px 28px rgba(2, 132, 199, 0.32), 0 0 0 4px rgba(186, 230, 253, 0.5)' 
+                    : '0 8px 24px rgba(2, 132, 199, 0.14)',
+                  transform: isIconHovered ? 'scale(1.06) translateY(-2px)' : 'scale(1)',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  padding: '6px',
+                  flexShrink: 0,
+                  cursor: 'pointer',
+                  position: 'relative',
+                  transition: 'all 0.22s cubic-bezier(0.16, 1, 0.3, 1)',
+                  outline: 'none'
+                }}
+              >
                 <img 
                   src={kimikoliIcon} 
-                  alt="Ilustrasi Laboratorium KimiKoli" 
+                  alt="Ikon KimiKoli - Klik untuk Informasi dan Manual Penggunaan" 
                   style={{ width: '100%', height: '100%', objectFit: 'contain' }}
                 />
+                <span 
+                  style={{
+                    position: 'absolute',
+                    bottom: '-9px',
+                    background: isIconHovered ? '#0369A1' : '#0284C7',
+                    color: '#FFFFFF',
+                    fontSize: '0.64rem',
+                    fontWeight: 'bold',
+                    padding: '2px 7px',
+                    borderRadius: '9999px',
+                    whiteSpace: 'nowrap',
+                    boxShadow: '0 2px 6px rgba(2, 132, 199, 0.3)',
+                    transition: 'all 0.2s ease',
+                    pointerEvents: 'none'
+                  }}
+                >
+                  💡 Info Website
+                </span>
               </div>
 
               <h1 className="hero-title" style={{ fontFamily: "'Times New Roman', Times, serif", margin: 0, flex: 1, minWidth: '240px' }}>
@@ -279,7 +356,11 @@ export default function HomePage({
                     boxShadow: isCh3Completed ? '0 2px 8px rgba(16, 185, 129, 0.18)' : 'none'
                   }}
                 >
-                  <span className="icon" style={{ color: isCh3Completed ? '#10B981' : '#94A3B8' }}>{isCh3Completed ? '❄️' : '🔒'}</span>
+                  <span className="icon" style={{ color: isCh3Completed ? '#10B981' : '#94A3B8', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    {isCh3Completed ? (
+                      <img src={imgTitikBeku} alt="Beku" style={{ width: 18, height: 18, objectFit: 'contain' }} />
+                    ) : '🔒'}
+                  </span>
                   <span className="title" style={{ color: isCh3Completed ? '#065F46' : '#475569' }}>Beku</span>
                 </div>
 
@@ -294,7 +375,11 @@ export default function HomePage({
                     boxShadow: isCh4Completed ? '0 2px 8px rgba(16, 185, 129, 0.18)' : 'none'
                   }}
                 >
-                  <span className="icon" style={{ color: isCh4Completed ? '#10B981' : '#94A3B8' }}>{isCh4Completed ? '➕' : '🔒'}</span>
+                  <span className="icon" style={{ color: isCh4Completed ? '#10B981' : '#94A3B8', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    {isCh4Completed ? (
+                      <img src={imgOsmosis} alt="Osmosis" style={{ width: 18, height: 18, objectFit: 'contain' }} />
+                    ) : '🔒'}
+                  </span>
                   <span className="title" style={{ color: isCh4Completed ? '#065F46' : '#475569' }}>Osmosis</span>
                 </div>
 
@@ -309,7 +394,11 @@ export default function HomePage({
                     boxShadow: isCh5Completed ? '0 2px 8px rgba(16, 185, 129, 0.18)' : 'none'
                   }}
                 >
-                  <span className="icon" style={{ color: isCh5Completed ? '#10B981' : '#94A3B8' }}>{isCh5Completed ? '⚡' : '🔒'}</span>
+                  <span className="icon" style={{ color: isCh5Completed ? '#10B981' : '#94A3B8', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    {isCh5Completed ? (
+                      <img src={imgElektrolit} alt="Elektrolit" style={{ width: 18, height: 18, objectFit: 'contain' }} />
+                    ) : '🔒'}
+                  </span>
                   <span className="title" style={{ color: isCh5Completed ? '#065F46' : '#475569' }}>Elektrolit</span>
                 </div>
               </div>
@@ -571,8 +660,8 @@ export default function HomePage({
                 borderRadius: '14px',
                 overflow: 'hidden',
                 flexShrink: 0,
-                border: '1.5px solid #FECACA',
-                background: '#F8FAFC',
+                border: '1.5px solid #BAE6FD',
+                background: '#F0F9FF',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
@@ -580,7 +669,7 @@ export default function HomePage({
               }}>
                 <img 
                   src={imgTitikBeku} 
-                  alt="Ilustrasi Penurunan Titik Beku (Es Krim)" 
+                  alt="Ilustrasi Penurunan Titik Beku (Kristal Es)" 
                   style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }}
                 />
               </div>
@@ -630,8 +719,8 @@ export default function HomePage({
                 borderRadius: '14px',
                 overflow: 'hidden',
                 flexShrink: 0,
-                border: '1.5px solid #BBF7D0',
-                background: '#F8FAFC',
+                border: '1.5px solid #FBCFE8',
+                background: '#FDF2F8',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
@@ -640,7 +729,7 @@ export default function HomePage({
               }}>
                 <img 
                   src={imgRadiator} 
-                  alt="Ilustrasi Cairan Radiator Mobil" 
+                  alt="Ilustrasi Cairan Radiator (Didih & Beku)" 
                   style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }}
                 />
               </div>
@@ -691,16 +780,16 @@ export default function HomePage({
                 borderRadius: '14px',
                 overflow: 'hidden',
                 flexShrink: 0,
-                border: '1.5px solid #BAE6FD',
-                background: '#F8FAFC',
+                border: '1.5px solid #86EFAC',
+                background: '#ECFDF5',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
                 padding: '4px'
               }}>
                 <img 
-                  src={imgMentimun} 
-                  alt="Ilustrasi Tekanan Osmotik (Acar Mentimun)" 
+                  src={imgOsmosis} 
+                  alt="Ilustrasi Tekanan Osmotik (Irisan Mentimun)" 
                   style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }}
                 />
               </div>
@@ -752,8 +841,8 @@ export default function HomePage({
                 borderRadius: '14px',
                 overflow: 'hidden',
                 flexShrink: 0,
-                border: '1.5px solid #DDD6FE',
-                background: '#F8FAFC',
+                border: '1.5px solid #C4B5FD',
+                background: '#F5F3FF',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
@@ -761,7 +850,7 @@ export default function HomePage({
               }}>
                 <img 
                   src={imgElektrolit} 
-                  alt="Ilustrasi Partikel Elektrolit NaCl vs Nonelektrolit" 
+                  alt="Ilustrasi Ion Larutan Elektrolit" 
                   style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }}
                 />
               </div>
@@ -1042,6 +1131,12 @@ export default function HomePage({
           </div>
         </div>
       </section>
+
+      {/* Modal Popup Informasi Website & Manual Penggunaan */}
+      <KimiKoliModal 
+        isOpen={isModalOpen} 
+        onClose={() => setIsModalOpen(false)} 
+      />
     </div>
   );
 }

@@ -164,6 +164,15 @@ export default function LatihanSoal({ onSemuaSelesai }) {
       const key = getCh1StorageKey();
       const saved = getStoredData(key, { isMissionDone: false, isExerciseDone: false });
       setStoredData(key, { ...saved, isExerciseDone: true });
+
+      // Sinkronkan ke format kunci standar kimikoli
+      const user = getAuthUser();
+      if (user) {
+        const norm = typeof user === 'string' ? user.toLowerCase().trim() : (user.name || '').toLowerCase().trim();
+        const modernKey = `kimikoli:v1:${norm}:ch1`;
+        const modernSaved = getStoredData(modernKey, { isMissionDone: false, isExerciseDone: false });
+        setStoredData(modernKey, { ...modernSaved, isExerciseDone: true });
+      }
       if (typeof onSemuaSelesai === 'function') {
         onSemuaSelesai();
       }

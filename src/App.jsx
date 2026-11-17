@@ -767,6 +767,7 @@ export default function App() {
               </div>
             ) : (
               <LabVirtualHub
+                currentUser={currentUser}
                 isCompleted={isLabVirtualCompleted}
                 onCompleteLab={() => {
                   setIsLabVirtualCompleted(true);

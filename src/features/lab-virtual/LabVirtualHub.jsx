@@ -1,43 +1,180 @@
-import React from 'react';
-import Card from '../../components/common/Card';
-import Button from '../../components/common/Button';
+import React, { useState, useEffect } from 'react';
 import Badge from '../../components/common/Badge';
+import LabVirtualStepper, { STAGES_CONFIG } from './LabVirtualStepper';
+import Stage1Problem from './stages/Stage1Problem';
+import Stage2Design from './stages/Stage2Design';
+import Stage3Simulation from './stages/Stage3Simulation';
+import Stage4ArduinoPractice from './stages/Stage4ArduinoPractice';
+import Stage5DataAnalysis from './stages/Stage5DataAnalysis';
+import Stage6Conclusion from './stages/Stage6Conclusion';
+import { getCourseProgress, saveCourseProgress } from '../../utils/storage';
 
 /**
- * Komponen LabVirtualHub
+ * Komponen Induk Laboratorium Virtual KimiKoli
+ * Mengadopsi Sintaks Project Based Learning (PjBL) 6 Tahap Terkunci Berurutan (Sequential Gating).
  * 
- * Pusat Gerbang Laboratorium Virtual:
- * - Hanya dapat diakses setelah siswa menyelesaikan seluruh materi (Bab 1 s.d. Bab 5).
- * - Memberikan pratinjau praktikum virtual yang akan dibangun.
- * - Tombol untuk menyelesaikan aktivitas lab dan membuka gerbang Kuis Evaluasi Akhir.
+ * Tahapan:
+ * 1. Pertanyaan Masalah & Hipotesis (+15 XP)
+ * 2. Rancang Percobaan & Skema Rangkaian Arduino (+15 XP)
+ * 3. Simulasi Kurva Pendinginan Virtual (+20 XP)
+ * 4. Praktik Arduino & Perekaman Data (+25 XP)
+ * 5. Analisis Data & Penentuan Titik Beku (+25 XP)
+ * 6. Kesimpulan, Refleksi & Evaluasi Proyek (+20 XP)
+ * 
+ * Penyimpanan:
+ * Disimpan aman per username pada kunci "kimikoli:v1:<username dinormalisasi>".
  */
-export default function LabVirtualHub({ 
-  isCompleted = false, 
-  onCompleteLab, 
-  onBackToHome 
+export default function LabVirtualHub({
+  currentUser = null,
+  isCompleted = false,
+  onCompleteLab,
+  onBackToHome
 }) {
+  // 1. Inisialisasi state dari data tersimpan user
+  const [labState, setLabState] = useState({
+    completedStages: [],
+    currentStage: 1,
+    xpEarned: 0,
+    stage1: {},
+    stage2: {},
+    stage3: {},
+    stage4: {},
+    stage5: {},
+    stage6: {}
+  });
+
+  // Muat state lab milik username saat komponen dimuat
+  useEffect(() => {
+    const userProgress = getCourseProgress(currentUser);
+    if (userProgress && userProgress.labState) {
+      setLabState((prev) => ({
+        ...prev,
+        ...userProgress.labState,
+        completedStages: Array.isArray(userProgress.labState.completedStages) 
+          ? userProgress.labState.completedStages 
+          : (isCompleted ? [1, 2, 3, 4, 5, 6] : []),
+        currentStage: userProgress.labState.currentStage || 1,
+        xpEarned: userProgress.labState.xpEarned || 0
+      }));
+    } else if (isCompleted) {
+      // Jika profil utama sudah completed tapi labState belum rinci
+      setLabState((prev) => ({
+        ...prev,
+        completedStages: [1, 2, 3, 4, 5, 6],
+        currentStage: 6,
+        xpEarned: 120
+      }));
+    }
+  }, [currentUser, isCompleted]);
+
+  // Handler menyimpan state parsial ke memori dan localStorage per username
+  const persistLabState = (nextLabState) => {
+    setLabState(nextLabState);
+
+    const currentProgress = getCourseProgress(currentUser) || {};
+    const updatedProgress = {
+      ...currentProgress,
+      labState: nextLabState,
+      ...(nextLabState.completedStages?.length === 6 ? { labVirtualCompleted: true } : {})
+    };
+
+    saveCourseProgress(updatedProgress, currentUser);
+  };
+
+  // Navigasi memilih tahap (hanya bisa jika tahap sudah unlocked)
+  const handleSelectStage = (stageId) => {
+    const isUnlocked = stageId === 1 || labState.completedStages.includes(stageId - 1);
+    if (isUnlocked) {
+      const updated = {
+        ...labState,
+        currentStage: stageId
+      };
+      persistLabState(updated);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  };
+
+  // Callback simpan data tiap tahap
+  const handleSaveStageData = (stageKey, data) => {
+    const updated = {
+      ...labState,
+      [stageKey]: {
+        ...(labState[stageKey] || {}),
+        ...data
+      }
+    };
+    persistLabState(updated);
+  };
+
+  // Callback saat suatu tahap diselesaikan (+XP & buka tahap berikutnya)
+  const handleCompleteStage = (stageNumber, data) => {
+    const stageKey = `stage${stageNumber}`;
+    const nextCompleted = Array.from(new Set([...labState.completedStages, stageNumber]));
+    
+    // Hitung total XP lab berdasarkan tahap yang tuntas
+    let calculatedXp = 0;
+    STAGES_CONFIG.forEach((s) => {
+      if (nextCompleted.includes(s.id)) {
+        calculatedXp += s.xp;
+      }
+    });
+
+    // Otomatis arahkan ke tahap berikutnya jika belum tahap terakhir
+    const nextStage = stageNumber < 6 ? stageNumber + 1 : stageNumber;
+
+    const updated = {
+      ...labState,
+      [stageKey]: {
+        ...(labState[stageKey] || {}),
+        ...data
+      },
+      completedStages: nextCompleted,
+      currentStage: nextStage,
+      xpEarned: calculatedXp
+    };
+
+    persistLabState(updated);
+
+    if (stageNumber === 6 && onCompleteLab) {
+      onCompleteLab();
+    }
+  };
+
+  // Callback penyelesaian penuh di Tahap 6
+  const handleFinalizeLab = (stage6Data) => {
+    handleCompleteStage(6, stage6Data);
+  };
+
+  const currentStage = labState.currentStage || 1;
+  const isAllCompleted = labState.completedStages.length === 6 || isCompleted;
+
   return (
     <div className="fade-in" style={{ fontFamily: "'Times New Roman', Times, serif" }}>
-      {/* Header Banner */}
-      <div style={{ marginBottom: '1.75rem' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.5rem' }}>
-          <Badge variant="blue">Laboratorium Virtual KimiKoli</Badge>
-          {isCompleted && (
-            <span style={{ fontSize: '0.8rem', background: '#DCFCE7', color: '#166534', padding: '0.2rem 0.6rem', borderRadius: '12px', fontWeight: 700 }}>
-              ✓ Sesi Lab Telah Dituntaskan
+      {/* 1. Header Banner & Info Modul */}
+      <div style={{ marginBottom: '1.5rem' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.45rem', flexWrap: 'wrap' }}>
+          <Badge variant="blue">Laboratorium Virtual KimiKoli • PjBL</Badge>
+          {isAllCompleted ? (
+            <span style={{ fontSize: '0.8rem', background: '#DCFCE7', color: '#166534', padding: '0.2rem 0.65rem', borderRadius: '12px', fontWeight: 700 }}>
+              ✓ Seluruh 6 Tahap Lab Tuntas (+120 XP)
+            </span>
+          ) : (
+            <span style={{ fontSize: '0.8rem', background: '#EFF6FF', color: '#0284C7', padding: '0.2rem 0.65rem', borderRadius: '12px', fontWeight: 700 }}>
+              🚀 Mode Investigasi Terbimbing Aktif
             </span>
           )}
         </div>
-        <h2 style={{ margin: '0.25rem 0', fontSize: '1.85rem', fontWeight: 800, color: '#0F172A' }}>
-          Laboratorium Virtual: Eksplorasi Fenomena Sifat Koligatif
+
+        <h2 style={{ margin: '0.2rem 0', fontSize: '1.85rem', fontWeight: 800, color: '#0F172A' }}>
+          Laboratorium Virtual: Eksplorasi Kurva Pendinginan Titik Beku (Hybrid Arduino)
         </h2>
-        <p className="text-muted" style={{ fontSize: '1.05rem', margin: 0 }}>
-          Selamat! Kamu telah menguasai seluruh materi teori Bab 1 sampai Bab 5. Praktikkan pemahamanmu melalui simulasi laboratorium virtual sebelum menempuh Kuis Akhir.
+        <p className="text-muted" style={{ fontSize: '1.02rem', margin: 0 }}>
+          Paduan simulasi virtual interaktif dan praktikum riil berbasis mikrokontroler Arduino (sensor suhu DS18B20 waterproof + LCD).
         </p>
       </div>
 
-      {/* Navigasi Cepat Kembali */}
-      <div style={{ marginBottom: '1.5rem', display: 'flex', gap: '0.75rem' }}>
+      {/* 2. Tombol Navigasi Kembali */}
+      <div style={{ marginBottom: '1.25rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.75rem' }}>
         <button
           type="button"
           onClick={onBackToHome}
@@ -46,96 +183,102 @@ export default function LabVirtualHub({
         >
           ← Kembali ke Beranda
         </button>
+
+        {isAllCompleted && (
+          <button
+            type="button"
+            onClick={onCompleteLab}
+            className="btn btn-primary"
+            style={{
+              padding: '0.45rem 1.15rem',
+              fontSize: '0.88rem',
+              fontWeight: 700,
+              background: '#059669',
+              borderColor: '#059669'
+            }}
+          >
+            🏆 Buka Halaman Kuis Evaluasi Akhir →
+          </button>
+        )}
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '1.5rem' }}>
-        {/* Kartu Status Akses & Syarat Kuis */}
-        <Card title="Status Laboratorium Virtual" subtitle="Gerbang prasyarat Kuis Evaluasi Akhir">
-          <div style={{
-            background: isCompleted ? '#ECFDF5' : '#F0F9FF',
-            border: `1.5px solid ${isCompleted ? '#10B981' : '#0284C7'}`,
-            borderRadius: '14px',
-            padding: '1.25rem',
-            marginBottom: '1.25rem'
-          }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem', marginBottom: '0.5rem' }}>
-              <span style={{ fontSize: '1.6rem' }}>{isCompleted ? '🎉' : '🔬'}</span>
-              <div>
-                <strong style={{ fontSize: '1.05rem', color: isCompleted ? '#065F46' : '#0369A1' }}>
-                  {isCompleted ? 'Praktikum Lab Selesai!' : 'Akses Terbuka: Tahap Eksplorasi Lab'}
-                </strong>
-                <div style={{ fontSize: '0.85rem', color: '#64748B' }}>
-                  {isCompleted
-                    ? 'Akses Kuis Akhir telah terbuka sepenuhnya.'
-                    : 'Tuntaskan tahapan di lab ini untuk membuka akses Kuis Evaluasi Akhir.'}
-                </div>
-              </div>
-            </div>
+      {/* 3. Stepper Jalur 6 Tahap Terkunci Berurutan */}
+      <LabVirtualStepper
+        currentStage={currentStage}
+        completedStages={labState.completedStages}
+        onSelectStage={handleSelectStage}
+        totalXpEarned={labState.xpEarned}
+      />
 
-            <p style={{ margin: 0, fontSize: '0.92rem', color: '#334155', lineHeight: 1.55 }}>
-              Di laboratorium ini, kamu akan membandingkan titik didih, kurva pendinginan titik beku, dan tekanan osmotik dari berbagai larutan dengan konsentrasi dan faktor van 't Hoff yang berbeda secara *hands-on*.
-            </p>
-          </div>
+      {/* 4. Konten Sesuai Tahap Aktif */}
+      <div style={{ marginTop: '1rem' }}>
+        {currentStage === 1 && (
+          <Stage1Problem
+            data={labState.stage1}
+            onSave={(data) => handleSaveStageData('stage1', data)}
+            isCompleted={labState.completedStages.includes(1)}
+            onCompleteStage={handleCompleteStage}
+            onNextStage={() => handleSelectStage(2)}
+          />
+        )}
 
-          {/* Action Button: Selesaikan Lab & Buka Kuis Akhir */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-            <Button
-              variant="primary"
-              onClick={onCompleteLab}
-              style={{
-                padding: '0.9rem 1.5rem',
-                fontSize: '1.02rem',
-                fontWeight: 700,
-                background: isCompleted ? '#059669' : '#0284C7',
-                boxShadow: isCompleted ? '0 4px 12px rgba(5, 150, 105, 0.3)' : '0 4px 12px rgba(2, 132, 199, 0.3)'
-              }}
-            >
-              {isCompleted ? '✓ Lab Selesai — Lanjut ke Kuis Akhir →' : '✓ Selesaikan Sesi Lab & Buka Kuis Akhir →'}
-            </Button>
-            <span style={{ fontSize: '0.82rem', color: '#64748B', textAlign: 'center' }}>
-              *Klik tombol ini untuk menandai praktikum selesai dan membuka gembok Kuis Akhir
-            </span>
-          </div>
-        </Card>
+        {currentStage === 2 && (
+          <Stage2Design
+            data={labState.stage2}
+            onSave={(data) => handleSaveStageData('stage2', data)}
+            isCompleted={labState.completedStages.includes(2)}
+            onCompleteStage={handleCompleteStage}
+            onNextStage={() => handleSelectStage(3)}
+            onPrevStage={() => handleSelectStage(1)}
+          />
+        )}
 
-        {/* Pratinjau Ruang Kerja Lab (Staging Placeholder) */}
-        <Card title="Pratinjau Modul Praktikum Lab Virtual" subtitle="Eksplorasi eksperimen mandiri">
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem' }}>
-            <div style={{ padding: '0.75rem', borderRadius: '10px', background: '#F8FAFC', border: '1px solid #E2E8F0', display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
-              <span style={{ fontSize: '1.3rem' }}>🧪</span>
-              <div>
-                <strong style={{ fontSize: '0.92rem', color: '#0F172A' }}>1. Simulator Pembuat Larutan & Molalitas</strong>
-                <div style={{ fontSize: '0.82rem', color: '#64748B' }}>Menakar gram zat terlarut vs pelarut air untuk menghitung molalitas nyata.</div>
-              </div>
-            </div>
+        {currentStage === 3 && (
+          <Stage3Simulation
+            data={labState.stage3}
+            onSave={(data) => handleSaveStageData('stage3', data)}
+            isCompleted={labState.completedStages.includes(3)}
+            onCompleteStage={handleCompleteStage}
+            onNextStage={() => handleSelectStage(4)}
+            onPrevStage={() => handleSelectStage(2)}
+          />
+        )}
 
-            <div style={{ padding: '0.75rem', borderRadius: '10px', background: '#F8FAFC', border: '1px solid #E2E8F0', display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
-              <span style={{ fontSize: '1.3rem' }}>🌡️</span>
-              <div>
-                <strong style={{ fontSize: '0.92rem', color: '#0F172A' }}>2. Pengukur Kenaikan Titik Didih (ΔTb)</strong>
-                <div style={{ fontSize: '0.82rem', color: '#64748B' }}>Membandingkan air murni (100°C) dengan larutan glukosa, NaCl, dan CaCl₂.</div>
-              </div>
-            </div>
+        {currentStage === 4 && (
+          <Stage4ArduinoPractice
+            data={labState.stage4}
+            onSave={(data) => handleSaveStageData('stage4', data)}
+            isCompleted={labState.completedStages.includes(4)}
+            onCompleteStage={handleCompleteStage}
+            onNextStage={() => handleSelectStage(5)}
+            onPrevStage={() => handleSelectStage(3)}
+          />
+        )}
 
-            <div style={{ padding: '0.75rem', borderRadius: '10px', background: '#F8FAFC', border: '1px solid #E2E8F0', display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
-              <span style={{ fontSize: '1.3rem' }}>❄️</span>
-              <div>
-                <strong style={{ fontSize: '0.92rem', color: '#0F172A' }}>3. Kurva Pendinginan Titik Beku (ΔTf)</strong>
-                <div style={{ fontSize: '0.82rem', color: '#64748B' }}>Mengamati plateau titik beku larutan air garam di bawah 0°C.</div>
-              </div>
-            </div>
+        {currentStage === 5 && (
+          <Stage5DataAnalysis
+            data={labState.stage5}
+            stage4Data={labState.stage4}
+            onSave={(data) => handleSaveStageData('stage5', data)}
+            isCompleted={labState.completedStages.includes(5)}
+            onCompleteStage={handleCompleteStage}
+            onNextStage={() => handleSelectStage(6)}
+            onPrevStage={() => handleSelectStage(4)}
+          />
+        )}
 
-            <div style={{ padding: '0.75rem', borderRadius: '10px', background: '#F8FAFC', border: '1px solid #E2E8F0', display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
-              <span style={{ fontSize: '1.3rem' }}>🥒</span>
-              <div>
-                <strong style={{ fontSize: '0.92rem', color: '#0F172A' }}>4. Tabung U Tekanan Osmotik & Membran</strong>
-                <div style={{ fontSize: '0.82rem', color: '#64748B' }}>Simulasi kenaikan kolom cairan pelarut dan penerapan reverse osmosis.</div>
-              </div>
-            </div>
-          </div>
-        </Card>
+        {currentStage === 6 && (
+          <Stage6Conclusion
+            data={labState.stage6}
+            stage1Data={labState.stage1}
+            onSave={(data) => handleSaveStageData('stage6', data)}
+            isCompleted={labState.completedStages.includes(6)}
+            onCompleteStage={handleCompleteStage}
+            onFinalizeLab={handleFinalizeLab}
+            onPrevStage={() => handleSelectStage(5)}
+          />
+        )}
       </div>
     </div>
   );
 }
-

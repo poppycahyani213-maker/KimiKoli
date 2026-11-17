@@ -15,14 +15,27 @@ import LatihanSoal from './LatihanSoal';
 // Helper membuat kunci penyimpanan persyaratan Bab 1 per username
 function getCh1StorageKey() {
   const user = getAuthUser();
-  const norm = normalizeUsername(user);
-  return `kimikoli:v1:${norm}:ch1`;
+  if (user && user.name) {
+    const cleanName = user.name.toLowerCase().trim().replace(/[^a-z0-9]/g, '_');
+    const cleanClass = (user.className || '').toLowerCase().trim().replace(/[^a-z0-9]/g, '_');
+    return `koligatif_ch1_requirements_v1_${cleanName}_${cleanClass}`;
+  }
+  return 'koligatif_ch1_requirements_v1_guest';
 }
 
 function getCh1SavedData() {
-  const key = getCh1StorageKey();
-  const saved = getStoredData(key, null);
-  return saved || { isMissionDone: false, isExerciseDone: false };
+  const legacyKey = getCh1StorageKey();
+  const user = getAuthUser();
+  const norm = normalizeUsername(user);
+  const modernKey = `kimikoli:v1:${norm}:ch1`;
+
+  const savedModern = getStoredData(modernKey, null);
+  const savedLegacy = getStoredData(legacyKey, null);
+
+  return {
+    isMissionDone: Boolean(savedModern?.isMissionDone || savedLegacy?.isMissionDone),
+    isExerciseDone: Boolean(savedModern?.isExerciseDone || savedLegacy?.isExerciseDone)
+  };
 }
 
 export default function Chapter1Page({ onComplete, isCompleted }) {
@@ -48,16 +61,28 @@ export default function Chapter1Page({ onComplete, isCompleted }) {
 
   const handleMissionDone = () => {
     setIsMissionDone(true);
-    const storageKey = getCh1StorageKey();
-    const saved = getStoredData(storageKey, { isMissionDone: false, isExerciseDone: false });
-    setStoredData(storageKey, { ...saved, isMissionDone: true });
+    const legacyKey = getCh1StorageKey();
+    const user = getAuthUser();
+    const norm = normalizeUsername(user);
+    const modernKey = `kimikoli:v1:${norm}:ch1`;
+
+    const savedLegacy = getStoredData(legacyKey, { isMissionDone: false, isExerciseDone: false });
+    setStoredData(legacyKey, { ...savedLegacy, isMissionDone: true });
+    const savedModern = getStoredData(modernKey, { isMissionDone: false, isExerciseDone: false });
+    setStoredData(modernKey, { ...savedModern, isMissionDone: true });
   };
 
   const handleExerciseDone = () => {
     setIsExerciseDone(true);
-    const storageKey = getCh1StorageKey();
-    const saved = getStoredData(storageKey, { isMissionDone: false, isExerciseDone: false });
-    setStoredData(storageKey, { ...saved, isExerciseDone: true });
+    const legacyKey = getCh1StorageKey();
+    const user = getAuthUser();
+    const norm = normalizeUsername(user);
+    const modernKey = `kimikoli:v1:${norm}:ch1`;
+
+    const savedLegacy = getStoredData(legacyKey, { isMissionDone: false, isExerciseDone: false });
+    setStoredData(legacyKey, { ...savedLegacy, isExerciseDone: true });
+    const savedModern = getStoredData(modernKey, { isMissionDone: false, isExerciseDone: false });
+    setStoredData(modernKey, { ...savedModern, isExerciseDone: true });
   };
 
   const isReadyToProceed = (isMissionDone && isExerciseDone) || isCompleted;

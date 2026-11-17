@@ -16,6 +16,40 @@
   50% { transform: translateY(-8px) rotate(4deg); }
 }
 
+@keyframes float3d {
+  0%, 100% { transform: translateY(0px) translateZ(0px) scale(1); }
+  50% { transform: translateY(-7px) translateZ(8px) scale(1.05); }
+}
+
+@keyframes float3dAlt {
+  0%, 100% { transform: translateY(0px) translateX(0px) scale(1); }
+  50% { transform: translateY(-5px) translateX(4px) scale(1.03); }
+}
+
+@keyframes glowOrb {
+  0%, 100% { filter: drop-shadow(0 0 6px rgba(244, 63, 94, 0.75)); }
+  50% { filter: drop-shadow(0 0 14px rgba(244, 63, 94, 0.95)); }
+}
+
+@keyframes shimmerSpecular {
+  0%, 100% { opacity: 0.85; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.15); }
+}
+
+@keyframes brownianJitter {
+  0% { transform: translate(0, 0); }
+  25% { transform: translate(-2px, 3px); }
+  50% { transform: translate(2px, -2px); }
+  75% { transform: translate(-3px, -1px); }
+  100% { transform: translate(0, 0); }
+}
+
+@keyframes bubbleAscent {
+  0% { transform: translateY(15px) scale(0.6); opacity: 0; }
+  30% { opacity: 0.6; }
+  100% { transform: translateY(-30px) scale(1.1); opacity: 0; }
+}
+
 .fade-in {
   animation: fadeIn 0.3s ease-in-out forwards;
 }

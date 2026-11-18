@@ -195,7 +195,7 @@ export default function TeacherDashboard({ onBackToLearning }) {
                 <th style={{ padding: '0.85rem 1rem' }}>Kelas</th>
                 <th style={{ padding: '0.85rem 1rem' }}>Skor Pretest</th>
                 <th style={{ padding: '0.85rem 1rem' }}>Nilai (%)</th>
-                <th style={{ padding: '0.85rem 1rem' }}>Asesmen Diagnostik</th>
+                <th style={{ padding: '0.85rem 1rem' }}>Evaluasi Akhir</th>
                 <th style={{ padding: '0.85rem 1rem' }}>Status Misi</th>
                 <th style={{ padding: '0.85rem 1rem' }}>Waktu Terakhir</th>
               </tr>

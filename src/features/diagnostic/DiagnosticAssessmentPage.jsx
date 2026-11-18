@@ -211,13 +211,13 @@ export default function DiagnosticAssessmentPage({
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.75rem' }}>
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-              <span style={{ fontSize: '1.3rem' }}>🩺</span>
+              <span style={{ fontSize: '1.3rem' }}>🏆</span>
               <h2 style={{ margin: 0, fontSize: '1.2rem', color: '#0369A1', fontWeight: 800 }}>
-                Asesmen Diagnostik Sifat Koligatif
+                Evaluasi Akhir Sifat Koligatif
               </h2>
             </div>
             <div style={{ fontSize: '0.82rem', color: '#64748B', marginTop: '0.2rem' }}>
-              Deteksi Miskonsepsi & Evaluasi Konseptual Mandiri
+              Evaluasi Pemahaman Konseptual, Penalaran Ilmiah & Capaian Belajar
             </div>
           </div>
 
@@ -833,7 +833,7 @@ export default function DiagnosticAssessmentPage({
         }}>
           <div style={{ borderBottom: '1px solid #E2E8F0', paddingBottom: '1rem', marginBottom: '1.25rem' }}>
             <h3 style={{ margin: '0 0 0.4rem 0', color: '#0F172A', fontSize: '1.3rem', fontWeight: 800 }}>
-              📋 Ringkasan Pengerjaan Asesmen
+              📋 Ringkasan Pengerjaan Evaluasi Akhir
             </h3>
             <p style={{ margin: 0, fontSize: '0.9rem', color: '#64748B' }}>
               Pastikan seluruh soal telah terjawab dengan seksama sebelum mengirimkan hasil akhir. Klik nomor soal untuk meninjau atau mengubah jawaban.
@@ -969,7 +969,7 @@ export default function DiagnosticAssessmentPage({
           }}>
             <div>
               <div style={{ fontSize: '0.85rem', textTransform: 'uppercase', letterSpacing: '0.08em', opacity: 0.9 }}>
-                Hasil Asesmen Diagnostik
+                Hasil Evaluasi Akhir
               </div>
               <h2 style={{ margin: '0.3rem 0 0.5rem 0', fontSize: '1.8rem', fontWeight: 800 }}>
                 Skor Total: {latestEvaluation.score.toLocaleString('id-ID', { minimumFractionDigits: 1, maximumFractionDigits: 1 })} / 10
@@ -1004,7 +1004,7 @@ export default function DiagnosticAssessmentPage({
                   boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)'
                 }}
               >
-                🔄 Ulangi Asesmen
+                🔄 Ulangi Evaluasi Akhir
               </button>
 
               <button
@@ -1039,11 +1039,11 @@ export default function DiagnosticAssessmentPage({
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', marginBottom: '0.5rem' }}>
               <span style={{ fontSize: '1.4rem' }}>🔬</span>
               <h3 style={{ margin: 0, fontSize: '1.25rem', color: '#0F172A', fontWeight: 800 }}>
-                Laporan Diagnostik Miskonsepsi Peserta Didik (Soal 4–6)
+                Laporan Evaluasi & Deteksi Miskonsepsi (Soal 4–6)
               </h3>
             </div>
             <p style={{ margin: '0 0 1.25rem 0', fontSize: '0.88rem', color: '#64748B', lineHeight: 1.5 }}>
-              Laporan dua tingkat (Two-Tier) ini menganalisis konsistensi konsep antara pilihan jawaban, penalaran ilmiah, dan skala keyakinan peserta didik untuk mendeteksi potensi miskonsepsi secara akurat.
+              Laporan dua tingkat (Two-Tier) ini menganalisis konsistensi konsep antara pilihan jawaban, penalaran ilmiah, dan skala keyakinan peserta didik untuk mendeteksi pemahaman dan potensi miskonsepsi secara akurat.
             </p>
 
             <div style={{ overflowX: 'auto', WebkitOverflowScrolling: 'touch', maxWidth: '100%' }}>
@@ -1289,7 +1289,7 @@ export default function DiagnosticAssessmentPage({
               padding: '1.25rem'
             }}>
               <h4 style={{ margin: '0 0 0.75rem 0', fontSize: '1rem', color: '#1E293B', fontWeight: 700 }}>
-                📜 Riwayat Percobaan Asesmen ({attempts.length} kali):
+                📜 Riwayat Percobaan Evaluasi Akhir ({attempts.length} kali):
               </h4>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
                 {attempts.map((att, idx) => (
@@ -1334,7 +1334,7 @@ export default function DiagnosticAssessmentPage({
                 boxShadow: '0 4px 12px rgba(2, 132, 199, 0.25)'
               }}
             >
-              🔄 Ulangi Asesmen Diagnostik
+              🔄 Ulangi Evaluasi Akhir
             </button>
             <button
               type="button"

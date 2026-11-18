@@ -92,7 +92,7 @@ export default function HomePage({
       };
     }
 
-    return { label: '🏆 Masuk ke Kuis Evaluasi Akhir →', action: () => onGoToChapter('chapter6'), isAllDone: true };
+    return { label: '🏆 Masuk ke Evaluasi Akhir →', action: () => onGoToDiagnostic ? onGoToDiagnostic() : onGoToChapter('diagnostik'), isAllDone: true };
   };
 
   const nextAction = getNextAvailableView();
@@ -1147,7 +1147,7 @@ export default function HomePage({
           </div>
         </div>
 
-        {/* Banner Khusus: Asesmen Diagnostik Sifat Koligatif */}
+        {/* Banner Khusus: Evaluasi Akhir Sifat Koligatif */}
         <div 
           onClick={onGoToDiagnostic}
           style={{
@@ -1165,7 +1165,7 @@ export default function HomePage({
             boxShadow: '0 4px 14px rgba(2, 132, 199, 0.08)',
             transition: 'transform 0.15s ease'
           }}
-          title="Klik untuk membuka Asesmen Diagnostik Sifat Koligatif"
+          title="Klik untuk membuka Evaluasi Akhir Sifat Koligatif"
         >
           <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
             <div style={{
@@ -1180,12 +1180,12 @@ export default function HomePage({
               fontSize: '1.5rem',
               boxShadow: '0 2px 8px rgba(2, 132, 199, 0.3)'
             }}>
-              🩺
+              🏆
             </div>
             <div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', flexWrap: 'wrap' }}>
                 <h4 style={{ margin: 0, fontSize: '1.1rem', color: '#0369A1', fontWeight: 800 }}>
-                  Asesmen Diagnostik Sifat Koligatif
+                  Evaluasi Akhir Sifat Koligatif
                 </h4>
                 {diagnosticAssessment ? (
                   <span style={{ background: '#DCFCE7', color: '#166534', padding: '0.15rem 0.55rem', borderRadius: '6px', fontSize: '0.75rem', fontWeight: 700 }}>
@@ -1198,7 +1198,7 @@ export default function HomePage({
                 )}
               </div>
               <p style={{ margin: '0.25rem 0 0 0', fontSize: '0.86rem', color: '#475569', lineHeight: 1.45 }}>
-                10 soal evaluasi konseptual dengan analisis miskonsepsi two-tier, kurva suhu-waktu, dan rekomendasi belajar personal.
+                10 soal evaluasi konseptual komprehensif dengan analisis miskonsepsi two-tier, kurva pendinginan suhu-waktu, dan rekomendasi belajar personal.
               </p>
             </div>
           </div>
@@ -1207,7 +1207,7 @@ export default function HomePage({
             className="btn btn-primary"
             style={{ padding: '0.65rem 1.3rem', fontSize: '0.9rem', background: '#0284C7', fontWeight: 700, borderRadius: '8px' }}
           >
-            {diagnosticAssessment ? 'Tinjau Hasil & Laporan Diagnostik →' : 'Mulai Asesmen Diagnostik →'}
+            {diagnosticAssessment ? 'Tinjau Hasil Evaluasi Akhir →' : 'Mulai Evaluasi Akhir →'}
           </button>
         </div>
       </section>

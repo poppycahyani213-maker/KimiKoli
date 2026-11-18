@@ -824,23 +824,9 @@ export default function App() {
           </div>
         )}
 
-        {/* Tampilan 9: Bab 6 - Evaluasi Akhir & Penghargaan (Gating: Wajib Selesai Lab Virtual) */}
-        {currentView === 'chapter6' && (
+        {/* Tampilan 9: Evaluasi Akhir Sifat Koligatif (Gating: Wajib Selesai Lab Virtual) */}
+        {(currentView === 'chapter6' || currentView === 'diagnostik') && (
           <div>
-            <div style={{ marginBottom: '1.25rem', display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
-              <button
-                type="button"
-                onClick={() => setCurrentView('home')}
-                className="btn btn-secondary"
-                style={{ padding: '0.45rem 1rem', fontSize: '0.85rem' }}
-              >
-                ← Kembali ke Peta Misi
-              </button>
-              <span style={{ fontSize: '0.85rem', color: '#64748B', fontWeight: 600 }}>
-                Tahap 7: Evaluasi Akhir & Capaian Belajar
-              </span>
-            </div>
-
             {!isLabVirtualCompleted && currentUser?.role !== 'teacher' ? (
               <div style={{
                 background: '#FFFBEB',
@@ -852,10 +838,10 @@ export default function App() {
               }}>
                 <div style={{ fontSize: '3rem', marginBottom: '0.75rem' }}>🔒</div>
                 <h3 style={{ color: '#92400E', margin: '0 0 0.5rem 0', fontSize: '1.4rem' }}>
-                  Kuis Evaluasi Akhir Masih Terkunci
+                  Evaluasi Akhir Masih Terkunci
                 </h3>
                 <p style={{ color: '#78350F', maxWidth: '620px', margin: '0 auto 1.5rem', lineHeight: 1.6 }}>
-                  Untuk dapat mengakses Kuis Evaluasi Akhir, kamu wajib menuntaskan sesi praktikum di <strong>Laboratorium Virtual</strong> terlebih dahulu setelah menyelesaikan seluruh materi.
+                  Untuk dapat mengakses Evaluasi Akhir, kamu wajib menuntaskan sesi praktikum di <strong>Laboratorium Virtual</strong> terlebih dahulu setelah menyelesaikan seluruh materi.
                 </p>
                 <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', flexWrap: 'wrap' }}>
                   <button
@@ -875,35 +861,14 @@ export default function App() {
                 </div>
               </div>
             ) : (
-              <Chapter6Page
-                completedChapters={completedChapters}
-                onResetProgress={() => {
-                  setCompletedChapters([]);
-                  setIsPretestCompleted(false);
-                  setIsLabVirtualCompleted(false);
-                  saveCourseProgress({
-                    completedChapters: [],
-                    currentChapter: 'chapter1',
-                    pretestCompleted: false,
-                    pretestScore: 0,
-                    pretestTotal: 8,
-                    labVirtualCompleted: false
-                  }, currentUser);
-                  setCurrentView('home');
-                }}
+              <DiagnosticAssessmentPage
+                currentUser={currentUser}
+                savedProgress={diagnosticAssessment}
+                onSaveResult={handleSaveDiagnosticResult}
+                onBackToHome={() => setCurrentView('home')}
               />
             )}
           </div>
-        )}
-
-        {/* Tampilan 10: Asesmen Diagnostik Sifat Koligatif */}
-        {currentView === 'diagnostik' && (
-          <DiagnosticAssessmentPage
-            currentUser={currentUser}
-            savedProgress={diagnosticAssessment}
-            onSaveResult={handleSaveDiagnosticResult}
-            onBackToHome={() => setCurrentView('home')}
-          />
         )}
 
       </main>

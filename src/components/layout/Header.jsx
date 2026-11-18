@@ -33,7 +33,7 @@ export default function Header({
     
     // Guru memiliki akses bebas ke seluruh fitur
     if (isTeacher) {
-      if (tabId === 'quiz') tabId = 'chapter6';
+      if (tabId === 'quiz' || tabId === 'chapter6') tabId = 'diagnostik';
       if (onSelectTab) onSelectTab(tabId);
       return;
     }
@@ -49,8 +49,12 @@ export default function Header({
       return;
     }
 
-    if (tabId === 'quiz') {
-      tabId = 'chapter6';
+    if (tabId === 'quiz' || tabId === 'chapter6' || tabId === 'diagnostik') {
+      if (!isLabVirtualCompleted) {
+        alert("🔒 Evaluasi Akhir Masih Terkunci: Harap selesaikan seluruh praktikum di Laboratorium Virtual terlebih dahulu untuk membuka Evaluasi Akhir.");
+        return;
+      }
+      tabId = 'diagnostik';
     }
 
     if (onSelectTab) {
@@ -143,15 +147,15 @@ export default function Header({
           </button>
           <button
             type="button"
-            className={`nav-pill-btn ${currentView === 'chapter6' ? 'active' : ''}`}
-            onClick={() => handleNavClick('quiz')}
+            className={`nav-pill-btn ${(currentView === 'chapter6' || currentView === 'diagnostik') ? 'active' : ''}`}
+            onClick={() => handleNavClick('diagnostik')}
             style={{ 
               cursor: isExamLocked ? 'not-allowed' : 'pointer',
               color: (!isLabVirtualCompleted && !isTeacher) ? '#94A3B8' : undefined
             }}
-            title={(isLabVirtualCompleted || isTeacher) ? "Kuis Evaluasi Akhir (Terbuka)" : "🔒 Selesaikan Lab Virtual untuk membuka"}
+            title={(isLabVirtualCompleted || isTeacher) ? "Evaluasi Akhir (Terbuka)" : "🔒 Selesaikan Lab Virtual untuk membuka"}
           >
-            {(!isLabVirtualCompleted && !isTeacher) ? '🔒 Kuis' : '🏆 Kuis'}
+            {(!isLabVirtualCompleted && !isTeacher) ? '🔒 Evaluasi Akhir' : '🏆 Evaluasi Akhir'}
           </button>
         </nav>
 

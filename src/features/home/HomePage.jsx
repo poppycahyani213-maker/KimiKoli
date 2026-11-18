@@ -17,16 +17,20 @@ import KimiKoliModal from './KimiKoliModal';
  * - Peta Misi 6 Tahap otomatis mengupdate status (Terkunci 🔒, Siap Dipelajari, ✓ Selesai).
  */
 export default function HomePage({ 
+  currentUser = null,
   isPretestDone = false, 
   completedChapters = [],
   isLabVirtualCompleted = false,
+  diagnosticAssessment = null,
   onStartPretest, 
   onGoToChapter,
   onGoToLabVirtual,
+  onGoToDiagnostic,
   onOpenInfoModal
 }) {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isIconHovered, setIsIconHovered] = useState(false);
+  const isTeacher = currentUser?.role === 'teacher';
 
   const handleOpenInfoModal = () => {
     if (onOpenInfoModal) {
@@ -42,28 +46,36 @@ export default function HomePage({
   const isCh4Completed = completedChapters.includes('chapter4');
   const isCh5Completed = completedChapters.includes('chapter5');
 
-  // Logika Keterbukaan Misi (Unlocked Status)
-  const isCh1Unlocked = isPretestDone;
-  const isCh2Unlocked = isCh1Completed;
-  const isCh3Unlocked = isCh2Completed;
-  const isCh4Unlocked = isCh3Completed;
-  const isCh5Unlocked = isCh4Completed;
+  // Logika Keterbukaan Misi (Unlocked Status) - Guru memiliki akses bebas 100%
+  const isCh1Unlocked = isTeacher || isPretestDone;
+  const isCh2Unlocked = isTeacher || isCh1Completed;
+  const isCh3Unlocked = isTeacher || isCh2Completed;
+  const isCh4Unlocked = isTeacher || isCh3Completed;
+  const isCh5Unlocked = isTeacher || isCh4Completed;
 
   // Hitung total misi selesai (Pretest = 1, Bab 1-5 = 5)
   let totalMissionsDone = 0;
-  if (isPretestDone) totalMissionsDone += 1;
-  if (isCh1Completed) totalMissionsDone += 1;
-  if (isCh2Completed) totalMissionsDone += 1;
-  if (isCh3Completed) totalMissionsDone += 1;
-  if (isCh4Completed) totalMissionsDone += 1;
-  if (isCh5Completed) totalMissionsDone += 1;
+  if (isPretestDone || isTeacher) totalMissionsDone += 1;
+  if (isCh1Completed || isTeacher) totalMissionsDone += 1;
+  if (isCh2Completed || isTeacher) totalMissionsDone += 1;
+  if (isCh3Completed || isTeacher) totalMissionsDone += 1;
+  if (isCh4Completed || isTeacher) totalMissionsDone += 1;
+  if (isCh5Completed || isTeacher) totalMissionsDone += 1;
 
-  const currentXp = (isPretestDone ? 20 : 0) + (completedChapters.length * 30) + (isLabVirtualCompleted ? 40 : 0);
+  const diagnosticXp = diagnosticAssessment?.xpEarned || 0;
+  const currentXp = (isPretestDone ? 20 : 0) + (completedChapters.length * 30) + (isLabVirtualCompleted ? 40 : 0) + diagnosticXp;
 
-  const isAllMissionsDone = isPretestDone && isCh1Completed && isCh2Completed && isCh3Completed && isCh4Completed && isCh5Completed;
+  const isAllMissionsDone = isTeacher || (isPretestDone && isCh1Completed && isCh2Completed && isCh3Completed && isCh4Completed && isCh5Completed);
 
   // Menentukan materi tujuan untuk tombol Hero utama
   const getNextAvailableView = () => {
+    if (isTeacher) {
+      return { 
+        label: '🔬 Eksplorasi Materi & Lab Virtual (Akses Guru Bebas) →', 
+        action: () => onGoToChapter('chapter1'), 
+        isAllDone: true 
+      };
+    }
     if (!isPretestDone) return { label: 'Mulai Misi 1: Pretest Prasyarat →', action: onStartPretest, isAllDone: false };
     if (!isCh1Completed) return { label: 'Lanjut Misi: Bab 1 Konsentrasi Larutan →', action: () => onGoToChapter('chapter1'), isAllDone: false };
     if (!isCh2Completed) return { label: 'Lanjut Misi: Bab 2 Tekanan Uap & Titik Didih →', action: () => onGoToChapter('chapter2'), isAllDone: false };
@@ -80,7 +92,7 @@ export default function HomePage({
       };
     }
 
-    return { label: '🏆 Masuk ke Kuis Evaluasi Akhir →', action: () => onGoToChapter('chapter6'), isAllDone: true };
+    return { label: '🏆 Masuk ke Evaluasi Akhir →', action: () => onGoToDiagnostic ? onGoToDiagnostic() : onGoToChapter('diagnostik'), isAllDone: true };
   };
 
   const nextAction = getNextAvailableView();
@@ -136,7 +148,7 @@ export default function HomePage({
                 style={{ width: '22px', height: '22px', borderRadius: '6px', objectFit: 'contain' }}
               />
               <span>
-                {!isPretestDone ? '🎯 Misi 1 Wajib: Pretest Prasyarat Pembuka Materi' : 'KimiKoli · Sifat Koligatif Larutan Kelas XI SMA'}
+                {!isPretestDone && !isTeacher ? '🎯 Misi 1 Wajib: Pretest Prasyarat Pembuka Materi' : 'KimiKoli · Sifat Koligatif Larutan Kelas XI SMA'}
               </span>
               <span style={{ fontSize: '0.78rem', background: '#0284C7', color: '#FFFFFF', padding: '1px 6px', borderRadius: '6px', marginLeft: '2px' }}>
                 ℹ️ Info
@@ -919,6 +931,10 @@ export default function HomePage({
                   <span className="tag-start-here" style={{ background: '#ECFDF5', color: '#065F46' }}>
                     ✓ Selesai
                   </span>
+                ) : isTeacher ? (
+                  <span className="tag-start-here" style={{ background: '#EFF6FF', color: '#0284C7' }}>
+                    ✓ Bebas Akses (Guru)
+                  </span>
                 ) : (
                   <span className="tag-start-here">Mulai di sini</span>
                 )}
@@ -1129,6 +1145,70 @@ export default function HomePage({
               </span>
             </div>
           </div>
+        </div>
+
+        {/* Banner Khusus: Evaluasi Akhir Sifat Koligatif */}
+        <div 
+          onClick={onGoToDiagnostic}
+          style={{
+            marginTop: '1.5rem',
+            background: 'linear-gradient(135deg, #F0F9FF 0%, #E0F2FE 100%)',
+            border: '2px dashed #0284C7',
+            borderRadius: '16px',
+            padding: '1.25rem 1.5rem',
+            cursor: 'pointer',
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            flexWrap: 'wrap',
+            gap: '1rem',
+            boxShadow: '0 4px 14px rgba(2, 132, 199, 0.08)',
+            transition: 'transform 0.15s ease'
+          }}
+          title="Klik untuk membuka Evaluasi Akhir Sifat Koligatif"
+        >
+          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+            <div style={{
+              width: '48px',
+              height: '48px',
+              borderRadius: '12px',
+              background: '#0284C7',
+              color: '#FFFFFF',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              fontSize: '1.5rem',
+              boxShadow: '0 2px 8px rgba(2, 132, 199, 0.3)'
+            }}>
+              🏆
+            </div>
+            <div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', flexWrap: 'wrap' }}>
+                <h4 style={{ margin: 0, fontSize: '1.1rem', color: '#0369A1', fontWeight: 800 }}>
+                  Evaluasi Akhir Sifat Koligatif
+                </h4>
+                {diagnosticAssessment ? (
+                  <span style={{ background: '#DCFCE7', color: '#166534', padding: '0.15rem 0.55rem', borderRadius: '6px', fontSize: '0.75rem', fontWeight: 700 }}>
+                    ✓ Skor: {diagnosticAssessment.latestScore?.toFixed(1)}/10 (+{diagnosticAssessment.xpEarned} XP)
+                  </span>
+                ) : (
+                  <span style={{ background: '#FEF3C7', color: '#92400E', padding: '0.15rem 0.55rem', borderRadius: '6px', fontSize: '0.75rem', fontWeight: 700 }}>
+                    Tersedia (+Maks 100 XP)
+                  </span>
+                )}
+              </div>
+              <p style={{ margin: '0.25rem 0 0 0', fontSize: '0.86rem', color: '#475569', lineHeight: 1.45 }}>
+                10 soal evaluasi konseptual komprehensif dengan analisis miskonsepsi two-tier, kurva pendinginan suhu-waktu, dan rekomendasi belajar personal.
+              </p>
+            </div>
+          </div>
+          <button
+            type="button"
+            className="btn btn-primary"
+            style={{ padding: '0.65rem 1.3rem', fontSize: '0.9rem', background: '#0284C7', fontWeight: 700, borderRadius: '8px' }}
+          >
+            {diagnosticAssessment ? 'Tinjau Hasil Evaluasi Akhir →' : 'Mulai Evaluasi Akhir →'}
+          </button>
         </div>
       </section>
 

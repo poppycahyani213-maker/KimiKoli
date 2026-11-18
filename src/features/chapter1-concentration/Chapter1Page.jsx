@@ -109,7 +109,9 @@ export default function Chapter1Page({ onComplete, isCompleted }) {
     setStoredData(modernKey, { ...savedModern, lastActiveTab: tabId });
   };
 
-  const isReadyToProceed = (isMissionDone && isExerciseDone) || isCompleted;
+  const activeUser = getAuthUser();
+  const isTeacher = activeUser?.role === 'teacher';
+  const isReadyToProceed = isTeacher || (isMissionDone && isExerciseDone) || isCompleted;
 
   // Definisi 4 Tahap Belajar Minimalis Seragam Bab 2
   const STAGES = [

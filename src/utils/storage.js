@@ -83,6 +83,7 @@ export const getEmptyProgress = () => ({
   pretestAnswers: {},
   pretestFinished: false,
   labVirtualCompleted: false,
+  diagnosticAssessment: null,
   currentChapter: 'chapter1'
 });
 
@@ -147,7 +148,8 @@ export function getCourseProgress(user = null) {
       pretestAnswers: data.pretestAnswers || {},
       badges: Array.isArray(data.badges) ? data.badges : [],
       quizHistory: data.quizHistory || {},
-      labState: data.labState || {}
+      labState: data.labState || {},
+      diagnosticAssessment: data.diagnosticAssessment || null
     };
   }
 

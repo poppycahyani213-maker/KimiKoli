@@ -816,3 +816,80 @@
   text-align: center;
   box-shadow: 0 8px 30px rgba(15, 23, 42, 0.08);
 }
+
+/* =========================================================
+   12. DUAL MISCONCEPTION GRID (RESPONSIVE DUA KOLOM SAMA TINGGI)
+   ========================================================= */
+.misconception-grid-dual {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.25rem;
+  margin-bottom: 1.5rem;
+  align-items: stretch;
+}
+
+@media (min-width: 768px) {
+  .misconception-grid-dual {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.misconception-grid-dual > * {
+  margin-bottom: 0 !important;
+  height: 100%;
+}
+
+/* =========================================================
+   13. COMPACT THERMOMETER SIMULATION (BAB 3)
+   ========================================================= */
+.compact-sim-card {
+  max-height: 75vh;
+  display: flex;
+  flex-direction: column;
+  padding: 0.85rem 1rem !important;
+  overflow-y: auto;
+}
+
+.compact-sim-card .card-header {
+  margin-bottom: 0.4rem !important;
+  padding-bottom: 0.25rem !important;
+}
+
+.thermo-grid-dual {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.75rem;
+  margin-bottom: 0.65rem;
+}
+
+@media (min-width: 768px) {
+  .thermo-grid-dual {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+
+/* =========================================================
+   PBL PHASE NAV: responsive label visibility
+   ========================================================= */
+
+/* Mobile-first: show only the short number */
+.pbl-nav-full  { display: none; }
+.pbl-nav-short { display: inline; }
+
+/* Desktop (≥ 640px): show full label, hide short number */
+@media (min-width: 640px) {
+  .pbl-nav-full  { display: inline; }
+  .pbl-nav-short { display: none; }
+}
+
+/* =========================================================
+   PBL STEPPER TABS (Bab 3): responsive visibility & scrolling
+   ========================================================= */
+.pbl-tab-full  { display: inline; }
+.pbl-tab-short { display: none; }
+
+@media (max-width: 640px) {
+  .pbl-tab-full  { display: none; }
+  .pbl-tab-short { display: inline; }
+}

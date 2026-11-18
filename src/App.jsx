@@ -22,6 +22,7 @@ import Chapter6Page from './features/chapter6-evaluation/Chapter6Page';
 import LabVirtualHub from './features/lab-virtual/LabVirtualHub';
 import TeacherDashboard from './features/teacher/TeacherDashboard';
 import KimiKoliModal from './features/home/KimiKoliModal';
+import DiagnosticAssessmentPage from './features/diagnostic/DiagnosticAssessmentPage';
 
 /**
  * Komponen Utama App
@@ -41,6 +42,7 @@ export default function App() {
   const [isPretestLocked, setIsPretestLocked] = useState(false);
   const [pretestAnswers, setPretestAnswers] = useState({});
   const [isLabVirtualCompleted, setIsLabVirtualCompleted] = useState(false);
+  const [diagnosticAssessment, setDiagnosticAssessment] = useState(null);
   const [isInfoModalOpen, setIsInfoModalOpen] = useState(false);
 
   // Status penyelesaian seluruh materi teori (Bab 1 s.d. Bab 5)
@@ -61,6 +63,7 @@ export default function App() {
         setIsPretestCompleted(Boolean(saved.pretestCompleted));
         setPretestAnswers(saved.pretestAnswers || {});
         setIsLabVirtualCompleted(Boolean(saved.labVirtualCompleted));
+        setDiagnosticAssessment(saved.diagnosticAssessment || null);
       }
     } else {
       setCurrentUser(null);
@@ -68,6 +71,7 @@ export default function App() {
       setIsPretestCompleted(false);
       setPretestAnswers({});
       setIsLabVirtualCompleted(false);
+      setDiagnosticAssessment(null);
     }
   }, []);
 
@@ -78,6 +82,7 @@ export default function App() {
     setIsPretestCompleted(false);
     setPretestAnswers({});
     setIsLabVirtualCompleted(false);
+    setDiagnosticAssessment(null);
     setIsPretestLocked(false);
 
     // 2. Simpan sesi user aktif
@@ -90,12 +95,14 @@ export default function App() {
     const userPretestCompleted = Boolean(saved?.pretestCompleted);
     const userPretestAnswers = saved?.pretestAnswers || {};
     const userLabCompleted = Boolean(saved?.labVirtualCompleted);
+    const userDiagnostic = saved?.diagnosticAssessment || null;
 
     // 4. Set state memori sesuai data pengguna (kosong jika user baru)
     setCompletedChapters(userCompletedChapters);
     setIsPretestCompleted(userPretestCompleted);
     setPretestAnswers(userPretestAnswers);
     setIsLabVirtualCompleted(userLabCompleted);
+    setDiagnosticAssessment(userDiagnostic);
 
     // Jangan menyimpan data saat login tanpa ada perubahan dari user
     setCurrentView('home');
@@ -112,7 +119,28 @@ export default function App() {
       setIsPretestLocked(false);
       setPretestAnswers({});
       setIsLabVirtualCompleted(false);
+      setDiagnosticAssessment(null);
       setCurrentView('home');
+    }
+  };
+
+  // Handler Simpan Hasil Asesmen Diagnostik
+  const handleSaveDiagnosticResult = (diagResult) => {
+    setDiagnosticAssessment(diagResult);
+    const saved = getCourseProgress(currentUser) || {};
+    saveCourseProgress({
+      ...saved,
+      diagnosticAssessment: diagResult
+    }, currentUser);
+
+    if (currentUser && currentUser.role === 'student') {
+      saveStudentRecord({
+        name: currentUser.name,
+        email: currentUser.email,
+        className: currentUser.className,
+        diagnosticScore: diagResult?.latestScore ?? 0,
+        diagnosticXp: diagResult?.xpEarned ?? 0
+      });
     }
   };
 
@@ -285,9 +313,11 @@ export default function App() {
             isPretestDone={isPretestCompleted}
             completedChapters={completedChapters}
             isLabVirtualCompleted={isLabVirtualCompleted}
+            diagnosticAssessment={diagnosticAssessment}
             onStartPretest={handleStartPretest}
             onGoToChapter={(chapterId) => setCurrentView(chapterId)}
             onGoToLabVirtual={() => setCurrentView('lab-virtual')}
+            onGoToDiagnostic={() => setCurrentView('diagnostik')}
             onOpenInfoModal={() => setIsInfoModalOpen(true)}
           />
         )}
@@ -864,6 +894,16 @@ export default function App() {
               />
             )}
           </div>
+        )}
+
+        {/* Tampilan 10: Asesmen Diagnostik Sifat Koligatif */}
+        {currentView === 'diagnostik' && (
+          <DiagnosticAssessmentPage
+            currentUser={currentUser}
+            savedProgress={diagnosticAssessment}
+            onSaveResult={handleSaveDiagnosticResult}
+            onBackToHome={() => setCurrentView('home')}
+          />
         )}
 
       </main>

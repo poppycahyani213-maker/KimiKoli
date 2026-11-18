@@ -153,6 +153,15 @@ export default function Header({
           >
             {(!isLabVirtualCompleted && !isTeacher) ? '🔒 Kuis' : '🏆 Kuis'}
           </button>
+          <button
+            type="button"
+            className={`nav-pill-btn ${currentView === 'diagnostik' ? 'active' : ''}`}
+            onClick={() => handleNavClick('diagnostik')}
+            style={{ cursor: isExamLocked ? 'not-allowed' : 'pointer' }}
+            title="Asesmen Diagnostik Sifat Koligatif & Deteksi Miskonsepsi"
+          >
+            🩺 Diagnostik
+          </button>
         </nav>
 
         {/* 3. Status Chip / Pengguna & Tombol Keluar */}

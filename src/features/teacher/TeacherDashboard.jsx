@@ -195,6 +195,7 @@ export default function TeacherDashboard({ onBackToLearning }) {
                 <th style={{ padding: '0.85rem 1rem' }}>Kelas</th>
                 <th style={{ padding: '0.85rem 1rem' }}>Skor Pretest</th>
                 <th style={{ padding: '0.85rem 1rem' }}>Nilai (%)</th>
+                <th style={{ padding: '0.85rem 1rem' }}>Asesmen Diagnostik</th>
                 <th style={{ padding: '0.85rem 1rem' }}>Status Misi</th>
                 <th style={{ padding: '0.85rem 1rem' }}>Waktu Terakhir</th>
               </tr>
@@ -226,6 +227,22 @@ export default function TeacherDashboard({ onBackToLearning }) {
                             {percent}%
                           </span>
                         ) : '-'}
+                      </td>
+                      <td style={{ padding: '0.85rem 1rem' }}>
+                        {s.diagnosticScore !== undefined ? (
+                          <span style={{
+                            padding: '0.2rem 0.55rem',
+                            borderRadius: 'var(--radius-full)',
+                            fontSize: '0.825rem',
+                            fontWeight: 700,
+                            background: '#EFF6FF',
+                            color: '#0369A1'
+                          }}>
+                            {s.diagnosticScore.toFixed(1)}/10 (+{s.diagnosticXp || 0} XP)
+                          </span>
+                        ) : (
+                          <span style={{ color: '#94A3B8', fontSize: '0.85rem' }}>Belum ikut</span>
+                        )}
                       </td>
                       <td style={{ padding: '0.85rem 1rem' }}>
                         <span style={{ color: '#059669', fontWeight: 600 }}>

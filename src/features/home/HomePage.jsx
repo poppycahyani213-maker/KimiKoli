@@ -21,9 +21,11 @@ export default function HomePage({
   isPretestDone = false, 
   completedChapters = [],
   isLabVirtualCompleted = false,
+  diagnosticAssessment = null,
   onStartPretest, 
   onGoToChapter,
   onGoToLabVirtual,
+  onGoToDiagnostic,
   onOpenInfoModal
 }) {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -60,7 +62,8 @@ export default function HomePage({
   if (isCh4Completed || isTeacher) totalMissionsDone += 1;
   if (isCh5Completed || isTeacher) totalMissionsDone += 1;
 
-  const currentXp = (isPretestDone ? 20 : 0) + (completedChapters.length * 30) + (isLabVirtualCompleted ? 40 : 0);
+  const diagnosticXp = diagnosticAssessment?.xpEarned || 0;
+  const currentXp = (isPretestDone ? 20 : 0) + (completedChapters.length * 30) + (isLabVirtualCompleted ? 40 : 0) + diagnosticXp;
 
   const isAllMissionsDone = isTeacher || (isPretestDone && isCh1Completed && isCh2Completed && isCh3Completed && isCh4Completed && isCh5Completed);
 
@@ -1142,6 +1145,70 @@ export default function HomePage({
               </span>
             </div>
           </div>
+        </div>
+
+        {/* Banner Khusus: Asesmen Diagnostik Sifat Koligatif */}
+        <div 
+          onClick={onGoToDiagnostic}
+          style={{
+            marginTop: '1.5rem',
+            background: 'linear-gradient(135deg, #F0F9FF 0%, #E0F2FE 100%)',
+            border: '2px dashed #0284C7',
+            borderRadius: '16px',
+            padding: '1.25rem 1.5rem',
+            cursor: 'pointer',
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            flexWrap: 'wrap',
+            gap: '1rem',
+            boxShadow: '0 4px 14px rgba(2, 132, 199, 0.08)',
+            transition: 'transform 0.15s ease'
+          }}
+          title="Klik untuk membuka Asesmen Diagnostik Sifat Koligatif"
+        >
+          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+            <div style={{
+              width: '48px',
+              height: '48px',
+              borderRadius: '12px',
+              background: '#0284C7',
+              color: '#FFFFFF',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              fontSize: '1.5rem',
+              boxShadow: '0 2px 8px rgba(2, 132, 199, 0.3)'
+            }}>
+              🩺
+            </div>
+            <div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', flexWrap: 'wrap' }}>
+                <h4 style={{ margin: 0, fontSize: '1.1rem', color: '#0369A1', fontWeight: 800 }}>
+                  Asesmen Diagnostik Sifat Koligatif
+                </h4>
+                {diagnosticAssessment ? (
+                  <span style={{ background: '#DCFCE7', color: '#166534', padding: '0.15rem 0.55rem', borderRadius: '6px', fontSize: '0.75rem', fontWeight: 700 }}>
+                    ✓ Skor: {diagnosticAssessment.latestScore?.toFixed(1)}/10 (+{diagnosticAssessment.xpEarned} XP)
+                  </span>
+                ) : (
+                  <span style={{ background: '#FEF3C7', color: '#92400E', padding: '0.15rem 0.55rem', borderRadius: '6px', fontSize: '0.75rem', fontWeight: 700 }}>
+                    Tersedia (+Maks 100 XP)
+                  </span>
+                )}
+              </div>
+              <p style={{ margin: '0.25rem 0 0 0', fontSize: '0.86rem', color: '#475569', lineHeight: 1.45 }}>
+                10 soal evaluasi konseptual dengan analisis miskonsepsi two-tier, kurva suhu-waktu, dan rekomendasi belajar personal.
+              </p>
+            </div>
+          </div>
+          <button
+            type="button"
+            className="btn btn-primary"
+            style={{ padding: '0.65rem 1.3rem', fontSize: '0.9rem', background: '#0284C7', fontWeight: 700, borderRadius: '8px' }}
+          >
+            {diagnosticAssessment ? 'Tinjau Hasil & Laporan Diagnostik →' : 'Mulai Asesmen Diagnostik →'}
+          </button>
         </div>
       </section>
 

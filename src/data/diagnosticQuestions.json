@@ -1,0 +1,240 @@
+{
+  "konstanta": {
+    "Kf": 1.86,
+    "Kb": 0.52
+  },
+  "soal": [
+    {
+      "no": 1,
+      "tipe": "multi_select",
+      "level": "C4",
+      "stimulus": "Kelompok Sinta mengukur titik beku larutan memakai Arduino dan sensor DS18B20. Titik beku air murni terbaca 0,0 °C dan dipakai sebagai acuan. Kf air = 1,86 °C/m; NaCl dianggap terurai sempurna.",
+      "tabel": {
+        "kolom": ["Sampel", "Molalitas (m)", "Titik beku hasil percobaan (°C)"],
+        "baris": [
+          ["Larutan gula", "1", "−1,6"],
+          ["Larutan NaCl", "1", "−3,3"]
+        ]
+      },
+      "pertanyaan": "Pilih semua pernyataan yang benar berdasarkan data tersebut.",
+      "opsi": [
+        {"id": "A", "teks": "ΔTf eksperimen NaCl lebih besar daripada ΔTf eksperimen gula."},
+        {"id": "B", "teks": "Rasio ΔTf NaCl : gula dari data sekitar 2, sesuai perbandingan faktor van't Hoff kedua zat."},
+        {"id": "C", "teks": "Galat relatif percobaan larutan gula sekitar 14%."},
+        {"id": "D", "teks": "ΔTf eksperimen NaCl lebih besar daripada ΔTf teorinya."},
+        {"id": "E", "teks": "Galat relatif larutan NaCl lebih besar daripada galat larutan gula."}
+      ],
+      "kunci": ["A", "B", "C"],
+      "pembahasan": "ΔTf gula = 1,6 °C dan NaCl = 3,3 °C, sehingga A benar. Rasio 3,3 : 1,6 ≈ 2,06, sehingga B benar. ΔTf teori gula = 1,86 °C, galat = (1,86 − 1,6)/1,86 × 100% ≈ 14%, sehingga C benar. ΔTf teori NaCl = 3,72 °C, lebih besar dari 3,3 °C, sehingga D salah. Galat NaCl = (3,72 − 3,3)/3,72 ≈ 11%, lebih kecil dari galat gula, sehingga E salah."
+    },
+    {
+      "no": 2,
+      "tipe": "true_false_set",
+      "level": "C4",
+      "stimulus": "Data pendinginan air murni dari rekaman sensor suhu:",
+      "data_grafik": {
+        "x_label": "Waktu (detik)",
+        "y_label": "Suhu (°C)",
+        "x": [0, 60, 120, 180, 240, 300, 330, 360, 420, 480],
+        "y": [20.0, 9.0, 3.0, -0.8, -1.8, -2.2, -0.3, 0.0, 0.0, 0.0]
+      },
+      "pertanyaan": "Tentukan setiap pernyataan Benar atau Salah.",
+      "pernyataan": [
+        {"id": "1", "teks": "Pada detik ke-180 air sudah bersuhu di bawah 0 °C, tetapi belum membeku.", "kunci": true},
+        {"id": "2", "teks": "Suhu terendah, −2,2 °C, adalah titik beku air murni pada percobaan ini.", "kunci": false},
+        {"id": "3", "teks": "Suhu naik dari −2,2 °C ke sekitar 0 °C karena kalor dilepas saat es mulai terbentuk.", "kunci": true},
+        {"id": "4", "teks": "Titik beku air murni dari data ini adalah 0,0 °C, yaitu suhu pada bagian datar (plateau).", "kunci": true},
+        {"id": "5", "teks": "Rekaman boleh dihentikan pada detik ke-300 karena suhu terendah sudah tercapai.", "kunci": false}
+      ],
+      "pembahasan": "Air melewati 0 °C sekitar detik 180 tetapi suhunya terus turun tanpa mendatar, tanda supercooling. Suhu terendah adalah suhu air yang belum membeku, bukan titik beku. Setelah es terbentuk, kalor pembekuan dilepas sehingga suhu naik dan mendatar di titik beku sebenarnya. Jika rekaman dihentikan di detik 300, plateau belum terekam sehingga titik beku tidak bisa ditentukan."
+    },
+    {
+      "no": 3,
+      "tipe": "single",
+      "level": "C3",
+      "stimulus": "Di daerah bermusim dingin, radiator mobil diisi campuran air dan etilen glikol (C₂H₆O₂, Mr = 62, nonelektrolit) agar cairan pendingin tidak membeku dan tidak mudah mendidih. Sebanyak 310 g etilen glikol dilarutkan dalam 1.000 g air. Titik didih air murni 100 °C (1 atm).",
+      "pertanyaan": "Titik beku dan titik didih campuran tersebut berturut-turut adalah ....",
+      "opsi": [
+        {"id": "A", "teks": "−9,3 °C dan 102,6 °C"},
+        {"id": "B", "teks": "−1,86 °C dan 100,52 °C"},
+        {"id": "C", "teks": "−9,3 °C dan 109,3 °C"},
+        {"id": "D", "teks": "−2,6 °C dan 109,3 °C"}
+      ],
+      "kunci": "A",
+      "pembahasan": "Mol = 310/62 = 5 mol, sehingga m = 5 m. ΔTf = 1,86 × 5 = 9,3 °C, titik beku −9,3 °C. ΔTb = 0,52 × 5 = 2,6 °C, titik didih 102,6 °C. Opsi B menganggap m = 1. Opsi C memakai Kf untuk titik didih. Opsi D menukar Kf dan Kb."
+    },
+    {
+      "no": 4,
+      "tipe": "two_tier",
+      "level": "C4",
+      "topik": "Massa sama vs jumlah partikel",
+      "stimulus": "Dua gelas masing-masing berisi 100 g air. Gelas P ditambah 10 g gula (C₁₂H₂₂O₁₁, Mr = 342). Gelas Q ditambah 10 g NaCl (Mr = 58,5). Keduanya larut sempurna.",
+      "tingkat1": {
+        "pertanyaan": "Titik beku larutan ....",
+        "opsi": [
+          {"id": "A", "teks": "P lebih rendah daripada Q"},
+          {"id": "B", "teks": "Q lebih rendah daripada P"},
+          {"id": "C", "teks": "P sama dengan Q"}
+        ]
+      },
+      "tingkat2": {
+        "pertanyaan": "Alasan yang paling sesuai dengan jawabanmu:",
+        "opsi": [
+          {"id": "1", "teks": "Massa zat terlarut keduanya sama, sehingga pengaruhnya terhadap titik beku juga sama."},
+          {"id": "2", "teks": "Partikel gula lebih besar dan Mr-nya lebih tinggi, sehingga pengaruhnya terhadap titik beku lebih kuat."},
+          {"id": "3", "teks": "Mol NaCl lebih banyak dan NaCl terurai menjadi ion, sehingga jumlah partikel terlarutnya lebih banyak."},
+          {"id": "4", "teks": "Titik beku ditentukan oleh jenis zat terlarut (gula atau garam), bukan oleh jumlah partikelnya."}
+        ]
+      },
+      "kunci": {"t1": "B", "t2": "3"},
+      "matriks": {
+        "A": {"1": "TP", "2": "M2", "3": "PS", "4": "M3"},
+        "B": {"1": "PS", "2": "PS", "3": "P", "4": "M3"},
+        "C": {"1": "M1", "2": "TP", "3": "PS", "4": "TP"}
+      },
+      "miskonsepsi": {
+        "M1": "Massa zat terlarut yang sama berarti pengaruh yang sama",
+        "M2": "Zat berukuran partikel atau Mr besar berpengaruh lebih besar",
+        "M3": "Sifat koligatif bergantung pada jenis zat, bukan jumlah partikel"
+      },
+      "saran": "Ulangi konsep: sifat koligatif bergantung pada jumlah partikel (mol zat × faktor van't Hoff), bukan massa atau jenis zat.",
+      "pembahasan": "Mol gula = 10/342 = 0,029 mol, m = 0,29 m, ΔTf ≈ 0,54 °C. Mol NaCl = 10/58,5 = 0,17 mol, m = 1,7 m. Karena i = 2, molalitas efektif 3,4 m dan ΔTf ≈ 6,4 °C. Jadi titik beku Q jauh lebih rendah."
+    },
+    {
+      "no": 5,
+      "tipe": "two_tier",
+      "level": "C4",
+      "topik": "Garam dan es",
+      "stimulus": "Es batu ditaburi garam dapur kasar lalu dibiarkan di dalam wadah. Es perlahan mencair. Suhu es murni 0 °C.",
+      "tingkat1": {
+        "pertanyaan": "Dibandingkan es murni, suhu campuran es dan garam yang sedang mencair adalah ....",
+        "opsi": [
+          {"id": "A", "teks": "lebih tinggi dari 0 °C"},
+          {"id": "B", "teks": "tetap 0 °C"},
+          {"id": "C", "teks": "lebih rendah dari 0 °C"}
+        ]
+      },
+      "tingkat2": {
+        "pertanyaan": "Alasan yang paling sesuai:",
+        "opsi": [
+          {"id": "1", "teks": "Garam melepaskan kalor ketika melarut, sehingga es mencair dan suhu campuran menjadi lebih tinggi."},
+          {"id": "2", "teks": "Garam tidak mengubah suhu campuran; garam hanya membuat es lebih cepat mencair."},
+          {"id": "3", "teks": "Garam menurunkan titik beku, sedangkan es yang mencair menyerap kalor sehingga suhu campuran turun."},
+          {"id": "4", "teks": "Garam bereaksi dengan es membentuk zat baru yang suhunya sangat rendah."}
+        ]
+      },
+      "kunci": {"t1": "C", "t2": "3"},
+      "matriks": {
+        "A": {"1": "M1", "2": "TP", "3": "PS", "4": "TP"},
+        "B": {"1": "TP", "2": "M2", "3": "PS", "4": "TP"},
+        "C": {"1": "PS", "2": "PS", "3": "P", "4": "M3"}
+      },
+      "miskonsepsi": {
+        "M1": "Garam menghasilkan panas sehingga es mencair",
+        "M2": "Garam hanya mempercepat pencairan tanpa mengubah suhu",
+        "M3": "Pendinginan dikaitkan dengan reaksi pembentukan zat baru, bukan penurunan titik beku"
+      },
+      "saran": "Ulangi konsep: zat terlarut menurunkan titik beku, dan pencairan es bersifat endoterm sehingga suhu campuran turun.",
+      "pembahasan": "Larutan garam punya titik beku di bawah 0 °C. Es yang bersentuhan dengan garam tetap mencair, dan pencairan menyerap kalor (endoterm), sehingga suhu campuran turun. Inilah dasar penangas es-garam dan pembuatan es krim tradisional."
+    },
+    {
+      "no": 6,
+      "tipe": "two_tier",
+      "level": "C4",
+      "topik": "Kurva pendinginan larutan",
+      "stimulus": "Larutan gula 0,5 m didinginkan dan suhunya direkam. Pada detik ke-240, es mulai terlihat terbentuk.",
+      "data_grafik": {
+        "x_label": "Waktu (detik)",
+        "y_label": "Suhu (°C)",
+        "x": [0, 60, 120, 180, 240],
+        "y": [20.0, 8.0, 1.5, -0.5, -0.9]
+      },
+      "tingkat1": {
+        "pertanyaan": "Jika pendinginan dilanjutkan dan es terus terbentuk, suhu larutan selanjutnya ....",
+        "opsi": [
+          {"id": "A", "teks": "tetap di −0,9 °C (mendatar) seperti air murni"},
+          {"id": "B", "teks": "turun perlahan di bawah −0,9 °C"},
+          {"id": "C", "teks": "naik perlahan di atas −0,9 °C"}
+        ]
+      },
+      "tingkat2": {
+        "pertanyaan": "Alasan yang paling sesuai:",
+        "opsi": [
+          {"id": "1", "teks": "Zat terlarut tidak ikut membeku, sehingga tidak memengaruhi suhu pembekuan dan suhu tetap konstan."},
+          {"id": "2", "teks": "Es yang terbentuk hampir murni, sehingga larutan sisa makin pekat dan titik bekunya makin rendah."},
+          {"id": "3", "teks": "Kalor yang dilepas saat membeku terus menaikkan suhu larutan selama es terbentuk."},
+          {"id": "4", "teks": "Suhu pembekuan selalu tetap, sehingga kurva yang tidak datar berarti sensor bermasalah."}
+        ]
+      },
+      "kunci": {"t1": "B", "t2": "2"},
+      "matriks": {
+        "A": {"1": "M1", "2": "PS", "3": "TP", "4": "M2"},
+        "B": {"1": "PS", "2": "P", "3": "PS", "4": "M2"},
+        "C": {"1": "TP", "2": "PS", "3": "M3", "4": "TP"}
+      },
+      "miskonsepsi": {
+        "M1": "Larutan membeku pada satu suhu tetap seperti zat murni",
+        "M2": "Kurva yang tidak datar dianggap kesalahan alat",
+        "M3": "Pelepasan kalor pembekuan dianggap menaikkan suhu terus-menerus"
+      },
+      "saran": "Ulangi konsep: saat pelarut membeku, larutan sisa makin pekat sehingga titik bekunya terus turun dan tidak ada plateau sempurna.",
+      "pembahasan": "Saat es murni terbentuk, zat terlarut tertinggal di cairan sehingga larutan sisa makin pekat. Makin pekat larutan, makin rendah titik bekunya, sehingga suhu terus turun landai dan tidak ada plateau seperti air murni."
+    },
+    {
+      "no": 7,
+      "tipe": "single",
+      "level": "C2",
+      "stimulus": "Larutan gula dan larutan urea (keduanya nonelektrolit) dengan molalitas sama memiliki penurunan titik beku yang sama. Hal ini menunjukkan bahwa penurunan titik beku ....",
+      "opsi": [
+        {"id": "A", "teks": "bergantung pada jenis (identitas kimia) zat terlarut"},
+        {"id": "B", "teks": "bergantung pada jumlah partikel zat terlarut"},
+        {"id": "C", "teks": "bergantung pada massa molar zat terlarut"},
+        {"id": "D", "teks": "bergantung pada kelarutan zat terlarut dalam air"}
+      ],
+      "kunci": "B",
+      "pembahasan": "Sifat koligatif hanya bergantung pada jumlah partikel zat terlarut dalam jumlah pelarut tertentu."
+    },
+    {
+      "no": 8,
+      "tipe": "single",
+      "level": "C3",
+      "stimulus": "Dalam percobaan, larutan gula 0,5 m menurunkan titik beku air sebesar 0,93 °C dan larutan gula 1,0 m sebesar 1,86 °C. Penurunan titik beku larutan gula 2,5 m diprediksi sekitar ....",
+      "opsi": [
+        {"id": "A", "teks": "2,33 °C"},
+        {"id": "B", "teks": "3,72 °C"},
+        {"id": "C", "teks": "4,65 °C"},
+        {"id": "D", "teks": "9,30 °C"}
+      ],
+      "kunci": "C",
+      "pembahasan": "ΔTf = Kf × m = 1,86 × 2,5 = 4,65 °C. Opsi A mengalikan 0,93 °C dengan 2,5, padahal 0,93 °C untuk 0,5 m. Opsi B menggandakan data 1,0 m (setara 2,0 m). Opsi D memakai i = 2, padahal gula nonelektrolit."
+    },
+    {
+      "no": 9,
+      "tipe": "single",
+      "level": "C3",
+      "stimulus": "Sebanyak 6,0 g zat nonelektrolit dilarutkan dalam 200 g air. Larutan membeku pada −0,93 °C (Kf air = 1,86 °C/m). Massa molekul relatif (Mr) zat tersebut adalah ....",
+      "opsi": [
+        {"id": "A", "teks": "30"},
+        {"id": "B", "teks": "60"},
+        {"id": "C", "teks": "120"},
+        {"id": "D", "teks": "180"}
+      ],
+      "kunci": "B",
+      "pembahasan": "m = 0,93/1,86 = 0,5 m. Mol zat = 0,5 × 0,200 kg = 0,1 mol. Mr = 6,0/0,1 = 60."
+    },
+    {
+      "no": 10,
+      "tipe": "single",
+      "level": "C3",
+      "stimulus": "Empat larutan berikut dibuat dengan pelarut air; elektrolit dianggap terionisasi sempurna: urea 0,1 m; glukosa 0,2 m; NaCl 0,15 m; CaCl₂ 0,15 m. Urutan titik beku dari yang tertinggi ke yang terendah adalah ....",
+      "opsi": [
+        {"id": "A", "teks": "urea > glukosa > NaCl > CaCl₂"},
+        {"id": "B", "teks": "urea > NaCl = CaCl₂ > glukosa"},
+        {"id": "C", "teks": "CaCl₂ > NaCl > glukosa > urea"},
+        {"id": "D", "teks": "urea > glukosa > CaCl₂ > NaCl"}
+      ],
+      "kunci": "A",
+      "pembahasan": "Molalitas efektif = m × i: urea 0,10; glukosa 0,20; NaCl 0,30; CaCl₂ 0,45. Makin besar molalitas efektif, makin rendah titik bekunya. Opsi B mengabaikan faktor van't Hoff."
+    }
+  ]
+}

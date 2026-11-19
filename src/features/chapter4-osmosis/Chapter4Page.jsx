@@ -10,6 +10,7 @@ import { formatIndonesianNumber } from '../../utils/formatNumber';
 import { getStoredData, setStoredData, getAuthUser } from '../../utils/storage';
 import imgMentimun from '../../assets/fenomena-mentimun.jpg';
 import PrediksiOsmosis, { getCh4PredictionKey } from './PrediksiOsmosis';
+import KartuFenomena, { getCh4CardKey } from './KartuFenomena';
 
 // Helper membuat kunci penyimpanan navigasi Bab 4 per akun siswa
 export function getCh4NavKey() {
@@ -126,10 +127,12 @@ export default function Chapter4Page({ onComplete, isCompleted }) {
     const saved = getStoredData(navKey, null);
     const predKey = getCh4PredictionKey();
     const pred = getStoredData(predKey, null);
+    const cardKey = getCh4CardKey();
+    const openedCards = getStoredData(cardKey, []);
 
     return {
       1: Boolean(pred?.choice),
-      2: Boolean(saved?.doneTabs?.[2]),
+      2: Boolean(saved?.doneTabs?.[2] || (Array.isArray(openedCards) && openedCards.length >= 8)),
       3: Boolean(saved?.doneTabs?.[3]),
       4: Boolean(saved?.doneTabs?.[4]),
       5: Boolean(saved?.doneTabs?.[5]),
@@ -153,6 +156,17 @@ export default function Chapter4Page({ onComplete, isCompleted }) {
   const handlePredictionSaved = () => {
     setDoneTabs((prev) => {
       const updated = { ...prev, 1: true };
+      const navKey = getCh4NavKey();
+      const saved = getStoredData(navKey, {});
+      setStoredData(navKey, { ...saved, doneTabs: updated });
+      return updated;
+    });
+  };
+
+  // Handler saat semua kartu di Tab 2 telah dibuka
+  const handleTab2Complete = () => {
+    setDoneTabs((prev) => {
+      const updated = { ...prev, 2: true };
       const navKey = getCh4NavKey();
       const saved = getStoredData(navKey, {});
       setStoredData(navKey, { ...saved, doneTabs: updated });
@@ -284,15 +298,11 @@ export default function Chapter4Page({ onComplete, isCompleted }) {
       )}
 
       {/* ══════════════════════════════════════════════════════
-          TAB 2: OBSERVASI (Segera Hadir)
+          TAB 2: OBSERVASI (Kartu Fenomena Osmosis)
           ══════════════════════════════════════════════════════ */}
       {activeTab === 2 && (
         <div className="fade-in" style={{ marginBottom: '2.5rem' }}>
-          <PlaceholderBox
-            icon="👁️"
-            title="Tahap 2: Observasi (Segera Hadir)"
-            text="Modul observasi interaktif fenomena osmosis pada sel tumbuhan, sel darah merah, dan jaringan sayuran akan segera hadir di sini."
-          />
+          <KartuFenomena onCompleteAll={handleTab2Complete} />
           <TabBottomNav
             prevTab={1}
             prevLabel="1 Prediksi"

@@ -9,9 +9,13 @@ import { calculateOsmoticPressure } from '../../utils/colligative';
 import { formatIndonesianNumber } from '../../utils/formatNumber';
 import { getStoredData, setStoredData, getAuthUser } from '../../utils/storage';
 import imgMentimun from '../../assets/fenomena-mentimun.jpg';
-import PrediksiOsmosis, { getCh4PredictionKey } from './PrediksiOsmosis';
+import PrediksiOsmosis, { getCh4PredictionKey, PREDIKSI_OPTIONS } from './PrediksiOsmosis';
 import KartuFenomena, { getCh4CardKey } from './KartuFenomena';
 import SimulasiPipaU, { getCh4PipaUKey } from './SimulasiPipaU';
+import GameSelOsmosis, { getCh4GameKey } from './GameSelOsmosis';
+import ContohSoalOsmotik, { getCh4ContohKey } from './ContohSoalOsmotik';
+import LatihanBab4, { getCh4LatihanKey } from './LatihanBab4';
+import SubmikroskopikMembranOsmosis from './SubmikroskopikMembranOsmosis';
 
 // Helper membuat kunci penyimpanan navigasi Bab 4 per akun siswa
 export function getCh4NavKey() {
@@ -132,17 +136,27 @@ export default function Chapter4Page({ onComplete, isCompleted }) {
     const openedCards = getStoredData(cardKey, []);
     const pipaUKey = getCh4PipaUKey();
     const pipaUData = getStoredData(pipaUKey, null);
+    const gameKey = getCh4GameKey();
+    const gameData = getStoredData(gameKey, null);
+    const contohKey = getCh4ContohKey();
+    const contohData = getStoredData(contohKey, null);
+    const latihanKey = getCh4LatihanKey();
+    const latihanData = getStoredData(latihanKey, null);
 
     const isCardsDone = Array.isArray(openedCards) && openedCards.length >= 8;
     const isPipaUDone = Boolean(pipaUData?.reverseOsmosisTested);
     const tab2Complete = Boolean(saved?.doneTabs?.[2] || (isCardsDone && isPipaUDone));
+    const isGameDone = Boolean(gameData?.completedOnce);
+    const isContohDone = Boolean(contohData?.bothCompleted);
+    const tab4Complete = isGameDone && isContohDone;
+    const isLatihanPassed = Boolean(latihanData?.isPassed);
 
     return {
       1: Boolean(pred?.choice),
       2: tab2Complete,
       3: Boolean(saved?.doneTabs?.[3]),
-      4: Boolean(saved?.doneTabs?.[4]),
-      5: Boolean(saved?.doneTabs?.[5]),
+      4: tab4Complete,
+      5: isLatihanPassed,
     };
   });
 
@@ -157,6 +171,26 @@ export default function Chapter4Page({ onComplete, isCompleted }) {
     const pipaUKey = getCh4PipaUKey();
     const pipaUData = getStoredData(pipaUKey, null);
     return Boolean(pipaUData?.reverseOsmosisTested);
+  });
+
+  // State pelacakan kelengkapan Tab 4 (game + contoh)
+  const [isGameDone, setIsGameDone] = useState(() => {
+    const gameKey = getCh4GameKey();
+    const gameData = getStoredData(gameKey, null);
+    return Boolean(gameData?.completedOnce);
+  });
+
+  const [isContohDone, setIsContohDone] = useState(() => {
+    const contohKey = getCh4ContohKey();
+    const contohData = getStoredData(contohKey, null);
+    return Boolean(contohData?.bothCompleted);
+  });
+
+  // State pelacakan kelulusan Tab 5 (latihan)
+  const [isLatihanPassed, setIsLatihanPassed] = useState(() => {
+    const latihanKey = getCh4LatihanKey();
+    const latihanData = getStoredData(latihanKey, null);
+    return Boolean(latihanData?.isPassed);
   });
 
   // State kalkulator di Tab 3
@@ -219,13 +253,72 @@ export default function Chapter4Page({ onComplete, isCompleted }) {
     }
   };
 
+  // Handler saat game "Sel dalam Bahaya!" dimainkan sampai akhir (Tab 4)
+  const handleGameComplete = () => {
+    setIsGameDone(true);
+    // Cek apakah contoh juga sudah selesai
+    const contohKey = getCh4ContohKey();
+    const contohData = getStoredData(contohKey, null);
+    const isContohDoneNow = Boolean(contohData?.bothCompleted);
+
+    if (isContohDoneNow) {
+      setDoneTabs((prev) => {
+        const updated = { ...prev, 4: true };
+        const navKey = getCh4NavKey();
+        const saved = getStoredData(navKey, {});
+        setStoredData(navKey, { ...saved, doneTabs: updated });
+        return updated;
+      });
+    }
+  };
+
+  // Handler saat kedua contoh soal dibuka sampai langkah terakhir (Tab 4)
+  const handleContohComplete = () => {
+    setIsContohDone(true);
+    // Cek apakah game juga sudah selesai
+    const gameKey = getCh4GameKey();
+    const gameData = getStoredData(gameKey, null);
+    const isGameDoneNow = Boolean(gameData?.completedOnce);
+
+    if (isGameDoneNow) {
+      setDoneTabs((prev) => {
+        const updated = { ...prev, 4: true };
+        const navKey = getCh4NavKey();
+        const saved = getStoredData(navKey, {});
+        setStoredData(navKey, { ...saved, doneTabs: updated });
+        return updated;
+      });
+    }
+  };
+
+  // Handler saat latihan Bab 4 lulus (Tab 5)
+  const handleLatihanPassed = (totalScore, passed) => {
+    // passed bisa undefined (dari onLatihanPassed(score)) → cek score >= 4
+    const isPassedNow = passed !== false && totalScore >= 4;
+    setIsLatihanPassed(isPassedNow);
+    if (isPassedNow) {
+      setDoneTabs((prev) => {
+        const updated = { ...prev, 5: true };
+        const navKey = getCh4NavKey();
+        const saved = getStoredData(navKey, {});
+        setStoredData(navKey, { ...saved, doneTabs: updated });
+        return updated;
+      });
+    } else {
+      setDoneTabs((prev) => {
+        const updated = { ...prev, 5: false };
+        return updated;
+      });
+    }
+  };
+
   // Berpindah tab dengan scroll halus ke atas dan menyimpan tab terakhir
   const handleSwitchTab = (tabId) => {
     setActiveTab(tabId);
     window.scrollTo({ top: 120, behavior: 'smooth' });
 
     setDoneTabs((prev) => {
-      // Tab 2 hanya tervalidasi selesai jika 8 kartu dibuka DAN osmosis balik sudah dicoba
+      // Recalculate tab 2 status
       const cardKey = getCh4CardKey();
       const openedCards = getStoredData(cardKey, []);
       const pipaUKey = getCh4PipaUKey();
@@ -234,11 +327,27 @@ export default function Chapter4Page({ onComplete, isCompleted }) {
       const isPipaUDoneNow = Boolean(pipaUData?.reverseOsmosisTested);
       const tab2Complete = isCardsDoneNow && isPipaUDoneNow;
 
+      // Recalculate tab 4 status (game + contoh)
+      const gameKey = getCh4GameKey();
+      const gameData = getStoredData(gameKey, null);
+      const contohKey = getCh4ContohKey();
+      const contohData = getStoredData(contohKey, null);
+      const tab4Complete = Boolean(gameData?.completedOnce) && Boolean(contohData?.bothCompleted);
+
+      // Recalculate tab 5 status (latihan lulus)
+      const latihanKey = getCh4LatihanKey();
+      const latihanData = getStoredData(latihanKey, null);
+      const tab5Complete = Boolean(latihanData?.isPassed);
+
       const updated = {
         ...prev,
         2: tab2Complete,
-        ...(tabId !== 2 ? { [tabId]: true } : {})
+        4: tab4Complete,
+        5: tab5Complete,
       };
+
+      // Tab 3 is marked done when visited
+      if (tabId === 3) updated[3] = true;
 
       const navKey = getCh4NavKey();
       const saved = getStoredData(navKey, {});
@@ -250,6 +359,13 @@ export default function Chapter4Page({ onComplete, isCompleted }) {
       return updated;
     });
   };
+
+  // ── Syarat tombol "Selesaikan Bab 4 & Buka Bab 5" ──────────────────────
+  const req1_prediksi = doneTabs[1];
+  const req2_tab2 = doneTabs[2];
+  const req3_game = isGameDone;
+  const req4_latihan = isLatihanPassed;
+  const allRequirementsMet = req1_prediksi && req2_tab2 && req3_game && req4_latihan;
 
   return (
     <div className="fade-in" style={{ fontFamily: "'Times New Roman', Times, serif" }}>
@@ -432,10 +548,71 @@ export default function Chapter4Page({ onComplete, isCompleted }) {
       )}
 
       {/* ══════════════════════════════════════════════════════
-          TAB 3: JELASKAN (Miskonsepsi, 3 Level, Prinsip, Kalkulator, & Kotak Molaritas)
+          TAB 3: JELASKAN (Prediksi Siswa, Miskonsepsi, 3 Level, Prinsip, Kalkulator, & Kotak Molaritas)
           ══════════════════════════════════════════════════════ */}
       {activeTab === 3 && (
         <div className="fade-in" style={{ marginBottom: '2.5rem' }}>
+
+          {/* ── Kotak "Prediksimu di Tab 1" ────────────────────────────── */}
+          {(() => {
+            const predKey = getCh4PredictionKey();
+            const pred = getStoredData(predKey, null);
+            if (!pred || !pred.choice) return null;
+
+            const chosenOption = PREDIKSI_OPTIONS.find((o) => o.id === pred.choice);
+            const chosenText = chosenOption ? chosenOption.text : pred.choice;
+
+            return (
+              <div style={{
+                background: '#FFF7ED',
+                border: '1.5px solid #FED7AA',
+                borderRadius: '14px',
+                padding: '1.15rem 1.4rem',
+                marginBottom: '1.5rem',
+                boxShadow: '0 2px 8px rgba(234, 88, 12, 0.06)'
+              }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
+                  <span style={{ fontSize: '1.25rem' }}>💭</span>
+                  <strong style={{ fontSize: '1.02rem', color: '#9A3412' }}>
+                    Prediksimu di Tab 1:
+                  </strong>
+                </div>
+                <div style={{
+                  background: '#FFFFFF',
+                  border: '1px solid #FDBA74',
+                  borderRadius: '10px',
+                  padding: '0.75rem 1rem',
+                  marginBottom: '0.6rem',
+                  fontSize: '0.94rem',
+                  color: '#1E293B',
+                  lineHeight: 1.5
+                }}>
+                  <strong style={{ color: '#EA580C' }}>Pilihanmu: {pred.choice}.</strong> {chosenText}
+                  {pred.reason && (
+                    <div style={{ marginTop: '0.4rem', color: '#475569', fontStyle: 'italic' }}>
+                      Alasanmu: "{pred.reason}"
+                    </div>
+                  )}
+                </div>
+                <div style={{
+                  background: '#ECFDF5',
+                  border: '1px solid #86EFAC',
+                  borderRadius: '8px',
+                  padding: '0.65rem 0.9rem',
+                  fontSize: '0.9rem',
+                  color: '#065F46',
+                  display: 'flex',
+                  alignItems: 'flex-start',
+                  gap: '0.45rem'
+                }}>
+                  <span style={{ fontSize: '1.1rem', flexShrink: 0 }}>✅</span>
+                  <div>
+                    <strong>Jawaban yang tepat adalah B:</strong> "Air berpindah dari larutan encer ke larutan pekat melalui dinding sel." — Inilah prinsip osmosis yang akan kita pelajari lebih dalam di bawah ini.
+                  </div>
+                </div>
+              </div>
+            );
+          })()}
 
           {/* Kotak Miskonsepsi Umum Bab 4 */}
           <MisconceptionCard
@@ -461,6 +638,7 @@ export default function Chapter4Page({ onComplete, isCompleted }) {
             }}
             submicroscopic={{
               title: 'Skala Partikulat: Seleksi Pori-Pori Membran Semipermeabel',
+              customVisual: <SubmikroskopikMembranOsmosis />,
               description: 'Membran semipermeabel memiliki ukuran pori-pori mikroskopis selektif yang hanya cukup dilewati oleh molekul kecil pelarut (H2O), tetapi menahan molekul atau ion terlarut yang lebih besar atau terhidrasi.',
               mechanism: 'Secara alami, laju molekul air yang masuk dari sisi encer ke sisi pekat lebih besar daripada sebaliknya (osmosis alami). Namun, jika diberikan tekanan luar hidrostatik yang lebih besar daripada tekanan osmotik (Pluar > Π), molekul air murni dipaksa mengalir melawan gradien konsentrasi menuju sisi air murni (inilah prinsip Osmosis Balik / Reverse Osmosis).',
             }}
@@ -576,15 +754,23 @@ export default function Chapter4Page({ onComplete, isCompleted }) {
       )}
 
       {/* ══════════════════════════════════════════════════════
-          TAB 4: MAIN & HITUNG (Segera Hadir)
+          TAB 4: MAIN & HITUNG (Game Sel + Contoh Soal Terbimbing)
           ══════════════════════════════════════════════════════ */}
       {activeTab === 4 && (
         <div className="fade-in" style={{ marginBottom: '2.5rem' }}>
-          <PlaceholderBox
-            icon="🧮"
-            title="Tahap 4: Main & Hitung (Segera Hadir)"
-            text="Lab virtual osmosis interaktif pipa U, penambahan beban tekanan hidrostatik, dan simulasi osmosis balik akan segera hadir di sini."
+
+          {/* Game "Sel dalam Bahaya!" */}
+          <GameSelOsmosis
+            onGameComplete={handleGameComplete}
+            isCompletedInitially={isGameDone}
           />
+
+          {/* Contoh Soal Terbimbing Tekanan Osmotik */}
+          <ContohSoalOsmotik
+            onContohComplete={handleContohComplete}
+            isCompletedInitially={isContohDone}
+          />
+
           <TabBottomNav
             prevTab={3}
             prevLabel="3 Jelaskan"
@@ -596,14 +782,15 @@ export default function Chapter4Page({ onComplete, isCompleted }) {
       )}
 
       {/* ══════════════════════════════════════════════════════
-          TAB 5: LATIHAN (Segera Hadir & Tombol Selesai Bab 4)
+          TAB 5: LATIHAN (5 Soal + Refleksi + Tombol Selesai Bab 4)
           ══════════════════════════════════════════════════════ */}
       {activeTab === 5 && (
         <div className="fade-in" style={{ marginBottom: '2.5rem' }}>
-          <PlaceholderBox
-            icon="📝"
-            title="Tahap 5: Latihan Soal (Segera Hadir)"
-            text="Latihan soal mandiri dan evaluasi pemahaman konsep tekanan osmotik akan segera hadir di sini."
+
+          {/* Latihan 5 Soal Bab 4 */}
+          <LatihanBab4
+            onLatihanPassed={handleLatihanPassed}
+            isPassedInitially={isLatihanPassed}
           />
 
           <div style={{ marginTop: '1.5rem', marginBottom: '1rem', display: 'flex', justifyContent: 'flex-start' }}>
@@ -622,43 +809,111 @@ export default function Chapter4Page({ onComplete, isCompleted }) {
             </button>
           </div>
 
-          {/* Kotak Penyelesaian Bab 4 & Pembuka Bab 5 */}
+          {/* ── Daftar Centang Syarat Penyelesaian Bab 4 ──────────────── */}
           <div style={{
             marginTop: '2rem',
             padding: '1.5rem',
             background: '#FFFFFF',
             border: '1px solid #E2E8F0',
             borderRadius: '16px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            flexWrap: 'wrap',
-            gap: '1.25rem',
             boxShadow: '0 4px 14px rgba(15, 23, 42, 0.05)'
           }}>
-            <div>
-              <span style={{ fontSize: '0.85rem', color: isCompleted ? '#10B981' : '#0284C7', fontWeight: 700 }}>
-                {isCompleted ? '✓ Materi Bab 4 Selesai' : 'Siap Lanjut ke Tahap Selanjutnya?'}
+
+            {/* Header */}
+            <div style={{ marginBottom: '1.25rem' }}>
+              <span style={{
+                fontSize: '0.85rem',
+                color: allRequirementsMet ? '#10B981' : '#0284C7',
+                fontWeight: 700
+              }}>
+                {isCompleted
+                  ? '✓ Materi Bab 4 Selesai'
+                  : allRequirementsMet
+                  ? '🎉 Semua Syarat Terpenuhi — Siap Lanjut!'
+                  : '📋 Syarat Penyelesaian Bab 4'}
               </span>
-              <h4 style={{ margin: '0.2rem 0 0', color: '#0F172A', fontSize: '1.15rem', fontWeight: 800 }}>
+              <h4 style={{
+                margin: '0.2rem 0 0',
+                color: '#0F172A',
+                fontSize: '1.15rem',
+                fontWeight: 800
+              }}>
                 Bab 5: Sifat Koligatif Larutan Elektrolit &amp; van 't Hoff
               </h4>
             </div>
 
-            <Button
-              variant="primary"
-              onClick={onComplete}
-              style={{
-                padding: '0.85rem 1.8rem',
-                fontSize: '1.02rem',
-                fontWeight: 700,
-                background: '#0284C7',
-                boxShadow: '0 4px 14px rgba(2, 132, 199, 0.25)',
-                fontFamily: "'Times New Roman', Times, serif"
-              }}
-            >
-              Selesaikan Bab 4 &amp; Buka Bab 5 →
-            </Button>
+            {/* Daftar Centang ✓/○ */}
+            <div style={{
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '0.65rem',
+              marginBottom: '1.5rem',
+              padding: '1rem',
+              background: '#F8FAFC',
+              borderRadius: '12px',
+              border: '1px solid #E2E8F0'
+            }}>
+              {[
+                { done: req1_prediksi, label: 'Prediksi di Tab 1 sudah tersimpan' },
+                { done: req2_tab2, label: 'Tab 2 selesai (8 kartu fenomena dibuka + osmosis balik dicoba)' },
+                { done: req3_game, label: 'Game "Sel dalam Bahaya!" dimainkan sampai akhir' },
+                { done: req4_latihan, label: 'Latihan lulus (skor ≥ 4/5)' }
+              ].map((item, idx) => (
+                <div
+                  key={idx}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '0.65rem',
+                    padding: '0.5rem 0.75rem',
+                    borderRadius: '8px',
+                    background: item.done ? '#ECFDF5' : '#FFFFFF',
+                    border: `1px solid ${item.done ? '#A7F3D0' : '#E2E8F0'}`,
+                    fontSize: '0.92rem',
+                    color: item.done ? '#065F46' : '#475569',
+                    fontWeight: item.done ? 700 : 500
+                  }}
+                >
+                  <span style={{
+                    width: '24px',
+                    height: '24px',
+                    borderRadius: '50%',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    background: item.done ? '#059669' : '#E2E8F0',
+                    color: item.done ? '#FFFFFF' : '#94A3B8',
+                    fontWeight: 800,
+                    fontSize: '0.82rem',
+                    flexShrink: 0
+                  }}>
+                    {item.done ? '✓' : '○'}
+                  </span>
+                  <span>{item.label}</span>
+                </div>
+              ))}
+            </div>
+
+            {/* Tombol Selesai Bab 4 */}
+            <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+              <Button
+                variant="primary"
+                onClick={onComplete}
+                disabled={!allRequirementsMet && !isCompleted}
+                style={{
+                  padding: '0.85rem 1.8rem',
+                  fontSize: '1.02rem',
+                  fontWeight: 700,
+                  background: (allRequirementsMet || isCompleted) ? '#0284C7' : '#94A3B8',
+                  boxShadow: (allRequirementsMet || isCompleted) ? '0 4px 14px rgba(2, 132, 199, 0.25)' : 'none',
+                  fontFamily: "'Times New Roman', Times, serif",
+                  cursor: (allRequirementsMet || isCompleted) ? 'pointer' : 'not-allowed',
+                  opacity: (allRequirementsMet || isCompleted) ? 1 : 0.7,
+                }}
+              >
+                {isCompleted ? '✓ Bab 4 Selesai' : 'Selesaikan Bab 4 & Buka Bab 5 →'}
+              </Button>
+            </div>
           </div>
         </div>
       )}

@@ -11,6 +11,7 @@ import { getStoredData, setStoredData, getAuthUser } from '../../utils/storage';
 import imgMentimun from '../../assets/fenomena-mentimun.jpg';
 import PrediksiOsmosis, { getCh4PredictionKey } from './PrediksiOsmosis';
 import KartuFenomena, { getCh4CardKey } from './KartuFenomena';
+import SimulasiPipaU, { getCh4PipaUKey } from './SimulasiPipaU';
 
 // Helper membuat kunci penyimpanan navigasi Bab 4 per akun siswa
 export function getCh4NavKey() {
@@ -129,14 +130,33 @@ export default function Chapter4Page({ onComplete, isCompleted }) {
     const pred = getStoredData(predKey, null);
     const cardKey = getCh4CardKey();
     const openedCards = getStoredData(cardKey, []);
+    const pipaUKey = getCh4PipaUKey();
+    const pipaUData = getStoredData(pipaUKey, null);
+
+    const isCardsDone = Array.isArray(openedCards) && openedCards.length >= 8;
+    const isPipaUDone = Boolean(pipaUData?.reverseOsmosisTested);
+    const tab2Complete = Boolean(saved?.doneTabs?.[2] || (isCardsDone && isPipaUDone));
 
     return {
       1: Boolean(pred?.choice),
-      2: Boolean(saved?.doneTabs?.[2] || (Array.isArray(openedCards) && openedCards.length >= 8)),
+      2: tab2Complete,
       3: Boolean(saved?.doneTabs?.[3]),
       4: Boolean(saved?.doneTabs?.[4]),
       5: Boolean(saved?.doneTabs?.[5]),
     };
+  });
+
+  // State pelacakan kelengkapan 2 bagian di Tab 2
+  const [isTab2CardsDone, setIsTab2CardsDone] = useState(() => {
+    const cardKey = getCh4CardKey();
+    const openedCards = getStoredData(cardKey, []);
+    return Array.isArray(openedCards) && openedCards.length >= 8;
+  });
+
+  const [isTab2PipaUDone, setIsTab2PipaUDone] = useState(() => {
+    const pipaUKey = getCh4PipaUKey();
+    const pipaUData = getStoredData(pipaUKey, null);
+    return Boolean(pipaUData?.reverseOsmosisTested);
   });
 
   // State kalkulator di Tab 3
@@ -163,15 +183,40 @@ export default function Chapter4Page({ onComplete, isCompleted }) {
     });
   };
 
-  // Handler saat semua kartu di Tab 2 telah dibuka
-  const handleTab2Complete = () => {
-    setDoneTabs((prev) => {
-      const updated = { ...prev, 2: true };
-      const navKey = getCh4NavKey();
-      const saved = getStoredData(navKey, {});
-      setStoredData(navKey, { ...saved, doneTabs: updated });
-      return updated;
-    });
+  // Handler saat 8 kartu fenomena telah dibuka (Tab 2 Bagian A)
+  const handleCardsComplete = () => {
+    setIsTab2CardsDone(true);
+    const pipaUKey = getCh4PipaUKey();
+    const pipaUData = getStoredData(pipaUKey, null);
+    const isPipaUDoneNow = Boolean(pipaUData?.reverseOsmosisTested);
+
+    if (isPipaUDoneNow) {
+      setDoneTabs((prev) => {
+        const updated = { ...prev, 2: true };
+        const navKey = getCh4NavKey();
+        const saved = getStoredData(navKey, {});
+        setStoredData(navKey, { ...saved, doneTabs: updated });
+        return updated;
+      });
+    }
+  };
+
+  // Handler saat simulasi Pipa U dicoba sampai osmosis balik (Tab 2 Bagian B)
+  const handleReverseOsmosisAchieved = () => {
+    setIsTab2PipaUDone(true);
+    const cardKey = getCh4CardKey();
+    const openedCards = getStoredData(cardKey, []);
+    const isCardsDoneNow = Array.isArray(openedCards) && openedCards.length >= 8;
+
+    if (isCardsDoneNow) {
+      setDoneTabs((prev) => {
+        const updated = { ...prev, 2: true };
+        const navKey = getCh4NavKey();
+        const saved = getStoredData(navKey, {});
+        setStoredData(navKey, { ...saved, doneTabs: updated });
+        return updated;
+      });
+    }
   };
 
   // Berpindah tab dengan scroll halus ke atas dan menyimpan tab terakhir
@@ -180,7 +225,21 @@ export default function Chapter4Page({ onComplete, isCompleted }) {
     window.scrollTo({ top: 120, behavior: 'smooth' });
 
     setDoneTabs((prev) => {
-      const updated = { ...prev, [tabId]: true };
+      // Tab 2 hanya tervalidasi selesai jika 8 kartu dibuka DAN osmosis balik sudah dicoba
+      const cardKey = getCh4CardKey();
+      const openedCards = getStoredData(cardKey, []);
+      const pipaUKey = getCh4PipaUKey();
+      const pipaUData = getStoredData(pipaUKey, null);
+      const isCardsDoneNow = Array.isArray(openedCards) && openedCards.length >= 8;
+      const isPipaUDoneNow = Boolean(pipaUData?.reverseOsmosisTested);
+      const tab2Complete = isCardsDoneNow && isPipaUDoneNow;
+
+      const updated = {
+        ...prev,
+        2: tab2Complete,
+        ...(tabId !== 2 ? { [tabId]: true } : {})
+      };
+
       const navKey = getCh4NavKey();
       const saved = getStoredData(navKey, {});
       setStoredData(navKey, {
@@ -298,11 +357,70 @@ export default function Chapter4Page({ onComplete, isCompleted }) {
       )}
 
       {/* ══════════════════════════════════════════════════════
-          TAB 2: OBSERVASI (Kartu Fenomena Osmosis)
+          TAB 2: OBSERVASI (Bagian A: Kartu Fenomena & Bagian B: Simulasi Pipa U)
           ══════════════════════════════════════════════════════ */}
       {activeTab === 2 && (
         <div className="fade-in" style={{ marginBottom: '2.5rem' }}>
-          <KartuFenomena onCompleteAll={handleTab2Complete} />
+
+          {/* Kotak Panduan & Indikator Kelengkapan Misi Tab 2 */}
+          <div style={{
+            background: doneTabs[2] ? '#ECFDF5' : '#F8FAFC',
+            border: `1.5px solid ${doneTabs[2] ? '#86EFAC' : '#E2E8F0'}`,
+            borderRadius: '14px',
+            padding: '0.85rem 1.25rem',
+            marginBottom: '1.25rem',
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            flexWrap: 'wrap',
+            gap: '0.75rem',
+            boxShadow: '0 2px 8px rgba(15, 23, 42, 0.04)'
+          }}>
+            <div>
+              <strong style={{ fontSize: '0.98rem', color: doneTabs[2] ? '#065F46' : '#0F172A', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                <span>{doneTabs[2] ? '🎉' : '🎯'}</span>
+                <span>Misi Observasi Bab 4 (Dua Bagian Eksplorasi)</span>
+              </strong>
+              <span style={{ fontSize: '0.84rem', color: doneTabs[2] ? '#047857' : '#64748B' }}>
+                Buka seluruh 8 kartu fenomena (Bagian A) dan uji slider tekanan hingga terjadi Osmosis Balik pada Pipa U (Bagian B).
+              </span>
+            </div>
+
+            <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+              <span style={{
+                fontSize: '0.78rem',
+                fontWeight: 700,
+                padding: '0.25rem 0.65rem',
+                borderRadius: '999px',
+                background: isTab2CardsDone ? '#ECFDF5' : '#F1F5F9',
+                color: isTab2CardsDone ? '#059669' : '#64748B',
+                border: `1px solid ${isTab2CardsDone ? '#A7F3D0' : '#CBD5E1'}`,
+              }}>
+                {isTab2CardsDone ? '✓ 8 Kartu Dibuka' : 'Bagian A: 8 Kartu'}
+              </span>
+              <span style={{
+                fontSize: '0.78rem',
+                fontWeight: 700,
+                padding: '0.25rem 0.65rem',
+                borderRadius: '999px',
+                background: isTab2PipaUDone ? '#ECFDF5' : '#F1F5F9',
+                color: isTab2PipaUDone ? '#059669' : '#64748B',
+                border: `1px solid ${isTab2PipaUDone ? '#A7F3D0' : '#CBD5E1'}`,
+              }}>
+                {isTab2PipaUDone ? '✓ Osmosis Balik Teruji' : 'Bagian B: Osmosis Balik'}
+              </span>
+            </div>
+          </div>
+
+          {/* Bagian A: 8 Kartu Fenomena Osmosis */}
+          <KartuFenomena onCompleteAll={handleCardsComplete} />
+
+          {/* Bagian B: Simulasi Pipa U & Membran Semipermeabel */}
+          <SimulasiPipaU
+            onReverseOsmosisAchieved={handleReverseOsmosisAchieved}
+            isReverseOsmosisDone={isTab2PipaUDone}
+          />
+
           <TabBottomNav
             prevTab={1}
             prevLabel="1 Prediksi"

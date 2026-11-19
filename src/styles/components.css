@@ -959,3 +959,20 @@
   transform: rotateY(180deg);
   overflow-y: auto;
 }
+
+/* =========================================================
+   SIMULASI PIPA U OSMOSIS (Bab 4 Tab 2 Bagian B)
+   ========================================================= */
+.pipau-grid {
+  display: grid;
+  grid-template-columns: minmax(320px, 1.15fr) minmax(290px, 1fr);
+  gap: 1.4rem;
+  align-items: start;
+}
+
+@media (max-width: 820px) {
+  .pipau-grid {
+    grid-template-columns: 1fr;
+    gap: 1.2rem;
+  }
+}

@@ -233,7 +233,6 @@ export default function LatihanSoal({ onSemuaSelesai }) {
     }
   }, [readyToShowSummary, showSummary]);
 
-  // Jika lulus: simpan ke localStorage dan panggil onSemuaSelesai
   useEffect(() => {
     if (showSummary && correctCount >= 6 && !passed) {
       setPassed(true);

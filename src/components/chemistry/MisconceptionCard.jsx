@@ -10,18 +10,26 @@ export default function MisconceptionCard({
   myth = "Miskonsepsi yang sering dipercaya",
   fact = "Penjelasan konsep kimia yang benar dan terbukti secara ilmiah",
   explanation = "",
-  badge = "Miskonsepsi Umum"
+  badge = "Miskonsepsi Umum",
+  style = {},
+  className = ""
 }) {
   return (
-    <div style={{
-      background: 'linear-gradient(135deg, #FFFBEB 0%, #FEF3C7 100%)',
-      border: '1.5px solid #FCD34D',
-      borderRadius: '16px',
-      padding: '1.25rem',
-      marginBottom: '1.5rem',
-      boxShadow: '0 4px 14px rgba(245, 158, 11, 0.08)',
-      fontFamily: "'Times New Roman', Times, serif"
-    }}>
+    <div
+      className={className}
+      style={{
+        background: 'linear-gradient(135deg, #FFFBEB 0%, #FEF3C7 100%)',
+        border: '1.5px solid #FCD34D',
+        borderRadius: '16px',
+        padding: '1.25rem',
+        marginBottom: '1.5rem',
+        boxShadow: '0 4px 14px rgba(245, 158, 11, 0.08)',
+        fontFamily: "'Times New Roman', Times, serif",
+        display: 'flex',
+        flexDirection: 'column',
+        ...style
+      }}
+    >
       <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.65rem' }}>
         <span style={{ fontSize: '1.3rem' }}>⚠️</span>
         <span style={{
@@ -59,7 +67,10 @@ export default function MisconceptionCard({
         background: 'rgba(240, 253, 244, 0.9)',
         borderLeft: '4px solid #10B981',
         padding: '0.65rem 0.85rem',
-        borderRadius: '0 8px 8px 0'
+        borderRadius: '0 8px 8px 0',
+        flex: 1,
+        display: 'flex',
+        flexDirection: 'column'
       }}>
         <div style={{ fontSize: '0.78rem', fontWeight: 800, color: '#065F46', textTransform: 'uppercase' }}>
           ✓ Fakta Ilmiah yang Benar:

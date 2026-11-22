@@ -21,6 +21,8 @@ import Chapter5Page from './features/chapter5-electrolyte/Chapter5Page';
 import Chapter6Page from './features/chapter6-evaluation/Chapter6Page';
 import LabVirtualHub from './features/lab-virtual/LabVirtualHub';
 import TeacherDashboard from './features/teacher/TeacherDashboard';
+import KimiKoliModal from './features/home/KimiKoliModal';
+import DiagnosticAssessmentPage from './features/diagnostic/DiagnosticAssessmentPage';
 
 /**
  * Komponen Utama App
@@ -38,7 +40,10 @@ export default function App() {
   const [completedChapters, setCompletedChapters] = useState([]);
   const [isPretestCompleted, setIsPretestCompleted] = useState(false);
   const [isPretestLocked, setIsPretestLocked] = useState(false);
+  const [pretestAnswers, setPretestAnswers] = useState({});
   const [isLabVirtualCompleted, setIsLabVirtualCompleted] = useState(false);
+  const [diagnosticAssessment, setDiagnosticAssessment] = useState(null);
+  const [isInfoModalOpen, setIsInfoModalOpen] = useState(false);
 
   // Status penyelesaian seluruh materi teori (Bab 1 s.d. Bab 5)
   // Guru selalu memiliki akses penuh. Siswa berhak membuka jika telah menyelesaikan Bab 5 atau seluruh bab materi 1–5.
@@ -56,46 +61,50 @@ export default function App() {
       if (saved) {
         setCompletedChapters(saved.completedChapters || []);
         setIsPretestCompleted(Boolean(saved.pretestCompleted));
+        setPretestAnswers(saved.pretestAnswers || {});
         setIsLabVirtualCompleted(Boolean(saved.labVirtualCompleted));
+        setDiagnosticAssessment(saved.diagnosticAssessment || null);
       }
     } else {
       setCurrentUser(null);
       setCompletedChapters([]);
       setIsPretestCompleted(false);
+      setPretestAnswers({});
       setIsLabVirtualCompleted(false);
+      setDiagnosticAssessment(null);
     }
   }, []);
 
   // Handler Berhasil Login
   const handleLoginSuccess = (userData) => {
+    // 1. Kosongkan state di memori terlebih dahulu agar tidak terbawa dari sesi user sebelumnya
+    setCompletedChapters([]);
+    setIsPretestCompleted(false);
+    setPretestAnswers({});
+    setIsLabVirtualCompleted(false);
+    setDiagnosticAssessment(null);
+    setIsPretestLocked(false);
+
+    // 2. Simpan sesi user aktif
     setAuthUser(userData);
     setCurrentUser(userData);
 
-    // Ambil data progres spesifik untuk pengguna (username) yang baru login ini!
+    // 3. Baca progres HANYA dari kunci "kimikoli:v1:<username dinormalisasi>"
     const saved = getCourseProgress(userData);
     const userCompletedChapters = saved?.completedChapters || [];
     const userPretestCompleted = Boolean(saved?.pretestCompleted);
+    const userPretestAnswers = saved?.pretestAnswers || {};
     const userLabCompleted = Boolean(saved?.labVirtualCompleted);
+    const userDiagnostic = saved?.diagnosticAssessment || null;
 
-    // Muat progres milik user yang bersangkutan (jika akun baru, akan kosong 0/6)
+    // 4. Set state memori sesuai data pengguna (kosong jika user baru)
     setCompletedChapters(userCompletedChapters);
     setIsPretestCompleted(userPretestCompleted);
+    setPretestAnswers(userPretestAnswers);
     setIsLabVirtualCompleted(userLabCompleted);
-    setIsPretestLocked(false);
+    setDiagnosticAssessment(userDiagnostic);
 
-    if (userData.role === 'student') {
-      const missionCount = Math.min(6, (userPretestCompleted ? 1 : 0) + userCompletedChapters.length);
-      saveStudentRecord({
-        name: userData.name,
-        className: userData.className,
-        pretestCompleted: userPretestCompleted,
-        pretestScore: saved?.pretestScore || 0,
-        pretestTotal: saved?.pretestTotal || 8,
-        progressMissions: `${missionCount}/6 Misi`,
-        xp: (userPretestCompleted ? 20 : 0) + (userCompletedChapters.length * 30) + (userLabCompleted ? 40 : 0)
-      });
-    }
-
+    // Jangan menyimpan data saat login tanpa ada perubahan dari user
     setCurrentView('home');
   };
 
@@ -108,35 +117,81 @@ export default function App() {
       setCompletedChapters([]);
       setIsPretestCompleted(false);
       setIsPretestLocked(false);
+      setPretestAnswers({});
       setIsLabVirtualCompleted(false);
+      setDiagnosticAssessment(null);
       setCurrentView('home');
+    }
+  };
+
+  // Handler Simpan Hasil Asesmen Diagnostik
+  const handleSaveDiagnosticResult = (diagResult) => {
+    setDiagnosticAssessment(diagResult);
+    const saved = getCourseProgress(currentUser) || {};
+    saveCourseProgress({
+      ...saved,
+      diagnosticAssessment: diagResult
+    }, currentUser);
+
+    if (currentUser && currentUser.role === 'student') {
+      saveStudentRecord({
+        name: currentUser.name,
+        email: currentUser.email,
+        className: currentUser.className,
+        diagnosticScore: diagResult?.latestScore ?? 0,
+        diagnosticXp: diagResult?.xpEarned ?? 0
+      });
     }
   };
 
   const handleStartPretest = () => {
     setCurrentView('pretest');
-    setIsPretestLocked(true);
+    // Jika pretest belum selesai, kunci navigasi
+    if (!isPretestCompleted) {
+      setIsPretestLocked(true);
+    }
   };
 
-  // Callback saat pretest selesai dikerjakan (soal 8 tuntas)
+  // Callback simpan jawaban pretest per nomor soal secara instan
+  const handleSavePretestAnswer = (updatedAnswers) => {
+    setPretestAnswers(updatedAnswers);
+    const isAllAnswered = Object.keys(updatedAnswers || {}).length >= 8;
+    if (isAllAnswered) {
+      setIsPretestCompleted(true);
+      setIsPretestLocked(false);
+    }
+    const saved = getCourseProgress(currentUser) || {};
+    saveCourseProgress({
+      ...saved,
+      pretestAnswers: updatedAnswers,
+      ...(isAllAnswered ? { pretestCompleted: true, pretestFinished: true } : {})
+    }, currentUser);
+  };
+
+  // Callback saat pretest selesai dikerjakan (seluruh soal tuntas diperiksa)
   const handleFinishPretest = (result) => {
     setIsPretestLocked(false);
     setIsPretestCompleted(true);
 
-    const score = result?.score || 0;
-    const total = result?.total || 8;
+    const score = result?.score ?? 0;
+    const total = result?.total ?? 8;
+    const finalAnswers = result?.answers || pretestAnswers;
+    setPretestAnswers(finalAnswers);
 
     const saved = getCourseProgress(currentUser) || {};
     saveCourseProgress({
       ...saved,
       pretestCompleted: true,
       pretestScore: score,
-      pretestTotal: total
+      pretestTotal: total,
+      pretestAnswers: finalAnswers,
+      pretestFinished: true
     }, currentUser);
 
     if (currentUser && currentUser.role === 'student') {
       saveStudentRecord({
         name: currentUser.name,
+        email: currentUser.email,
         className: currentUser.className,
         pretestCompleted: true,
         pretestScore: score,
@@ -145,6 +200,20 @@ export default function App() {
         xp: 20
       });
     }
+  };
+
+  // Callback reset pretest jika ingin mengulang
+  const handleResetPretest = () => {
+    setIsPretestCompleted(false);
+    setPretestAnswers({});
+    const saved = getCourseProgress(currentUser) || {};
+    saveCourseProgress({
+      ...saved,
+      pretestCompleted: false,
+      pretestScore: 0,
+      pretestAnswers: {},
+      pretestFinished: false
+    }, currentUser);
   };
 
   // Fungsi Transisi Menyelesaikan 1 Materi & Otomatis Membuka Materi Berikutnya
@@ -204,8 +273,16 @@ export default function App() {
       <Header
         currentView={currentView}
         onSelectTab={(tabId) => {
-          if (!isPretestLocked) {
-            setCurrentView(tabId);
+          if (!isPretestLocked || currentUser?.role === 'teacher') {
+            if (tabId === 'chapter1' && currentUser?.role !== 'teacher') {
+              const latestChapter = completedChapters.includes('chapter4') ? 'chapter5' :
+                                    completedChapters.includes('chapter3') ? 'chapter4' :
+                                    completedChapters.includes('chapter2') ? 'chapter3' :
+                                    completedChapters.includes('chapter1') ? 'chapter2' : 'chapter1';
+              setCurrentView(latestChapter);
+            } else {
+              setCurrentView(tabId);
+            }
           }
         }}
         isExamLocked={isPretestLocked}
@@ -216,6 +293,7 @@ export default function App() {
         onStartPretest={handleStartPretest}
         isAllMaterialCompleted={isAllMaterialCompleted}
         isLabVirtualCompleted={isLabVirtualCompleted}
+        onOpenInfoModal={() => setIsInfoModalOpen(true)}
       />
 
       {/* 2. Konten Utama */}
@@ -231,27 +309,47 @@ export default function App() {
         {/* Tampilan 1: Beranda KimiKoli (Peta Misi Dinamis) */}
         {currentView === 'home' && (
           <HomePage
+            currentUser={currentUser}
             isPretestDone={isPretestCompleted}
             completedChapters={completedChapters}
             isLabVirtualCompleted={isLabVirtualCompleted}
+            diagnosticAssessment={diagnosticAssessment}
             onStartPretest={handleStartPretest}
             onGoToChapter={(chapterId) => setCurrentView(chapterId)}
             onGoToLabVirtual={() => setCurrentView('lab-virtual')}
+            onGoToDiagnostic={() => setCurrentView('diagnostik')}
+            onOpenInfoModal={() => setIsInfoModalOpen(true)}
           />
         )}
 
         {/* Tampilan 2: Soal Pretest Interaktif */}
         {currentView === 'pretest' && (
           <PretestPage
+            currentUser={currentUser}
+            savedAnswers={pretestAnswers}
+            isPretestCompleted={isPretestCompleted}
             onBackToHome={() => {
               setIsPretestLocked(false);
+              const saved = getCourseProgress(currentUser) || {};
+              if (saved.pretestCompleted || saved.pretestFinished || Object.keys(pretestAnswers || {}).length >= 8) {
+                setIsPretestCompleted(true);
+              }
               setCurrentView('home');
             }}
             onGoToChapter1={() => {
               setIsPretestLocked(false);
+              setIsPretestCompleted(true);
+              const saved = getCourseProgress(currentUser) || {};
+              saveCourseProgress({
+                ...saved,
+                pretestCompleted: true,
+                pretestFinished: true
+              }, currentUser);
               setCurrentView('chapter1');
             }}
             onFinishPretest={handleFinishPretest}
+            onSaveAnswer={handleSavePretestAnswer}
+            onResetPretest={handleResetPretest}
           />
         )}
 
@@ -283,6 +381,23 @@ export default function App() {
                     style={{ padding: '0.8rem 1.6rem', fontSize: '1rem', background: '#0284C7' }}
                   >
                     🚀 Mulai Kerjakan Pretest Sekarang →
+                  </button>
+                  <button
+                    type="button"
+                    className="btn btn-outline"
+                    onClick={() => {
+                      setIsPretestCompleted(true);
+                      setIsPretestLocked(false);
+                      const saved = getCourseProgress(currentUser) || {};
+                      saveCourseProgress({
+                        ...saved,
+                        pretestCompleted: true,
+                        pretestFinished: true
+                      }, currentUser);
+                    }}
+                    style={{ padding: '0.8rem 1.4rem', borderColor: '#10B981', color: '#047857', background: '#FFFFFF', fontWeight: 700 }}
+                  >
+                    ✓ Saya Sudah Selesai Pretest, Buka Bab 1 Sekarang
                   </button>
                   <button
                     type="button"
@@ -683,7 +798,8 @@ export default function App() {
               </div>
             ) : (
               <LabVirtualHub
-                isCompleted={isLabVirtualCompleted}
+                currentUser={currentUser}
+                isCompleted={isLabVirtualCompleted || currentUser?.role === 'teacher'}
                 onCompleteLab={() => {
                   setIsLabVirtualCompleted(true);
                   const saved = getCourseProgress(currentUser) || {};
@@ -708,24 +824,10 @@ export default function App() {
           </div>
         )}
 
-        {/* Tampilan 9: Bab 6 - Evaluasi Akhir & Penghargaan (Gating: Wajib Selesai Lab Virtual) */}
-        {currentView === 'chapter6' && (
+        {/* Tampilan 9: Evaluasi Akhir Sifat Koligatif (Gating: Wajib Selesai Lab Virtual) */}
+        {(currentView === 'chapter6' || currentView === 'diagnostik') && (
           <div>
-            <div style={{ marginBottom: '1.25rem', display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
-              <button
-                type="button"
-                onClick={() => setCurrentView('home')}
-                className="btn btn-secondary"
-                style={{ padding: '0.45rem 1rem', fontSize: '0.85rem' }}
-              >
-                ← Kembali ke Peta Misi
-              </button>
-              <span style={{ fontSize: '0.85rem', color: '#64748B', fontWeight: 600 }}>
-                Tahap 7: Evaluasi Akhir & Capaian Belajar
-              </span>
-            </div>
-
-            {!isLabVirtualCompleted ? (
+            {!isLabVirtualCompleted && currentUser?.role !== 'teacher' ? (
               <div style={{
                 background: '#FFFBEB',
                 border: '1.5px solid #FDE68A',
@@ -736,10 +838,10 @@ export default function App() {
               }}>
                 <div style={{ fontSize: '3rem', marginBottom: '0.75rem' }}>🔒</div>
                 <h3 style={{ color: '#92400E', margin: '0 0 0.5rem 0', fontSize: '1.4rem' }}>
-                  Kuis Evaluasi Akhir Masih Terkunci
+                  Evaluasi Akhir Masih Terkunci
                 </h3>
                 <p style={{ color: '#78350F', maxWidth: '620px', margin: '0 auto 1.5rem', lineHeight: 1.6 }}>
-                  Untuk dapat mengakses Kuis Evaluasi Akhir, kamu wajib menuntaskan sesi praktikum di <strong>Laboratorium Virtual</strong> terlebih dahulu setelah menyelesaikan seluruh materi.
+                  Untuk dapat mengakses Evaluasi Akhir, kamu wajib menuntaskan sesi praktikum di <strong>Laboratorium Virtual</strong> terlebih dahulu setelah menyelesaikan seluruh materi.
                 </p>
                 <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', flexWrap: 'wrap' }}>
                   <button
@@ -759,28 +861,23 @@ export default function App() {
                 </div>
               </div>
             ) : (
-              <Chapter6Page
-                completedChapters={completedChapters}
-                onResetProgress={() => {
-                  setCompletedChapters([]);
-                  setIsPretestCompleted(false);
-                  setIsLabVirtualCompleted(false);
-                  saveCourseProgress({
-                    completedChapters: [],
-                    currentChapter: 'chapter1',
-                    pretestCompleted: false,
-                    pretestScore: 0,
-                    pretestTotal: 8,
-                    labVirtualCompleted: false
-                  }, currentUser);
-                  setCurrentView('home');
-                }}
+              <DiagnosticAssessmentPage
+                currentUser={currentUser}
+                savedProgress={diagnosticAssessment}
+                onSaveResult={handleSaveDiagnosticResult}
+                onBackToHome={() => setCurrentView('home')}
               />
             )}
           </div>
         )}
 
       </main>
+
+      {/* Modal Popup Informasi Website & Manual Penggunaan KimiKoli */}
+      <KimiKoliModal
+        isOpen={isInfoModalOpen}
+        onClose={() => setIsInfoModalOpen(false)}
+      />
     </div>
   );
 }

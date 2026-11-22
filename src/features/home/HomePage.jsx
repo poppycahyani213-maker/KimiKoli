@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
 import imgTekananUap from '../../assets/icon-tekanan-uap.png';
 import imgTitikDidih from '../../assets/icon-titik-didih.png';
-import imgTitikBeku from '../../assets/fenomena-titik-beku.jpg';
-import imgRadiator from '../../assets/fenomena-radiator.jpg';
-import imgMentimun from '../../assets/fenomena-mentimun.jpg';
+import imgTitikBeku from '../../assets/icon-titik-beku.png';
+import imgRadiator from '../../assets/icon-radiator.png';
+import imgOsmosis from '../../assets/icon-osmosis.png';
 import imgDesalinasi from '../../assets/fenomena-desalinasi.jpg';
-import imgElektrolit from '../../assets/fenomena-elektrolit.jpg';
+import imgElektrolit from '../../assets/icon-elektrolit.png';
 import kimikoliIcon from '../../assets/kimikoli-icon.jpg';
+import KimiKoliModal from './KimiKoliModal';
 
 /**
  * Komponen HomePage (Beranda KimiKoli)
@@ -16,41 +17,65 @@ import kimikoliIcon from '../../assets/kimikoli-icon.jpg';
  * - Peta Misi 6 Tahap otomatis mengupdate status (Terkunci 🔒, Siap Dipelajari, ✓ Selesai).
  */
 export default function HomePage({ 
+  currentUser = null,
   isPretestDone = false, 
   completedChapters = [],
   isLabVirtualCompleted = false,
+  diagnosticAssessment = null,
   onStartPretest, 
   onGoToChapter,
-  onGoToLabVirtual
+  onGoToLabVirtual,
+  onGoToDiagnostic,
+  onOpenInfoModal
 }) {
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isIconHovered, setIsIconHovered] = useState(false);
+  const isTeacher = currentUser?.role === 'teacher';
+
+  const handleOpenInfoModal = () => {
+    if (onOpenInfoModal) {
+      onOpenInfoModal();
+    } else {
+      setIsModalOpen(true);
+    }
+  };
+
   const isCh1Completed = completedChapters.includes('chapter1');
   const isCh2Completed = completedChapters.includes('chapter2');
   const isCh3Completed = completedChapters.includes('chapter3');
   const isCh4Completed = completedChapters.includes('chapter4');
   const isCh5Completed = completedChapters.includes('chapter5');
 
-  // Logika Keterbukaan Misi (Unlocked Status)
-  const isCh1Unlocked = isPretestDone;
-  const isCh2Unlocked = isCh1Completed;
-  const isCh3Unlocked = isCh2Completed;
-  const isCh4Unlocked = isCh3Completed;
-  const isCh5Unlocked = isCh4Completed;
+  // Logika Keterbukaan Misi (Unlocked Status) - Guru memiliki akses bebas 100%
+  const isCh1Unlocked = isTeacher || isPretestDone;
+  const isCh2Unlocked = isTeacher || isCh1Completed;
+  const isCh3Unlocked = isTeacher || isCh2Completed;
+  const isCh4Unlocked = isTeacher || isCh3Completed;
+  const isCh5Unlocked = isTeacher || isCh4Completed;
 
   // Hitung total misi selesai (Pretest = 1, Bab 1-5 = 5)
   let totalMissionsDone = 0;
-  if (isPretestDone) totalMissionsDone += 1;
-  if (isCh1Completed) totalMissionsDone += 1;
-  if (isCh2Completed) totalMissionsDone += 1;
-  if (isCh3Completed) totalMissionsDone += 1;
-  if (isCh4Completed) totalMissionsDone += 1;
-  if (isCh5Completed) totalMissionsDone += 1;
+  if (isPretestDone || isTeacher) totalMissionsDone += 1;
+  if (isCh1Completed || isTeacher) totalMissionsDone += 1;
+  if (isCh2Completed || isTeacher) totalMissionsDone += 1;
+  if (isCh3Completed || isTeacher) totalMissionsDone += 1;
+  if (isCh4Completed || isTeacher) totalMissionsDone += 1;
+  if (isCh5Completed || isTeacher) totalMissionsDone += 1;
 
-  const currentXp = (isPretestDone ? 20 : 0) + (completedChapters.length * 30) + (isLabVirtualCompleted ? 40 : 0);
+  const diagnosticXp = diagnosticAssessment?.xpEarned || 0;
+  const currentXp = (isPretestDone ? 20 : 0) + (completedChapters.length * 30) + (isLabVirtualCompleted ? 40 : 0) + diagnosticXp;
 
-  const isAllMissionsDone = isPretestDone && isCh1Completed && isCh2Completed && isCh3Completed && isCh4Completed && isCh5Completed;
+  const isAllMissionsDone = isTeacher || (isPretestDone && isCh1Completed && isCh2Completed && isCh3Completed && isCh4Completed && isCh5Completed);
 
   // Menentukan materi tujuan untuk tombol Hero utama
   const getNextAvailableView = () => {
+    if (isTeacher) {
+      return { 
+        label: '🔬 Eksplorasi Materi & Lab Virtual (Akses Guru Bebas) →', 
+        action: () => onGoToChapter('chapter1'), 
+        isAllDone: true 
+      };
+    }
     if (!isPretestDone) return { label: 'Mulai Misi 1: Pretest Prasyarat →', action: onStartPretest, isAllDone: false };
     if (!isCh1Completed) return { label: 'Lanjut Misi: Bab 1 Konsentrasi Larutan →', action: () => onGoToChapter('chapter1'), isAllDone: false };
     if (!isCh2Completed) return { label: 'Lanjut Misi: Bab 2 Tekanan Uap & Titik Didih →', action: () => onGoToChapter('chapter2'), isAllDone: false };
@@ -67,7 +92,7 @@ export default function HomePage({
       };
     }
 
-    return { label: '🏆 Masuk ke Kuis Evaluasi Akhir →', action: () => onGoToChapter('chapter6'), isAllDone: true };
+    return { label: '🏆 Masuk ke Evaluasi Akhir →', action: () => onGoToDiagnostic ? onGoToDiagnostic() : onGoToChapter('diagnostik'), isAllDone: true };
   };
 
   const nextAction = getNextAvailableView();
@@ -96,36 +121,100 @@ export default function HomePage({
         <div className="hero-grid">
           {/* Kolom Kiri: Headline & CTA */}
           <div>
-            <div className="hero-tag" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.55rem' }}>
+            <div 
+              className="hero-tag" 
+              onClick={handleOpenInfoModal}
+              role="button"
+              tabIndex={0}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault();
+                  handleOpenInfoModal();
+                }
+              }}
+              title="Klik untuk membuka informasi website dan manual penggunaan"
+              style={{ 
+                display: 'inline-flex', 
+                alignItems: 'center', 
+                gap: '0.55rem', 
+                cursor: 'pointer',
+                transition: 'all 0.2s ease',
+                userSelect: 'none'
+              }}
+            >
               <img 
                 src={kimikoliIcon} 
                 alt="KimiKoli" 
                 style={{ width: '22px', height: '22px', borderRadius: '6px', objectFit: 'contain' }}
               />
               <span>
-                {!isPretestDone ? '🎯 Misi 1 Wajib: Pretest Prasyarat Pembuka Materi' : 'KimiKoli · Sifat Koligatif Larutan Kelas XI SMA'}
+                {!isPretestDone && !isTeacher ? '🎯 Misi 1 Wajib: Pretest Prasyarat Pembuka Materi' : 'KimiKoli · Sifat Koligatif Larutan Kelas XI SMA'}
+              </span>
+              <span style={{ fontSize: '0.78rem', background: '#0284C7', color: '#FFFFFF', padding: '1px 6px', borderRadius: '6px', marginLeft: '2px' }}>
+                ℹ️ Info
               </span>
             </div>
 
             <div style={{ display: 'flex', alignItems: 'center', gap: '1.25rem', marginBottom: '1.2rem', flexWrap: 'wrap' }}>
-              <div style={{
-                width: 84,
-                height: 84,
-                borderRadius: '22px',
-                background: '#FFFFFF',
-                border: '2px solid #BAE6FD',
-                boxShadow: '0 8px 24px rgba(2, 132, 199, 0.14)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                padding: '6px',
-                flexShrink: 0
-              }}>
+              <div 
+                role="button"
+                tabIndex={0}
+                aria-label="Buka Informasi Website dan Manual Penggunaan KimiKoli"
+                title="Klik untuk membuka informasi website & manual penggunaan KimiKoli"
+                onClick={handleOpenInfoModal}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    handleOpenInfoModal();
+                  }
+                }}
+                onMouseEnter={() => setIsIconHovered(true)}
+                onMouseLeave={() => setIsIconHovered(false)}
+                style={{
+                  width: 88,
+                  height: 88,
+                  borderRadius: '22px',
+                  background: '#FFFFFF',
+                  border: isIconHovered ? '2.5px solid #0284C7' : '2px solid #BAE6FD',
+                  boxShadow: isIconHovered 
+                    ? '0 12px 28px rgba(2, 132, 199, 0.32), 0 0 0 4px rgba(186, 230, 253, 0.5)' 
+                    : '0 8px 24px rgba(2, 132, 199, 0.14)',
+                  transform: isIconHovered ? 'scale(1.06) translateY(-2px)' : 'scale(1)',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  padding: '6px',
+                  flexShrink: 0,
+                  cursor: 'pointer',
+                  position: 'relative',
+                  transition: 'all 0.22s cubic-bezier(0.16, 1, 0.3, 1)',
+                  outline: 'none'
+                }}
+              >
                 <img 
                   src={kimikoliIcon} 
-                  alt="Ilustrasi Laboratorium KimiKoli" 
+                  alt="Ikon KimiKoli - Klik untuk Informasi dan Manual Penggunaan" 
                   style={{ width: '100%', height: '100%', objectFit: 'contain' }}
                 />
+                <span 
+                  style={{
+                    position: 'absolute',
+                    bottom: '-9px',
+                    background: isIconHovered ? '#0369A1' : '#0284C7',
+                    color: '#FFFFFF',
+                    fontSize: '0.64rem',
+                    fontWeight: 'bold',
+                    padding: '2px 7px',
+                    borderRadius: '9999px',
+                    whiteSpace: 'nowrap',
+                    boxShadow: '0 2px 6px rgba(2, 132, 199, 0.3)',
+                    transition: 'all 0.2s ease',
+                    pointerEvents: 'none'
+                  }}
+                >
+                  💡 Info Website
+                </span>
               </div>
 
               <h1 className="hero-title" style={{ fontFamily: "'Times New Roman', Times, serif", margin: 0, flex: 1, minWidth: '240px' }}>
@@ -279,7 +368,11 @@ export default function HomePage({
                     boxShadow: isCh3Completed ? '0 2px 8px rgba(16, 185, 129, 0.18)' : 'none'
                   }}
                 >
-                  <span className="icon" style={{ color: isCh3Completed ? '#10B981' : '#94A3B8' }}>{isCh3Completed ? '❄️' : '🔒'}</span>
+                  <span className="icon" style={{ color: isCh3Completed ? '#10B981' : '#94A3B8', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    {isCh3Completed ? (
+                      <img src={imgTitikBeku} alt="Beku" style={{ width: 18, height: 18, objectFit: 'contain' }} />
+                    ) : '🔒'}
+                  </span>
                   <span className="title" style={{ color: isCh3Completed ? '#065F46' : '#475569' }}>Beku</span>
                 </div>
 
@@ -294,7 +387,11 @@ export default function HomePage({
                     boxShadow: isCh4Completed ? '0 2px 8px rgba(16, 185, 129, 0.18)' : 'none'
                   }}
                 >
-                  <span className="icon" style={{ color: isCh4Completed ? '#10B981' : '#94A3B8' }}>{isCh4Completed ? '➕' : '🔒'}</span>
+                  <span className="icon" style={{ color: isCh4Completed ? '#10B981' : '#94A3B8', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    {isCh4Completed ? (
+                      <img src={imgOsmosis} alt="Osmosis" style={{ width: 18, height: 18, objectFit: 'contain' }} />
+                    ) : '🔒'}
+                  </span>
                   <span className="title" style={{ color: isCh4Completed ? '#065F46' : '#475569' }}>Osmosis</span>
                 </div>
 
@@ -309,7 +406,11 @@ export default function HomePage({
                     boxShadow: isCh5Completed ? '0 2px 8px rgba(16, 185, 129, 0.18)' : 'none'
                   }}
                 >
-                  <span className="icon" style={{ color: isCh5Completed ? '#10B981' : '#94A3B8' }}>{isCh5Completed ? '⚡' : '🔒'}</span>
+                  <span className="icon" style={{ color: isCh5Completed ? '#10B981' : '#94A3B8', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    {isCh5Completed ? (
+                      <img src={imgElektrolit} alt="Elektrolit" style={{ width: 18, height: 18, objectFit: 'contain' }} />
+                    ) : '🔒'}
+                  </span>
                   <span className="title" style={{ color: isCh5Completed ? '#065F46' : '#475569' }}>Elektrolit</span>
                 </div>
               </div>
@@ -571,8 +672,8 @@ export default function HomePage({
                 borderRadius: '14px',
                 overflow: 'hidden',
                 flexShrink: 0,
-                border: '1.5px solid #FECACA',
-                background: '#F8FAFC',
+                border: '1.5px solid #BAE6FD',
+                background: '#F0F9FF',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
@@ -580,7 +681,7 @@ export default function HomePage({
               }}>
                 <img 
                   src={imgTitikBeku} 
-                  alt="Ilustrasi Penurunan Titik Beku (Es Krim)" 
+                  alt="Ilustrasi Penurunan Titik Beku (Kristal Es)" 
                   style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }}
                 />
               </div>
@@ -630,8 +731,8 @@ export default function HomePage({
                 borderRadius: '14px',
                 overflow: 'hidden',
                 flexShrink: 0,
-                border: '1.5px solid #BBF7D0',
-                background: '#F8FAFC',
+                border: '1.5px solid #FBCFE8',
+                background: '#FDF2F8',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
@@ -640,7 +741,7 @@ export default function HomePage({
               }}>
                 <img 
                   src={imgRadiator} 
-                  alt="Ilustrasi Cairan Radiator Mobil" 
+                  alt="Ilustrasi Cairan Radiator (Didih & Beku)" 
                   style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }}
                 />
               </div>
@@ -691,16 +792,16 @@ export default function HomePage({
                 borderRadius: '14px',
                 overflow: 'hidden',
                 flexShrink: 0,
-                border: '1.5px solid #BAE6FD',
-                background: '#F8FAFC',
+                border: '1.5px solid #86EFAC',
+                background: '#ECFDF5',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
                 padding: '4px'
               }}>
                 <img 
-                  src={imgMentimun} 
-                  alt="Ilustrasi Tekanan Osmotik (Acar Mentimun)" 
+                  src={imgOsmosis} 
+                  alt="Ilustrasi Tekanan Osmotik (Irisan Mentimun)" 
                   style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }}
                 />
               </div>
@@ -752,8 +853,8 @@ export default function HomePage({
                 borderRadius: '14px',
                 overflow: 'hidden',
                 flexShrink: 0,
-                border: '1.5px solid #DDD6FE',
-                background: '#F8FAFC',
+                border: '1.5px solid #C4B5FD',
+                background: '#F5F3FF',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
@@ -761,7 +862,7 @@ export default function HomePage({
               }}>
                 <img 
                   src={imgElektrolit} 
-                  alt="Ilustrasi Partikel Elektrolit NaCl vs Nonelektrolit" 
+                  alt="Ilustrasi Ion Larutan Elektrolit" 
                   style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }}
                 />
               </div>
@@ -829,6 +930,10 @@ export default function HomePage({
                 {isPretestDone ? (
                   <span className="tag-start-here" style={{ background: '#ECFDF5', color: '#065F46' }}>
                     ✓ Selesai
+                  </span>
+                ) : isTeacher ? (
+                  <span className="tag-start-here" style={{ background: '#EFF6FF', color: '#0284C7' }}>
+                    ✓ Bebas Akses (Guru)
                   </span>
                 ) : (
                   <span className="tag-start-here">Mulai di sini</span>
@@ -1041,7 +1146,77 @@ export default function HomePage({
             </div>
           </div>
         </div>
+
+        {/* Banner Khusus: Evaluasi Akhir Sifat Koligatif */}
+        <div 
+          onClick={onGoToDiagnostic}
+          style={{
+            marginTop: '1.5rem',
+            background: 'linear-gradient(135deg, #F0F9FF 0%, #E0F2FE 100%)',
+            border: '2px dashed #0284C7',
+            borderRadius: '16px',
+            padding: '1.25rem 1.5rem',
+            cursor: 'pointer',
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            flexWrap: 'wrap',
+            gap: '1rem',
+            boxShadow: '0 4px 14px rgba(2, 132, 199, 0.08)',
+            transition: 'transform 0.15s ease'
+          }}
+          title="Klik untuk membuka Evaluasi Akhir Sifat Koligatif"
+        >
+          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+            <div style={{
+              width: '48px',
+              height: '48px',
+              borderRadius: '12px',
+              background: '#0284C7',
+              color: '#FFFFFF',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              fontSize: '1.5rem',
+              boxShadow: '0 2px 8px rgba(2, 132, 199, 0.3)'
+            }}>
+              🏆
+            </div>
+            <div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', flexWrap: 'wrap' }}>
+                <h4 style={{ margin: 0, fontSize: '1.1rem', color: '#0369A1', fontWeight: 800 }}>
+                  Evaluasi Akhir Sifat Koligatif
+                </h4>
+                {diagnosticAssessment ? (
+                  <span style={{ background: '#DCFCE7', color: '#166534', padding: '0.15rem 0.55rem', borderRadius: '6px', fontSize: '0.75rem', fontWeight: 700 }}>
+                    ✓ Skor: {diagnosticAssessment.latestScore?.toFixed(1)}/10 (+{diagnosticAssessment.xpEarned} XP)
+                  </span>
+                ) : (
+                  <span style={{ background: '#FEF3C7', color: '#92400E', padding: '0.15rem 0.55rem', borderRadius: '6px', fontSize: '0.75rem', fontWeight: 700 }}>
+                    Tersedia (+Maks 100 XP)
+                  </span>
+                )}
+              </div>
+              <p style={{ margin: '0.25rem 0 0 0', fontSize: '0.86rem', color: '#475569', lineHeight: 1.45 }}>
+                10 soal evaluasi konseptual komprehensif dengan analisis miskonsepsi two-tier, kurva pendinginan suhu-waktu, dan rekomendasi belajar personal.
+              </p>
+            </div>
+          </div>
+          <button
+            type="button"
+            className="btn btn-primary"
+            style={{ padding: '0.65rem 1.3rem', fontSize: '0.9rem', background: '#0284C7', fontWeight: 700, borderRadius: '8px' }}
+          >
+            {diagnosticAssessment ? 'Tinjau Hasil Evaluasi Akhir →' : 'Mulai Evaluasi Akhir →'}
+          </button>
+        </div>
       </section>
+
+      {/* Modal Popup Informasi Website & Manual Penggunaan */}
+      <KimiKoliModal 
+        isOpen={isModalOpen} 
+        onClose={() => setIsModalOpen(false)} 
+      />
     </div>
   );
 }

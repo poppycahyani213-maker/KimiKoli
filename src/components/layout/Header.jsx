@@ -20,7 +20,8 @@ export default function Header({
   isPretestCompleted = false,
   onStartPretest,
   isAllMaterialCompleted = false,
-  isLabVirtualCompleted = false
+  isLabVirtualCompleted = false,
+  onOpenInfoModal
 }) {
   const isTeacher = currentUser?.role === 'teacher';
 
@@ -32,7 +33,7 @@ export default function Header({
     
     // Guru memiliki akses bebas ke seluruh fitur
     if (isTeacher) {
-      if (tabId === 'quiz') tabId = 'chapter6';
+      if (tabId === 'quiz' || tabId === 'chapter6') tabId = 'diagnostik';
       if (onSelectTab) onSelectTab(tabId);
       return;
     }
@@ -48,8 +49,12 @@ export default function Header({
       return;
     }
 
-    if (tabId === 'quiz') {
-      tabId = 'chapter6';
+    if (tabId === 'quiz' || tabId === 'chapter6' || tabId === 'diagnostik') {
+      if (!isLabVirtualCompleted) {
+        alert("🔒 Evaluasi Akhir Masih Terkunci: Harap selesaikan seluruh praktikum di Laboratorium Virtual terlebih dahulu untuk membuka Evaluasi Akhir.");
+        return;
+      }
+      tabId = 'diagnostik';
     }
 
     if (onSelectTab) {
@@ -70,9 +75,19 @@ export default function Header({
         {/* 1. Logo Brand */}
         <div 
           className="brand-link" 
-          onClick={() => handleNavClick('home')}
-          style={{ cursor: isExamLocked ? 'not-allowed' : 'pointer' }}
-          title={isExamLocked ? "Navigasi dikunci saat pretest berlangsung" : "Menuju Beranda KimiKoli"}
+          onClick={() => {
+            if (isExamLocked) {
+              alert("🔒 Mode Ujian Terfokus Aktif: Harap selesaikan seluruh soal pretest terlebih dahulu untuk membuka fitur lainnya.");
+              return;
+            }
+            if (onOpenInfoModal) {
+              onOpenInfoModal();
+            } else {
+              handleNavClick('home');
+            }
+          }}
+          style={{ cursor: isExamLocked ? 'not-allowed' : 'pointer', userSelect: 'none' }}
+          title={isExamLocked ? "Navigasi dikunci saat pretest berlangsung" : "Klik untuk Informasi Website & Manual Penggunaan KimiKoli"}
         >
           <div className="brand-icon" style={{ 
             background: '#FFFFFF', 
@@ -132,15 +147,15 @@ export default function Header({
           </button>
           <button
             type="button"
-            className={`nav-pill-btn ${currentView === 'chapter6' ? 'active' : ''}`}
-            onClick={() => handleNavClick('quiz')}
+            className={`nav-pill-btn ${(currentView === 'chapter6' || currentView === 'diagnostik') ? 'active' : ''}`}
+            onClick={() => handleNavClick('diagnostik')}
             style={{ 
               cursor: isExamLocked ? 'not-allowed' : 'pointer',
               color: (!isLabVirtualCompleted && !isTeacher) ? '#94A3B8' : undefined
             }}
-            title={(isLabVirtualCompleted || isTeacher) ? "Kuis Evaluasi Akhir (Terbuka)" : "🔒 Selesaikan Lab Virtual untuk membuka"}
+            title={(isLabVirtualCompleted || isTeacher) ? "Evaluasi Akhir (Terbuka)" : "🔒 Selesaikan Lab Virtual untuk membuka"}
           >
-            {(!isLabVirtualCompleted && !isTeacher) ? '🔒 Kuis' : '🏆 Kuis'}
+            {(!isLabVirtualCompleted && !isTeacher) ? '🔒 Evaluasi Akhir' : '🏆 Evaluasi Akhir'}
           </button>
         </nav>
 

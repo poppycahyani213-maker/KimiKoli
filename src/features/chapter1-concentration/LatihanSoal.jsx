@@ -217,6 +217,7 @@ export default function LatihanSoal({ onSemuaSelesai }) {
     }
   }, [readyToShowSummary]);
 
+<<<<<<< HEAD
 // Efek: kalau lulus, simpan ke localStorage dan panggil onSemuaSelesai
 useEffect(() => {
   if (showSummary && correctCount >= 6 && !passed) {
@@ -227,6 +228,28 @@ useEffect(() => {
     setStoredData(key, { ...saved, isExerciseDone: true });
     if (typeof onSemuaSelesai === 'function') {
       onSemuaSelesai();
+=======
+  // Efek: kalau lulus, simpan ke localStorage dan panggil onSemuaSelesai
+  useEffect(() => {
+    if (showSummary && correctCount >= 6 && !passed) {
+      setPassed(true);
+      // Simpan status lulus ke kunci yang sama dengan Chapter1Page
+      const key = getCh1StorageKey();
+      const saved = getStoredData(key, { isMissionDone: false, isExerciseDone: false });
+      setStoredData(key, { ...saved, isExerciseDone: true });
+
+      // Sinkronkan ke format kunci standar kimikoli
+      const user = getAuthUser();
+      if (user) {
+        const norm = typeof user === 'string' ? user.toLowerCase().trim() : (user.name || '').toLowerCase().trim();
+        const modernKey = `kimikoli:v1:${norm}:ch1`;
+        const modernSaved = getStoredData(modernKey, { isMissionDone: false, isExerciseDone: false });
+        setStoredData(modernKey, { ...modernSaved, isExerciseDone: true });
+      }
+      if (typeof onSemuaSelesai === 'function') {
+        onSemuaSelesai();
+      }
+>>>>>>> 491417e9810f178d3e215cf7ed8f3d5dd1dcb986
     }
   }
 }, [showSummary, correctCount]);

@@ -522,16 +522,6 @@ export default function App() {
                 </div>
               </div>
             ) : (
-                    type="button"
-                    className="btn btn-secondary"
-                    onClick={() => setCurrentView('home')}
-                    style={{ padding: '0.8rem 1.4rem' }}
-                  >
-                    Kembali ke Beranda
-                  </button>
-                </div>
-              </div>
-            ) : (
               <div>
                 <div style={{ marginBottom: '1.25rem', display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
                   <button
@@ -639,7 +629,7 @@ export default function App() {
         {/* Tampilan 6: Bab 4 - Tekanan Osmotik & Membran Semipermeabel */}
         {currentView === 'chapter4' && (
           <div>
-            {!completedChapters.includes('chapter3') && currentUser?.role !== 'teacher' ? (
+            {!isPretestCompleted && currentUser?.role !== 'teacher' ? (
               <div style={{
                 background: '#FFFBEB',
                 border: '1.5px solid #FDE68A',
@@ -654,16 +644,16 @@ export default function App() {
                   Bab 4 Masih Terkunci
                 </h3>
                 <p style={{ color: '#78350F', lineHeight: 1.6, margin: '0 auto 1.5rem' }}>
-                  Kamu wajib menyelesaikan materi di <strong>Bab 3 (Penurunan Titik Beku)</strong> terlebih dahulu sebelum membuka Bab 4.
+                  Harap selesaikan <strong>Pretest Prasyarat</strong> terlebih dahulu sebelum membuka materi Bab 4 dan bab lainnya.
                 </p>
                 <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'center', flexWrap: 'wrap' }}>
                   <button
                     type="button"
                     className="btn btn-primary"
-                    onClick={() => setCurrentView('chapter3')}
+                    onClick={handleStartPretest}
                     style={{ padding: '0.8rem 1.6rem', fontSize: '1rem', background: '#0284C7' }}
                   >
-                    📖 Buka Bab 3 Sekarang →
+                    🚀 Mulai Kerjakan Pretest Sekarang →
                   </button>
                   <button
                     type="button"
@@ -711,7 +701,7 @@ export default function App() {
         {/* Tampilan 7: Bab 5 - Sifat Koligatif Larutan Elektrolit & van 't Hoff */}
         {currentView === 'chapter5' && (
           <div>
-            {!completedChapters.includes('chapter4') && currentUser?.role !== 'teacher' ? (
+            {!isPretestCompleted && currentUser?.role !== 'teacher' ? (
               <div style={{
                 background: '#FFFBEB',
                 border: '1.5px solid #FDE68A',
@@ -726,16 +716,16 @@ export default function App() {
                   Bab 5 Masih Terkunci
                 </h3>
                 <p style={{ color: '#78350F', lineHeight: 1.6, margin: '0 auto 1.5rem' }}>
-                  Kamu wajib menyelesaikan materi di <strong>Bab 4 (Tekanan Osmotik)</strong> terlebih dahulu sebelum membuka Bab 5.
+                  Harap selesaikan <strong>Pretest Prasyarat</strong> terlebih dahulu sebelum membuka materi Bab 5 dan bab lainnya.
                 </p>
                 <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'center', flexWrap: 'wrap' }}>
                   <button
                     type="button"
                     className="btn btn-primary"
-                    onClick={() => setCurrentView('chapter4')}
+                    onClick={handleStartPretest}
                     style={{ padding: '0.8rem 1.6rem', fontSize: '1rem', background: '#0284C7' }}
                   >
-                    📖 Buka Bab 4 Sekarang →
+                    🚀 Mulai Kerjakan Pretest Sekarang →
                   </button>
                   <button
                     type="button"
@@ -805,7 +795,7 @@ export default function App() {
               </span>
             </div>
 
-            {!isAllMaterialCompleted ? (
+            {!isPretestCompleted && currentUser?.role !== 'teacher' ? (
               <div style={{
                 background: '#FFFBEB',
                 border: '1.5px solid #FDE68A',
@@ -816,41 +806,27 @@ export default function App() {
               }}>
                 <div style={{ fontSize: '3rem', marginBottom: '0.75rem' }}>🔒</div>
                 <h3 style={{ color: '#92400E', margin: '0 0 0.5rem 0', fontSize: '1.4rem' }}>
-                  Laboratorium Virtual Terbuka Setelah Selesai Materi
+                  Laboratorium Virtual Masih Terkunci
                 </h3>
                 <p style={{ color: '#78350F', maxWidth: '620px', margin: '0 auto 1.5rem', lineHeight: 1.6 }}>
-                  Sesuai alur pembelajaran KimiKoli, kamu perlu mempelajari materi teori (Bab 1 sampai Bab 5) terlebih dahulu sebelum melakukan eksperimen mandiri di Laboratorium Virtual.
+                  Harap selesaikan <strong>Pretest Prasyarat</strong> terlebih dahulu sebelum melakukan eksperimen mandiri di Laboratorium Virtual.
                 </p>
                 <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'center', flexWrap: 'wrap' }}>
                   <button
                     type="button"
                     className="btn btn-primary"
-                    onClick={() => setCurrentView('chapter1')}
-                    style={{ padding: '0.65rem 1.25rem', fontSize: '0.95rem' }}
+                    onClick={handleStartPretest}
+                    style={{ padding: '0.65rem 1.25rem', fontSize: '0.95rem', background: '#0284C7' }}
                   >
-                    📖 Mulai dari Bab 1
+                    🚀 Mulai Kerjakan Pretest Sekarang →
                   </button>
                   <button
                     type="button"
                     className="btn btn-secondary"
-                    onClick={() => setCurrentView('chapter5')}
+                    onClick={() => setCurrentView('home')}
                     style={{ padding: '0.65rem 1.25rem', fontSize: '0.95rem' }}
                   >
-                    📖 Buka Bab 5 (Bab Terakhir)
-                  </button>
-                  <button
-                    type="button"
-                    className="btn btn-outline"
-                    onClick={() => {
-                      // Buka akses langsung bagi siswa yang sudah membaca materi
-                      const updated = ['chapter1', 'chapter2', 'chapter3', 'chapter4', 'chapter5'];
-                      setCompletedChapters(updated);
-                      const saved = getCourseProgress(currentUser) || {};
-                      saveCourseProgress({ ...saved, completedChapters: updated }, currentUser);
-                    }}
-                    style={{ padding: '0.65rem 1.25rem', fontSize: '0.95rem', background: '#FFFFFF', borderColor: '#10B981', color: '#047857' }}
-                  >
-                    ✓ Saya Sudah Membaca Materi, Buka Lab Sekarang 🔓
+                    Kembali ke Beranda
                   </button>
                 </div>
               </div>
@@ -882,10 +858,10 @@ export default function App() {
           </div>
         )}
 
-        {/* Tampilan 9: Evaluasi Akhir Sifat Koligatif (Gating: Wajib Selesai Lab Virtual) */}
+        {/* Tampilan 9: Evaluasi Akhir Sifat Koligatif (Gating: Wajib Selesai Pretest) */}
         {(currentView === 'chapter6' || currentView === 'diagnostik') && (
           <div>
-            {!isLabVirtualCompleted && currentUser?.role !== 'teacher' ? (
+            {!isPretestCompleted && currentUser?.role !== 'teacher' ? (
               <div style={{
                 background: '#FFFBEB',
                 border: '1.5px solid #FDE68A',
@@ -899,15 +875,15 @@ export default function App() {
                   Evaluasi Akhir Masih Terkunci
                 </h3>
                 <p style={{ color: '#78350F', maxWidth: '620px', margin: '0 auto 1.5rem', lineHeight: 1.6 }}>
-                  Untuk dapat mengakses Evaluasi Akhir, kamu wajib menuntaskan sesi praktikum di <strong>Laboratorium Virtual</strong> terlebih dahulu setelah menyelesaikan seluruh materi.
+                  Harap selesaikan <strong>Pretest Prasyarat</strong> terlebih dahulu sebelum membuka Evaluasi Akhir.
                 </p>
                 <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', flexWrap: 'wrap' }}>
                   <button
                     type="button"
                     className="btn btn-primary"
-                    onClick={() => setCurrentView('lab-virtual')}
+                    onClick={handleStartPretest}
                   >
-                    🔬 Buka Laboratorium Virtual →
+                    🚀 Mulai Kerjakan Pretest Sekarang →
                   </button>
                   <button
                     type="button"

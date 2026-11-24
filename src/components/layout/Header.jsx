@@ -49,9 +49,19 @@ export default function Header({
       return;
     }
 
+    if (tabId === 'lab-virtual' && !isPretestCompleted) {
+      alert("🔒 Lab Virtual Masih Terkunci: Harap selesaikan Pretest Prasyarat terlebih dahulu sebelum membuka Laboratorium Virtual.");
+      if (onStartPretest) {
+        onStartPretest();
+      } else if (onSelectTab) {
+        onSelectTab('pretest');
+      }
+      return;
+    }
+
     if (tabId === 'quiz' || tabId === 'chapter6' || tabId === 'diagnostik') {
-      if (!isLabVirtualCompleted) {
-        alert("🔒 Evaluasi Akhir Masih Terkunci: Harap selesaikan seluruh praktikum di Laboratorium Virtual terlebih dahulu untuk membuka Evaluasi Akhir.");
+      if (!isPretestCompleted) {
+        alert("🔒 Evaluasi Akhir Masih Terkunci: Harap selesaikan Pretest Prasyarat terlebih dahulu sebelum membuka Evaluasi Akhir.");
         return;
       }
       tabId = 'diagnostik';
@@ -139,11 +149,11 @@ export default function Header({
             onClick={() => handleNavClick('lab-virtual')}
             style={{ 
               cursor: isExamLocked ? 'not-allowed' : 'pointer',
-              color: !isAllMaterialCompleted ? '#94A3B8' : undefined
+              color: (!isPretestCompleted && !isTeacher) ? '#94A3B8' : undefined
             }}
-            title={(isAllMaterialCompleted || isTeacher) ? "Laboratorium Virtual (Terbuka)" : "🔒 Selesaikan Bab 1-5 untuk membuka"}
+            title={(isPretestCompleted || isTeacher) ? "Laboratorium Virtual (Terbuka)" : "🔒 Selesaikan Pretest untuk membuka"}
           >
-            {(!isAllMaterialCompleted && !isTeacher) ? '🔒 Lab Virtual' : '🔬 Lab Virtual'}
+            {(!isPretestCompleted && !isTeacher) ? '🔒 Lab Virtual' : '🔬 Lab Virtual'}
           </button>
           <button
             type="button"

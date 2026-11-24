@@ -123,10 +123,11 @@ export default function DiagnosticGraph({ dataGrafik, title = 'Grafik Rekaman Su
                 />
                 <text
                   x={padding.left - 8}
-                  y={py + 3.5}
+                  y={py + 4}
                   textAnchor="end"
-                  fontSize="10"
-                  fill="#64748B"
+                  fontSize="13"
+                  fontWeight="600"
+                  fill="#334155"
                   fontFamily="sans-serif"
                 >
                   {val.toLocaleString('id-ID')}°C
@@ -147,8 +148,8 @@ export default function DiagnosticGraph({ dataGrafik, title = 'Grafik Rekaman Su
           />
           <text
             x={width - padding.right + 4}
-            y={zeroY + 3}
-            fontSize="10"
+            y={zeroY + 4}
+            fontSize="13"
             fill="#DC2626"
             fontWeight="bold"
             fontFamily="sans-serif"
@@ -245,10 +246,11 @@ export default function DiagnosticGraph({ dataGrafik, title = 'Grafik Rekaman Su
                 />
                 <text
                   x={pt.cx}
-                  y={height - padding.bottom + 17}
+                  y={height - padding.bottom + 18}
                   textAnchor="middle"
-                  fontSize="10"
-                  fill="#64748B"
+                  fontSize="13"
+                  fontWeight="600"
+                  fill="#334155"
                   fontFamily="sans-serif"
                 >
                   {pt.xVal}
@@ -260,11 +262,11 @@ export default function DiagnosticGraph({ dataGrafik, title = 'Grafik Rekaman Su
           {/* Label Sumbu X & Y */}
           <text
             x={padding.left + plotW / 2}
-            y={height - 8}
+            y={height - 6}
             textAnchor="middle"
-            fontSize="11"
-            fill="#475569"
-            fontWeight="600"
+            fontSize="13.5"
+            fill="#0F172A"
+            fontWeight="700"
             fontFamily="sans-serif"
           >
             {x_label}
@@ -272,11 +274,11 @@ export default function DiagnosticGraph({ dataGrafik, title = 'Grafik Rekaman Su
 
           <text
             x={-(padding.top + plotH / 2)}
-            y="16"
+            y="15"
             textAnchor="middle"
-            fontSize="11"
-            fill="#475569"
-            fontWeight="600"
+            fontSize="13.5"
+            fill="#0F172A"
+            fontWeight="700"
             fontFamily="sans-serif"
             transform="rotate(-90)"
           >
@@ -287,8 +289,9 @@ export default function DiagnosticGraph({ dataGrafik, title = 'Grafik Rekaman Su
 
       {/* Tabel Data (Scrollable Horizontal untuk Layar HP, tidak melebarkan halaman) */}
       <div style={{ marginTop: '0.85rem' }}>
-        <div style={{ fontSize: '0.8rem', fontWeight: 700, color: '#334155', marginBottom: '0.35rem' }}>
-          📋 Tabel Data Pengamatan ({x_label} vs {y_label}):
+        <div style={{ fontSize: '0.8rem', fontWeight: 700, color: '#334155', marginBottom: '0.35rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.3rem' }}>
+          <span>📋 Tabel Data Pengamatan ({x_label} vs {y_label}):</span>
+          <span style={{ fontSize: '0.72rem', color: '#64748B', fontWeight: 500 }}>👉 Geser untuk melihat seluruh titik</span>
         </div>
         <div style={{
           overflowX: 'auto',

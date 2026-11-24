@@ -22,6 +22,56 @@ import DiagnosticGraph from './DiagnosticGraph';
  * - Penilaian otomatis, rincian skor, pembahasan per soal, dan Laporan Diagnostik Miskonsepsi
  * - Riwayat percobaan tersimpan per username
  */
+/**
+ * Helper informasi visual kategori pemahaman (P, PS, M, TP)
+ * Menjamin konsistensi warna, ikon, dan label di tabel desktop & kartu mobile
+ */
+const getCategoryMeta = (cat) => {
+  if (cat === 'P') {
+    return {
+      label: 'P - Paham Konsep',
+      icon: '✅',
+      badgeBg: '#D1FAE5',
+      badgeColor: '#065F46',
+      cardBg: '#F0FDF4',
+      border: '#10B981',
+      statusText: '✓ Paham Konsep'
+    };
+  }
+  if (cat === 'PS') {
+    return {
+      label: 'PS - Paham Sebagian',
+      icon: '⚠️',
+      badgeBg: '#FEF3C7',
+      badgeColor: '#92400E',
+      cardBg: '#FFFBEB',
+      border: '#F59E0B',
+      statusText: 'Paham Sebagian'
+    };
+  }
+  if (cat && cat.startsWith('M')) {
+    return {
+      label: `${cat} - Miskonsepsi`,
+      icon: '❌',
+      badgeBg: '#FEE2E2',
+      badgeColor: '#991B1B',
+      cardBg: '#FEF2F2',
+      border: '#EF4444',
+      statusText: `⚠️ Terdeteksi ${cat}`
+    };
+  }
+  // TP (Tidak Paham) / default
+  return {
+    label: 'TP - Tidak Paham',
+    icon: '❓',
+    badgeBg: '#F1F5F9',
+    badgeColor: '#475569',
+    cardBg: '#F8FAFC',
+    border: '#94A3B8',
+    statusText: 'Tidak Paham'
+  };
+};
+
 export default function DiagnosticAssessmentPage({
   currentUser = null,
   onBackToHome,
@@ -39,36 +89,55 @@ export default function DiagnosticAssessmentPage({
     return initialHistory.length > 0 ? 'result' : 'exam';
   });
 
-  // Nomor index soal aktif (0 sampai 9)
-  const [currentIndex, setCurrentIndex] = useState(0);
+  // Kunci draft per user agar jawaban tidak hilang jika browser ditutup/refresh
+  const draftKey = `kimikoli:${currentUser?.uid ?? currentUser?.username ?? 'guest'}:diagnostic-draft`;
+
+  // Muat draft & index soal terakhir saat mount (jika ada)
+  const initialDraftData = useMemo(() => {
+    try {
+      const raw = localStorage.getItem(draftKey);
+      if (!raw) return { responses: {}, index: 0 };
+      const parsed = JSON.parse(raw);
+      if (parsed && typeof parsed === 'object') {
+        if (parsed.responses && typeof parsed.responses === 'object') {
+          return {
+            responses: parsed.responses,
+            index: typeof parsed.currentIndex === 'number' && parsed.currentIndex >= 0 && parsed.currentIndex < 10
+              ? parsed.currentIndex
+              : 0
+          };
+        }
+        // Kompatibilitas format draft lama (hanya object userResponses langsung)
+        return { responses: parsed, index: 0 };
+      }
+    } catch {
+      return { responses: {}, index: 0 };
+    }
+    return { responses: {}, index: 0 };
+  }, [draftKey]);
+
+  // Nomor index soal aktif (0 sampai 9), melanjutkan dari draft jika ada
+  const [currentIndex, setCurrentIndex] = useState(() => initialDraftData.index);
 
   // State jawaban peserta didik: { [soalNo]: any }
   // Soal 1: string[]
   // Soal 2: { [stmtId]: boolean }
   // Soal 3, 7-10: string id
   // Soal 4-6: { t1: string, t2: string, confidence: number }
+  const [userResponses, setUserResponses] = useState(() => initialDraftData.responses);
 
-  // Kunci draft per user agar jawaban tidak hilang jika browser ditutup/refresh
-  const draftKey = `kimikoli:${currentUser?.uid ?? currentUser?.username ?? 'guest'}:diagnostic-draft`;
-
-  // Muat draft saat mount (jika ada)
-  const [userResponses, setUserResponses] = useState(() => {
-    try {
-      const raw = localStorage.getItem(draftKey);
-      return raw ? JSON.parse(raw) : {};
-    } catch {
-      return {};
-    }
-  });
-
-  // Simpan draft setiap jawaban berubah
+  // Simpan draft setiap jawaban atau nomor soal berubah (hanya saat belum submit/bukan mode result)
   useEffect(() => {
+    if (mode === 'result') return;
     try {
-      localStorage.setItem(draftKey, JSON.stringify(userResponses));
+      localStorage.setItem(draftKey, JSON.stringify({
+        responses: userResponses,
+        currentIndex: currentIndex
+      }));
     } catch {
       /* abaikan, jangan matikan halaman */
     }
-  }, [userResponses, draftKey]);
+  }, [userResponses, currentIndex, draftKey, mode]);
 
   // Hapus draft setelah submit berhasil (bukan riwayat)
   const clearDraft = () => {
@@ -116,6 +185,12 @@ export default function DiagnosticAssessmentPage({
     setCurrentIndex(0);
     setMode('exam');
     window.scrollTo({ top: 0, behavior: 'smooth' });
+    try {
+      localStorage.setItem(draftKey, JSON.stringify({
+        responses: {},
+        currentIndex: 0
+      }));
+    } catch {}
   };
 
   const currentQ = shuffledQuestions[currentIndex];
@@ -222,64 +297,164 @@ export default function DiagnosticAssessmentPage({
 
   return (
     <div style={{ maxWidth: '880px', margin: '0 auto', padding: '1rem', color: '#1E293B', fontFamily: 'system-ui, -apple-system, sans-serif' }}>
-      {/* Aksesibilitas: sembunyikan radio secara visual tapi tetap bisa diakses keyboard */}
+      {/* Aksesibilitas Keyboard & Penyesuaian Responsif */}
       <style>{`
-        .option input[type="radio"] {
-          position: absolute;
-          opacity: 0;
-          width: 1px;
-          height: 1px;
+        /* Fokus keyboard yang jelas */
+        :focus-visible {
+          outline: 2.5px solid #0284C7 !important;
+          outline-offset: 2px !important;
         }
-        .option input[type="radio"]:focus-visible + span {
-          outline: 2px solid currentColor;
-          outline-offset: 2px;
+
+        input[type="radio"]:focus-visible,
+        input[type="checkbox"]:focus-visible {
+          outline: 2.5px solid #0284C7 !important;
+          outline-offset: 2px !important;
+          border-radius: 4px;
+        }
+
+        .summary-question-btn {
+          background: none;
+          border: none;
+          font: inherit;
+          cursor: pointer;
+          width: 100%;
+          text-align: center;
+          transition: transform 0.1s ease, box-shadow 0.15s ease;
+        }
+        .summary-question-btn:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+        }
+        .summary-question-btn:focus-visible {
+          outline: 3px solid #0284C7 !important;
+          outline-offset: 2px !important;
+        }
+
+        .confidence-btn:focus-visible {
+          outline: 3px solid #D97706 !important;
+          outline-offset: 2px !important;
+        }
+
+        label:has(input[type="radio"]:focus-visible),
+        label:has(input[type="checkbox"]:focus-visible) {
+          outline: 2.5px solid #0284C7 !important;
+          outline-offset: 2px !important;
+        }
+
+        .show-on-mobile { display: none; }
+        .hide-on-mobile { display: inline; }
+
+        /* Responsivitas Layar HP (< 640px) */
+        @media (max-width: 639px) {
+          .show-on-mobile { display: inline; }
+          .hide-on-mobile { display: none; }
+
+          .assessment-header {
+            padding: 0.5rem 0.75rem !important;
+            margin-bottom: 0.75rem !important;
+            top: 4px !important;
+            border-radius: 12px !important;
+          }
+          .assessment-title {
+            font-size: 0.98rem !important;
+          }
+          .assessment-subtitle {
+            display: none !important;
+          }
+          .const-panel {
+            font-size: 0.74rem !important;
+            padding: 0.2rem 0.5rem !important;
+            gap: 0.4rem !important;
+          }
+
+          .bottom-nav-container {
+            display: flex !important;
+            flex-direction: row !important;
+            gap: 0.35rem !important;
+            width: 100% !important;
+          }
+          .nav-btn-right {
+            display: flex !important;
+            flex: 1 !important;
+            gap: 0.35rem !important;
+          }
+          .nav-btn {
+            padding: 0.55rem 0.65rem !important;
+            font-size: 0.8rem !important;
+          }
+          .summary-btn {
+            flex: 1 !important;
+            text-align: center !important;
+          }
+          .next-btn, .finish-btn {
+            flex: 1 !important;
+            text-align: center !important;
+          }
+
+          .diag-table-desktop {
+            display: none !important;
+          }
+          .diag-cards-mobile {
+            display: flex !important;
+            flex-direction: column;
+            gap: 0.85rem;
+          }
+        }
+
+        @media (min-width: 640px) {
+          .diag-table-desktop {
+            display: block !important;
+          }
+          .diag-cards-mobile {
+            display: none !important;
+          }
         }
       `}</style>
       
       {/* 1. Header & Panel Konstanta (Selalu Terlihat) */}
-      <div style={{
+      <div className="assessment-header" style={{
         background: '#FFFFFF',
         border: '1.5px solid #BAE6FD',
         borderRadius: '16px',
-        padding: '1rem 1.25rem',
-        marginBottom: '1.25rem',
+        padding: '0.85rem 1.15rem',
+        marginBottom: '1rem',
         boxShadow: '0 4px 12px rgba(2, 132, 199, 0.08)',
         position: 'sticky',
         top: '10px',
         zIndex: 20
       }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.75rem' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.5rem' }}>
           <div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-              <span style={{ fontSize: '1.3rem' }}>🏆</span>
-              <h2 style={{ margin: 0, fontSize: '1.2rem', color: '#0369A1', fontWeight: 800 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+              <span style={{ fontSize: '1.2rem' }}>🏆</span>
+              <h2 className="assessment-title" style={{ margin: 0, fontSize: '1.15rem', color: '#0369A1', fontWeight: 800 }}>
                 Evaluasi Akhir Sifat Koligatif
               </h2>
             </div>
-            <div style={{ fontSize: '0.82rem', color: '#64748B', marginTop: '0.2rem' }}>
+            <div className="assessment-subtitle" style={{ fontSize: '0.8rem', color: '#64748B', marginTop: '0.15rem' }}>
               Evaluasi Pemahaman Konseptual, Penalaran Ilmiah & Capaian Belajar
             </div>
           </div>
 
-          {/* Panel Konstanta */}
-          <div style={{
+          {/* Panel Konstanta Ramping */}
+          <div className="const-panel" style={{
             background: '#F0F9FF',
             border: '1px solid #7DD3FC',
-            borderRadius: '10px',
-            padding: '0.45rem 0.9rem',
+            borderRadius: '8px',
+            padding: '0.35rem 0.75rem',
             display: 'flex',
             alignItems: 'center',
-            gap: '1rem',
-            fontSize: '0.85rem',
+            gap: '0.65rem',
+            fontSize: '0.82rem',
             fontWeight: 700,
             color: '#0369A1'
           }}>
-            <span style={{ fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em', color: '#0284C7', background: '#E0F2FE', padding: '0.15rem 0.45rem', borderRadius: '4px' }}>
+            <span style={{ fontSize: '0.72rem', textTransform: 'uppercase', letterSpacing: '0.04em', color: '#0284C7', background: '#E0F2FE', padding: '0.1rem 0.4rem', borderRadius: '4px' }}>
               Konstanta
             </span>
-            <span>Kf air = 1,86 °C/m</span>
+            <span>Kf = 1,86</span>
             <span style={{ color: '#BAE6FD' }}>|</span>
-            <span>Kb air = 0,52 °C/m</span>
+            <span>Kb = 0,52 °C/m</span>
           </div>
         </div>
       </div>
@@ -701,43 +876,53 @@ export default function DiagnosticAssessmentPage({
                   background: '#FFFBEB',
                   border: '1.5px solid #FDE68A',
                   borderRadius: '12px',
-                  padding: '1.1rem'
+                  padding: '1rem'
                 }}>
                   <div style={{ fontWeight: 800, fontSize: '0.92rem', color: '#92400E', marginBottom: '0.35rem' }}>
                     ⚖️ Tingkat Keyakinan atas Jawaban & Alasan Anda:
                   </div>
-                  <div style={{ fontSize: '0.8rem', color: '#78350F', marginBottom: '0.8rem' }}>
-                    Pilih angka 1 (hanya menebak) sampai 5 (sangat yakin dengan konsep):
+                  <div style={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    fontSize: '0.75rem',
+                    color: '#78350F',
+                    fontWeight: 600,
+                    marginBottom: '0.5rem',
+                    padding: '0 0.2rem'
+                  }}>
+                    <span>1 = Menebak</span>
+                    <span>5 = Sangat yakin</span>
                   </div>
 
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: '0.5rem' }}>
-                    {[
-                      { val: 1, label: '1 - Menebak' },
-                      { val: 2, label: '2 - Kurang Yakin' },
-                      { val: 3, label: '3 - Cukup Yakin' },
-                      { val: 4, label: '4 - Yakin' },
-                      { val: 5, label: '5 - Sangat Yakin' }
-                    ].map(item => {
-                      const isChosen = userResponses[currentQ.no]?.confidence === item.val;
+                  <div style={{
+                    display: 'grid',
+                    gridTemplateColumns: 'repeat(5, 1fr)',
+                    gap: '0.45rem'
+                  }}>
+                    {[1, 2, 3, 4, 5].map(val => {
+                      const isChosen = userResponses[currentQ.no]?.confidence === val;
                       return (
                         <button
-                          key={`conf-${item.val}`}
+                          key={`conf-${val}`}
                           type="button"
-                          onClick={() => handleTwoTierChange('confidence', item.val)}
+                          className="confidence-btn"
+                          aria-pressed={isChosen}
+                          onClick={() => handleTwoTierChange('confidence', val)}
                           style={{
-                            padding: '0.6rem 0.5rem',
+                            padding: '0.65rem 0.2rem',
                             borderRadius: '8px',
-                            fontWeight: 700,
-                            fontSize: '0.82rem',
+                            fontWeight: 800,
+                            fontSize: '1.05rem',
                             cursor: 'pointer',
-                            border: isChosen ? '2px solid #D97706' : '1px solid #FCD34D',
+                            border: isChosen ? '2.5px solid #D97706' : '1.5px solid #FCD34D',
                             background: isChosen ? '#F59E0B' : '#FFFFFF',
                             color: isChosen ? '#FFFFFF' : '#92400E',
                             transition: 'all 0.15s ease',
                             textAlign: 'center'
                           }}
                         >
-                          {item.label}
+                          {val}
                         </button>
                       );
                     })}
@@ -767,68 +952,71 @@ export default function DiagnosticAssessmentPage({
           </div>
 
           {/* Tombol Navigasi Bawah */}
-          <div style={{
+          <div className="bottom-nav-container" style={{
             display: 'flex',
             justifyContent: 'space-between',
             alignItems: 'center',
-            gap: '0.75rem',
+            gap: '0.5rem',
             flexWrap: 'wrap'
           }}>
             <button
               type="button"
+              className="nav-btn prev-btn"
               disabled={currentIndex === 0}
               onClick={() => {
                 setCurrentIndex(prev => Math.max(0, prev - 1));
                 window.scrollTo({ top: 0, behavior: 'smooth' });
               }}
               style={{
-                padding: '0.7rem 1.4rem',
+                padding: '0.65rem 1.1rem',
                 borderRadius: '10px',
                 border: '1px solid #CBD5E1',
                 background: currentIndex === 0 ? '#F1F5F9' : '#FFFFFF',
                 color: currentIndex === 0 ? '#94A3B8' : '#334155',
                 fontWeight: 700,
-                fontSize: '0.9rem',
+                fontSize: '0.88rem',
                 cursor: currentIndex === 0 ? 'not-allowed' : 'pointer'
               }}
             >
-              ← Sebelumnya
+              ← <span className="hide-on-mobile">Sebelumnya</span><span className="show-on-mobile">Balik</span>
             </button>
 
-            <div style={{ display: 'flex', gap: '0.6rem' }}>
+            <div className="nav-btn-right" style={{ display: 'flex', gap: '0.45rem' }}>
               <button
                 type="button"
+                className="nav-btn summary-btn"
                 onClick={() => setMode('summary')}
                 style={{
-                  padding: '0.7rem 1.2rem',
+                  padding: '0.65rem 1rem',
                   borderRadius: '10px',
                   border: '1.5px solid #0284C7',
                   background: '#F0F9FF',
                   color: '#0369A1',
                   fontWeight: 700,
-                  fontSize: '0.9rem',
+                  fontSize: '0.88rem',
                   cursor: 'pointer'
                 }}
               >
-                📋 Ringkasan Jawaban
+                📋 Ringkasan<span className="hide-on-mobile"> Jawaban</span>
               </button>
 
               {currentIndex < 9 ? (
                 <button
                   type="button"
+                  className="nav-btn next-btn"
                   disabled={!isCurrentQValid}
                   onClick={() => {
                     setCurrentIndex(prev => prev + 1);
                     window.scrollTo({ top: 0, behavior: 'smooth' });
                   }}
                   style={{
-                    padding: '0.7rem 1.5rem',
+                    padding: '0.65rem 1.25rem',
                     borderRadius: '10px',
                     border: 'none',
                     background: isCurrentQValid ? '#0284C7' : '#CBD5E1',
                     color: '#FFFFFF',
                     fontWeight: 700,
-                    fontSize: '0.9rem',
+                    fontSize: '0.88rem',
                     cursor: isCurrentQValid ? 'pointer' : 'not-allowed',
                     boxShadow: isCurrentQValid ? '0 2px 8px rgba(2, 132, 199, 0.25)' : 'none'
                   }}
@@ -839,20 +1027,22 @@ export default function DiagnosticAssessmentPage({
               ) : (
                 <button
                   type="button"
+                  className="nav-btn finish-btn"
                   disabled={!isCurrentQValid}
                   onClick={() => setMode('summary')}
                   style={{
-                    padding: '0.7rem 1.5rem',
+                    padding: '0.65rem 1.25rem',
                     borderRadius: '10px',
                     border: 'none',
                     background: isCurrentQValid ? '#10B981' : '#CBD5E1',
                     color: '#FFFFFF',
                     fontWeight: 700,
-                    fontSize: '0.9rem',
+                    fontSize: '0.88rem',
                     cursor: isCurrentQValid ? 'pointer' : 'not-allowed'
                   }}
                 >
-                  Selesai & Tinjau Ringkasan ✓
+                  <span className="hide-on-mobile">Selesai & Tinjau</span>
+                  <span className="show-on-mobile">Selesai</span> ✓
                 </button>
               )}
             </div>
@@ -883,23 +1073,24 @@ export default function DiagnosticAssessmentPage({
           {/* Grid Status Nomor Soal */}
           <div style={{
             display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fill, minmax(150px, 1fr))',
+            gridTemplateColumns: 'repeat(auto-fill, minmax(140px, 1fr))',
             gap: '0.85rem',
             marginBottom: '1.5rem'
           }}>
             {rawQuestions.map((q, idx) => {
               const answered = isQuestionAnswered(q, userResponses[q.no]);
               return (
-                <div
+                <button
+                  type="button"
                   key={`sum-${q.no}`}
                   onClick={() => goToQuestion(idx)}
+                  className="summary-question-btn"
+                  aria-label={`Soal ${q.no}, ${answered ? 'Sudah terjawab' : 'Belum terjawab'}`}
                   style={{
                     padding: '0.8rem',
                     borderRadius: '10px',
                     border: answered ? '1.5px solid #10B981' : '1.5px solid #F59E0B',
                     background: answered ? '#ECFDF5' : '#FFFBEB',
-                    cursor: 'pointer',
-                    transition: 'transform 0.1s ease',
                     textAlign: 'center'
                   }}
                 >
@@ -912,7 +1103,7 @@ export default function DiagnosticAssessmentPage({
                   <div style={{ fontSize: '0.7rem', color: '#64748B', marginTop: '0.25rem' }}>
                     {q.tipe === 'two_tier' ? 'Two-Tier' : q.tipe}
                   </div>
-                </div>
+                </button>
               );
             })}
           </div>
@@ -1082,27 +1273,62 @@ export default function DiagnosticAssessmentPage({
                 Laporan Evaluasi & Deteksi Miskonsepsi (Soal 4–6)
               </h3>
             </div>
-            <p style={{ margin: '0 0 1.25rem 0', fontSize: '0.88rem', color: '#64748B', lineHeight: 1.5 }}>
+            <p style={{ margin: '0 0 1rem 0', fontSize: '0.88rem', color: '#64748B', lineHeight: 1.5 }}>
               Laporan dua tingkat (Two-Tier) ini menganalisis konsistensi konsep antara pilihan jawaban, penalaran ilmiah, dan skala keyakinan peserta didik untuk mendeteksi pemahaman dan potensi miskonsepsi secara akurat.
             </p>
 
-            <div style={{ overflowX: 'auto', WebkitOverflowScrolling: 'touch', maxWidth: '100%' }}>
+            {/* Legenda Singkat Hasil Diagnostik Two-Tier (Requirement 3) */}
+            <div style={{
+              background: '#F8FAFC',
+              border: '1px solid #CBD5E1',
+              borderRadius: '12px',
+              padding: '0.9rem 1rem',
+              marginBottom: '1.25rem',
+              fontSize: '0.84rem',
+              lineHeight: 1.55
+            }}>
+              <div style={{ fontWeight: 800, color: '#0369A1', marginBottom: '0.45rem', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                <span>📌</span> Panduan Membaca Hasil Diagnostik:
+              </div>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '0.65rem' }}>
+                <div style={{ background: '#FFFFFF', padding: '0.55rem 0.75rem', borderRadius: '8px', border: '1px solid #E2E8F0' }}>
+                  <div style={{ fontWeight: 700, color: '#1E293B', marginBottom: '0.2rem' }}>🔍 Komponen Jawaban</div>
+                  <div style={{ color: '#475569', fontSize: '0.8rem' }}>
+                    • <strong>T1 (Tingkat 1):</strong> Pilihan jawaban konsep kimia.<br />
+                    • <strong>T2 (Tingkat 2):</strong> Alasan ilmiah yang mendasari jawaban.<br />
+                    • <strong>Keyakinan:</strong> Skala 1 (menebak) s.d. 5 (sangat yakin).
+                  </div>
+                </div>
+                <div style={{ background: '#FFFFFF', padding: '0.55rem 0.75rem', borderRadius: '8px', border: '1px solid #E2E8F0' }}>
+                  <div style={{ fontWeight: 700, color: '#1E293B', marginBottom: '0.2rem' }}>🏷️ Kategori Pemahaman</div>
+                  <div style={{ color: '#475569', fontSize: '0.8rem' }}>
+                    • <strong style={{ color: '#059669' }}>✅ P (Paham):</strong> Jawaban & alasan keduanya benar.<br />
+                    • <strong style={{ color: '#D97706' }}>⚠️ PS (Paham Sebagian):</strong> Benar sebagian / alasan kurang pas.<br />
+                    • <strong style={{ color: '#DC2626' }}>❌ M (Miskonsepsi):</strong> Konsep keliru secara sistematis.<br />
+                    • <strong style={{ color: '#64748B' }}>❓ TP (Tidak Paham):</strong> Jawaban & alasan salah / menebak.
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Tampilan Tabel untuk Layar Lebar (>= 640px) */}
+            <div className="diag-table-desktop" style={{ overflowX: 'auto', WebkitOverflowScrolling: 'touch', maxWidth: '100%' }}>
               <table style={{
                 width: '100%',
                 borderCollapse: 'collapse',
                 fontSize: '0.86rem',
                 border: '1px solid #CBD5E1',
                 borderRadius: '8px',
-                minWidth: '650px'
+                minWidth: '760px'
               }}>
                 <thead>
                   <tr style={{ background: '#F1F5F9', color: '#1E293B', borderBottom: '2px solid #CBD5E1' }}>
-                    <th style={{ padding: '0.75rem 0.8rem', textAlign: 'left', fontWeight: 700 }}>Soal & Topik</th>
-                    <th style={{ padding: '0.75rem 0.8rem', textAlign: 'center', fontWeight: 700 }}>Jawaban + Alasan</th>
-                    <th style={{ padding: '0.75rem 0.8rem', textAlign: 'center', fontWeight: 700 }}>Kategori</th>
-                    <th style={{ padding: '0.75rem 0.8rem', textAlign: 'left', fontWeight: 700 }}>Status Diagnostik</th>
-                    <th style={{ padding: '0.75rem 0.8rem', textAlign: 'center', fontWeight: 700 }}>Keyakinan & Tafsir</th>
-                    <th style={{ padding: '0.75rem 0.8rem', textAlign: 'left', fontWeight: 700 }}>Saran Belajar</th>
+                    <th style={{ padding: '0.75rem 0.8rem', textAlign: 'left', fontWeight: 700, width: '15%' }}>Soal & Topik</th>
+                    <th style={{ padding: '0.75rem 0.8rem', textAlign: 'left', fontWeight: 700, width: '28%', minWidth: '220px' }}>Jawaban & Alasan</th>
+                    <th style={{ padding: '0.75rem 0.8rem', textAlign: 'center', fontWeight: 700, width: '10%' }}>Kategori</th>
+                    <th style={{ padding: '0.75rem 0.8rem', textAlign: 'left', fontWeight: 700, width: '18%' }}>Status Diagnostik</th>
+                    <th style={{ padding: '0.75rem 0.8rem', textAlign: 'center', fontWeight: 700, width: '13%' }}>Keyakinan</th>
+                    <th style={{ padding: '0.75rem 0.8rem', textAlign: 'left', fontWeight: 700, width: '16%' }}>Saran Belajar</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -1110,51 +1336,107 @@ export default function DiagnosticAssessmentPage({
                     const qData = rawQuestions.find(q => q.no === qNum);
                     const qDetail = latestEvaluation.evaluation?.details?.[qNum] || {};
                     const cat = qDetail.category || 'TP';
-                    const isP = cat === 'P';
-                    const isM = cat.startsWith('M');
+                    const meta = getCategoryMeta(cat);
+
+                    const t1Val = qDetail.response?.t1 || '-';
+                    const t2Val = qDetail.response?.t2 || '-';
+                    const t1Option = qData?.tingkat1?.opsi?.find(o => o.id === t1Val);
+                    const t2Option = qData?.tingkat2?.opsi?.find(o => o.id === t2Val);
+                    const t1Text = t1Option?.teks || '';
+                    const t2Text = t2Option?.teks || '';
 
                     return (
-                      <tr key={`diag-${qNum}`} style={{ borderBottom: '1px solid #E2E8F0', background: isP ? '#F0FDF4' : (isM ? '#FEF2F2' : '#FFFFFF') }}>
+                      <tr key={`diag-${qNum}`} style={{ borderBottom: '1px solid #E2E8F0', background: meta.cardBg }}>
                         {/* Soal & Topik */}
-                        <td style={{ padding: '0.75rem 0.8rem', fontWeight: 700, color: '#1E293B' }}>
+                        <td style={{ padding: '0.75rem 0.8rem', fontWeight: 700, color: '#1E293B', verticalAlign: 'top' }}>
                           <div>Soal {qNum}</div>
-                          <div style={{ fontSize: '0.78rem', color: '#64748B', fontWeight: 500 }}>
-                            {qData.topik}
+                          <div style={{ fontSize: '0.78rem', color: '#64748B', fontWeight: 500, marginTop: '0.15rem' }}>
+                            {qData?.topik}
                           </div>
                         </td>
 
-                        {/* Jawaban + Alasan */}
-                        <td style={{ padding: '0.75rem 0.8rem', textAlign: 'center' }}>
-                          <span style={{ fontWeight: 700, color: '#0369A1', background: '#E0F2FE', padding: '0.2rem 0.5rem', borderRadius: '4px' }}>
-                            T1: {qDetail.response?.t1 || '-'}
-                          </span>
-                          <span style={{ margin: '0 0.3rem' }}>+</span>
-                          <span style={{ fontWeight: 700, color: '#0369A1', background: '#E0F2FE', padding: '0.2rem 0.5rem', borderRadius: '4px' }}>
-                            T2: {qDetail.response?.t2 || '-'}
-                          </span>
+                        {/* Jawaban & Alasan (Dua baris rapi: Label kiri, Badge kanan, cuplikan teks) */}
+                        <td style={{ padding: '0.65rem 0.8rem', verticalAlign: 'top', minWidth: '210px' }}>
+                          {/* Baris 1: Jawaban (T1) */}
+                          <div style={{ marginBottom: '0.45rem' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '0.5rem', whiteSpace: 'nowrap' }}>
+                              <span style={{ fontSize: '0.78rem', color: '#475569', fontWeight: 600 }}>Jawaban (T1):</span>
+                              <span style={{ fontWeight: 800, color: '#0369A1', background: '#E0F2FE', padding: '0.15rem 0.5rem', borderRadius: '4px', fontSize: '0.8rem' }}>
+                                {t1Val}
+                              </span>
+                            </div>
+                            {t1Text && (
+                              <div
+                                title={t1Text}
+                                style={{
+                                  fontSize: '0.75rem',
+                                  color: '#334155',
+                                  fontStyle: 'italic',
+                                  marginTop: '0.15rem',
+                                  overflow: 'hidden',
+                                  textOverflow: 'ellipsis',
+                                  whiteSpace: 'nowrap',
+                                  maxWidth: '220px'
+                                }}
+                              >
+                                "{t1Text}"
+                              </div>
+                            )}
+                          </div>
+
+                          {/* Baris 2: Alasan (T2) */}
+                          <div>
+                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '0.5rem', whiteSpace: 'nowrap' }}>
+                              <span style={{ fontSize: '0.78rem', color: '#475569', fontWeight: 600 }}>Alasan (T2):</span>
+                              <span style={{ fontWeight: 800, color: '#0369A1', background: '#E0F2FE', padding: '0.15rem 0.5rem', borderRadius: '4px', fontSize: '0.8rem' }}>
+                                {t2Val}
+                              </span>
+                            </div>
+                            {t2Text && (
+                              <div
+                                title={t2Text}
+                                style={{
+                                  fontSize: '0.75rem',
+                                  color: '#334155',
+                                  fontStyle: 'italic',
+                                  marginTop: '0.15rem',
+                                  overflow: 'hidden',
+                                  textOverflow: 'ellipsis',
+                                  whiteSpace: 'nowrap',
+                                  maxWidth: '220px'
+                                }}
+                              >
+                                "{t2Text}"
+                              </div>
+                            )}
+                          </div>
                         </td>
 
                         {/* Kategori */}
-                        <td style={{ padding: '0.75rem 0.8rem', textAlign: 'center' }}>
+                        <td style={{ padding: '0.75rem 0.8rem', textAlign: 'center', verticalAlign: 'top' }}>
                           <span style={{
                             fontWeight: 800,
                             padding: '0.25rem 0.6rem',
                             borderRadius: '6px',
                             fontSize: '0.8rem',
-                            background: isP ? '#D1FAE5' : (isM ? '#FEE2E2' : '#F1F5F9'),
-                            color: isP ? '#065F46' : (isM ? '#991B1B' : '#475569')
+                            background: meta.badgeBg,
+                            color: meta.badgeColor,
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: '0.25rem',
+                            whiteSpace: 'nowrap'
                           }}>
-                            {cat}
+                            {meta.icon} {cat}
                           </span>
                         </td>
 
                         {/* Status Diagnostik */}
-                        <td style={{ padding: '0.75rem 0.8rem' }}>
-                          {isP ? (
+                        <td style={{ padding: '0.75rem 0.8rem', verticalAlign: 'top' }}>
+                          {cat === 'P' ? (
                             <div style={{ color: '#065F46', fontWeight: 700 }}>
                               ✓ Paham Konsep
                             </div>
-                          ) : isM ? (
+                          ) : cat.startsWith('M') ? (
                             <div>
                               <div style={{ color: '#DC2626', fontWeight: 700, fontSize: '0.85rem' }}>
                                 ⚠️ Terdeteksi {cat}
@@ -1171,14 +1453,14 @@ export default function DiagnosticAssessmentPage({
                         </td>
 
                         {/* Keyakinan & Tafsir */}
-                        <td style={{ padding: '0.75rem 0.8rem', textAlign: 'center' }}>
-                          <div style={{ fontWeight: 700, color: '#1E293B' }}>
+                        <td style={{ padding: '0.75rem 0.8rem', textAlign: 'center', verticalAlign: 'top' }}>
+                          <div style={{ fontWeight: 700, color: '#1E293B', whiteSpace: 'nowrap' }}>
                             Skala {qDetail.confidence || 1}/5
                           </div>
                           <div style={{
                             fontSize: '0.75rem',
                             fontWeight: 600,
-                            color: qDetail.confidence >= 4 && isM ? '#DC2626' : '#64748B',
+                            color: qDetail.confidence >= 4 && cat.startsWith('M') ? '#DC2626' : '#64748B',
                             marginTop: '0.15rem'
                           }}>
                             {qDetail.confidenceInterpretation || '-'}
@@ -1186,13 +1468,13 @@ export default function DiagnosticAssessmentPage({
                         </td>
 
                         {/* Saran Belajar */}
-                        <td style={{ padding: '0.75rem 0.8rem', fontSize: '0.82rem', color: '#334155', lineHeight: 1.45 }}>
-                          {isP ? (
+                        <td style={{ padding: '0.75rem 0.8rem', fontSize: '0.82rem', color: '#334155', lineHeight: 1.45, verticalAlign: 'top' }}>
+                          {cat === 'P' ? (
                             <span style={{ color: '#059669', fontWeight: 600 }}>
                               Pertahankan pemahaman kuat ini!
                             </span>
                           ) : (
-                            qData.saran || 'Ulangi konsep terkait di buku materi.'
+                            qData?.saran || 'Ulangi konsep terkait di buku materi.'
                           )}
                         </td>
                       </tr>
@@ -1200,6 +1482,151 @@ export default function DiagnosticAssessmentPage({
                   })}
                 </tbody>
               </table>
+            </div>
+
+            {/* Tampilan Kartu Vertikal Responsif untuk Layar HP (< 640px) */}
+            <div className="diag-cards-mobile">
+              {[4, 5, 6].map(qNum => {
+                const qData = rawQuestions.find(q => q.no === qNum);
+                const qDetail = latestEvaluation.evaluation?.details?.[qNum] || {};
+                const cat = qDetail.category || 'TP';
+                const meta = getCategoryMeta(cat);
+
+                const t1Val = qDetail.response?.t1 || '-';
+                const t2Val = qDetail.response?.t2 || '-';
+                const t1Option = qData?.tingkat1?.opsi?.find(o => o.id === t1Val);
+                const t2Option = qData?.tingkat2?.opsi?.find(o => o.id === t2Val);
+                const t1Text = t1Option?.teks || '';
+                const t2Text = t2Option?.teks || '';
+
+                return (
+                  <div
+                    key={`card-diag-${qNum}`}
+                    style={{
+                      border: `1.5px solid ${meta.border}`,
+                      borderRadius: '12px',
+                      background: meta.cardBg,
+                      padding: '1rem',
+                      boxShadow: '0 2px 6px rgba(0, 0, 0, 0.03)'
+                    }}
+                  >
+                    {/* Header Kartu */}
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '0.5rem', marginBottom: '0.6rem' }}>
+                      <div>
+                        <div style={{ fontWeight: 800, fontSize: '0.98rem', color: '#1E293B' }}>
+                          Soal {qNum}
+                        </div>
+                        <div style={{ fontSize: '0.78rem', color: '#64748B', fontWeight: 600 }}>
+                          Topik: {qData?.topik}
+                        </div>
+                      </div>
+                      <span style={{
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '0.25rem',
+                        padding: '0.25rem 0.55rem',
+                        borderRadius: '6px',
+                        fontSize: '0.8rem',
+                        fontWeight: 800,
+                        background: meta.badgeBg,
+                        color: meta.badgeColor,
+                        whiteSpace: 'nowrap'
+                      }}>
+                        {meta.icon} {cat}
+                      </span>
+                    </div>
+
+                    {/* Info Jawaban & Alasan (Dua baris rapi: Label kiri, Badge kanan, cuplikan teks) */}
+                    <div style={{
+                      background: '#FFFFFF',
+                      borderRadius: '8px',
+                      padding: '0.65rem 0.75rem',
+                      border: '1px solid #E2E8F0',
+                      marginBottom: '0.65rem',
+                      fontSize: '0.82rem'
+                    }}>
+                      {/* Baris 1: Jawaban (T1) */}
+                      <div style={{ marginBottom: '0.45rem' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '0.5rem', whiteSpace: 'nowrap' }}>
+                          <span style={{ fontSize: '0.8rem', color: '#475569', fontWeight: 600 }}>Jawaban (T1):</span>
+                          <span style={{ fontWeight: 800, color: '#0369A1', background: '#E0F2FE', padding: '0.15rem 0.5rem', borderRadius: '4px', fontSize: '0.82rem' }}>
+                            {t1Val}
+                          </span>
+                        </div>
+                        {t1Text && (
+                          <div
+                            style={{
+                              fontSize: '0.76rem',
+                              color: '#334155',
+                              fontStyle: 'italic',
+                              marginTop: '0.15rem',
+                              overflow: 'hidden',
+                              textOverflow: 'ellipsis',
+                              whiteSpace: 'nowrap'
+                            }}
+                          >
+                            "{t1Text}"
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Baris 2: Alasan (T2) */}
+                      <div>
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '0.5rem', whiteSpace: 'nowrap' }}>
+                          <span style={{ fontSize: '0.8rem', color: '#475569', fontWeight: 600 }}>Alasan (T2):</span>
+                          <span style={{ fontWeight: 800, color: '#0369A1', background: '#E0F2FE', padding: '0.15rem 0.5rem', borderRadius: '4px', fontSize: '0.82rem' }}>
+                            {t2Val}
+                          </span>
+                        </div>
+                        {t2Text && (
+                          <div
+                            style={{
+                              fontSize: '0.76rem',
+                              color: '#334155',
+                              fontStyle: 'italic',
+                              marginTop: '0.15rem',
+                              overflow: 'hidden',
+                              textOverflow: 'ellipsis',
+                              whiteSpace: 'nowrap'
+                            }}
+                          >
+                            "{t2Text}"
+                          </div>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Diagnosis & Keyakinan */}
+                    <div style={{ marginBottom: '0.6rem', fontSize: '0.85rem' }}>
+                      <div style={{ fontWeight: 700, color: meta.badgeColor, marginBottom: '0.15rem' }}>
+                        {meta.icon} {meta.label}
+                      </div>
+                      {cat.startsWith('M') && qDetail.misconceptionName && (
+                        <div style={{ fontSize: '0.8rem', color: '#7F1D1D', marginTop: '0.1rem' }}>
+                          ⚠️ {qDetail.misconceptionName}
+                        </div>
+                      )}
+                      <div style={{ fontSize: '0.78rem', color: '#64748B', marginTop: '0.2rem' }}>
+                        Tafsir Keyakinan: <strong>Skala {qDetail.confidence || 1}/5 • {qDetail.confidenceInterpretation || '-'}</strong>
+                      </div>
+                    </div>
+
+                    {/* Saran Belajar */}
+                    <div style={{
+                      background: '#FFFFFF',
+                      borderLeft: `3px solid ${meta.border}`,
+                      padding: '0.5rem 0.7rem',
+                      borderRadius: '0 6px 6px 0',
+                      fontSize: '0.82rem',
+                      color: '#334155',
+                      lineHeight: 1.45
+                    }}>
+                      <strong style={{ color: '#1E293B', display: 'block', marginBottom: '0.15rem' }}>💡 Saran Belajar:</strong>
+                      {cat === 'P' ? 'Pertahankan pemahaman kuat ini!' : (qData?.saran || 'Ulangi konsep terkait di buku materi.')}
+                    </div>
+                  </div>
+                );
+              })}
             </div>
           </div>
 

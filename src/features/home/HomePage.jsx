@@ -46,12 +46,13 @@ export default function HomePage({
   const isCh4Completed = completedChapters.includes('chapter4');
   const isCh5Completed = completedChapters.includes('chapter5');
 
-  // Logika Keterbukaan Misi (Unlocked Status) - Guru memiliki akses bebas 100%
+  // Logika Keterbukaan Misi: Pretest adalah satu-satunya gerbang wajib.
+  // Setelah Pretest selesai, seluruh bab materi langsung terbuka.
   const isCh1Unlocked = isTeacher || isPretestDone;
-  const isCh2Unlocked = isTeacher || isCh1Completed;
-  const isCh3Unlocked = isTeacher || isCh2Completed;
-  const isCh4Unlocked = isTeacher || isCh3Completed;
-  const isCh5Unlocked = isTeacher || isCh4Completed;
+  const isCh2Unlocked = isTeacher || isPretestDone;
+  const isCh3Unlocked = isTeacher || isPretestDone;
+  const isCh4Unlocked = isTeacher || isPretestDone;
+  const isCh5Unlocked = isTeacher || isPretestDone;
 
   // Hitung total misi selesai (Pretest = 1, Bab 1-5 = 5)
   let totalMissionsDone = 0;

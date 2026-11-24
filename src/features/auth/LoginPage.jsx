@@ -10,7 +10,9 @@ import {
 } from '../../services/firebase';
 import { getUserProfile, saveUserProfile } from '../../utils/storage';
 import TeacherLoginForm from './TeacherLoginForm';
-import { verifyTeacherStepTwo } from '../../config/teachers';
+import { verifyTeacherStepTwo, isTeacherEmail } from '../../config/teachers';
+import { signOut } from 'firebase/auth';
+import { auth } from '../../services/firebase';
 
 /**
  * Komponen LoginPage (KimiKoli)
@@ -38,6 +40,7 @@ export default function LoginPage({ onLoginSuccess }) {
   // State Verifikasi 2 Langkah Khusus Guru
   const [pendingTeacherUser, setPendingTeacherUser] = useState(null);
   const [teacherStepTwoKey, setTeacherStepTwoKey] = useState('');
+  const [teacherFailedAttempts, setTeacherFailedAttempts] = useState(0);
 
   // State Notifikasi & Loading
   const [isLoading, setIsLoading] = useState(false);
@@ -52,27 +55,51 @@ export default function LoginPage({ onLoginSuccess }) {
 
     try {
       const googleUser = await loginWithGoogle();
+
+      // JIKA PENGGUNA MEMILIH MODE GURU
+      if (activeRole === 'teacher') {
+        // Validasi ketat: email WAJIB terdaftar sebagai guru
+        if (!isTeacherEmail(googleUser.email)) {
+          if (auth) {
+            try { await signOut(auth); } catch {}
+          }
+          setErrorMessage(`Akses Ditolak: Akun Google (${googleUser.email}) tidak terdaftar sebagai Guru Kimia. Silakan masuk melalui Mode Siswa.`);
+          setIsLoading(false);
+          return;
+        }
+
+        const userData = {
+          role: 'teacher',
+          name: googleUser.name || 'Guru Kimia',
+          email: googleUser.email,
+          className: 'Guru Kimia',
+          uid: googleUser.uid,
+          provider: 'google.com',
+          loginAt: new Date().toISOString()
+        };
+
+        // Lanjut ke Langkah 2: Verifikasi Sandi Khusus Guru
+        setPendingTeacherUser(userData);
+        setTeacherFailedAttempts(0);
+        setSuccessMessage('Langkah 1 berhasil (Google). Silakan masukkan kata sandi keamanan guru untuk melanjutkan.');
+        setIsLoading(false);
+        return;
+      }
+
+      // JIKA PENGGUNA MEMILIH MODE SISWA (WAJIB SISWA 100%)
       const existingProfile = getUserProfile(googleUser.email) || getUserProfile(googleUser.uid);
-      const userData = {
-        role: activeRole === 'teacher' ? 'teacher' : (existingProfile?.role || 'student'),
-        name: existingProfile?.name || googleUser.name || (activeRole === 'teacher' ? 'Guru Kimia' : 'Siswa KimiKoli'),
+      const studentData = {
+        role: 'student', // Pastikan mutlak sebagai siswa
+        name: existingProfile?.name || googleUser.name || 'Siswa KimiKoli',
         email: googleUser.email,
-        className: activeRole === 'teacher' ? 'Guru Kimia' : (existingProfile?.className || studentClass),
+        className: existingProfile?.className || studentClass,
         uid: googleUser.uid,
         provider: 'google.com',
         loginAt: new Date().toISOString()
       };
 
-      // Jika login di Tab Guru, masuk ke Langkah 2: Verifikasi Sandi Guru Khusus
-      if (activeRole === 'teacher') {
-        setPendingTeacherUser(userData);
-        setSuccessMessage('Langkah 1 berhasil (Google). Silakan masukkan kata sandi guru untuk melanjutkan.');
-        setIsLoading(false);
-        return;
-      }
-
-      saveUserProfile(userData);
-      onLoginSuccess(userData);
+      saveUserProfile(studentData);
+      onLoginSuccess(studentData);
     } catch (error) {
       setErrorMessage(error.message || 'Gagal masuk dengan Google. Silakan coba kembali.');
     } finally {
@@ -86,6 +113,15 @@ export default function LoginPage({ onLoginSuccess }) {
     setErrorMessage('');
     setSuccessMessage('');
 
+    if (teacherFailedAttempts >= 5) {
+      if (auth) {
+        try { await signOut(auth); } catch {}
+      }
+      setPendingTeacherUser(null);
+      setErrorMessage('Terlalu banyak percobaan gagal. Akses diblokir demi keamanan. Silakan login ulang.');
+      return;
+    }
+
     if (!teacherStepTwoKey) {
       setErrorMessage('Harap masukkan kata sandi guru.');
       return;
@@ -96,13 +132,25 @@ export default function LoginPage({ onLoginSuccess }) {
     setIsLoading(false);
 
     if (!isKeyValid) {
-      setErrorMessage('Kata sandi guru salah. Akses ditolak.');
+      const nextFail = teacherFailedAttempts + 1;
+      setTeacherFailedAttempts(nextFail);
+      const sisa = 5 - nextFail;
+      if (sisa <= 0) {
+        if (auth) {
+          try { await signOut(auth); } catch {}
+        }
+        setPendingTeacherUser(null);
+        setErrorMessage('Percobaan habis. Akses ditolak dan sesi dibatalkan demi keamanan.');
+      } else {
+        setErrorMessage(`Kata sandi guru salah. Akses ditolak. (Sisa percobaan: ${sisa}x)`);
+      }
       return;
     }
 
     if (pendingTeacherUser) {
-      saveUserProfile(pendingTeacherUser);
-      onLoginSuccess(pendingTeacherUser);
+      const verifiedTeacher = { ...pendingTeacherUser, role: 'teacher' };
+      saveUserProfile(verifiedTeacher);
+      onLoginSuccess(verifiedTeacher);
     }
   };
 
@@ -125,10 +173,10 @@ export default function LoginPage({ onLoginSuccess }) {
       const resolvedClass = existingProfile?.className || (activeRole === 'student' ? studentClass : 'Guru Kimia');
 
       const userData = {
-        role: existingProfile?.role || activeRole,
+        role: 'student', // Form login email ini khusus siswa, peran selalu student
         name: resolvedName,
         email: user.email,
-        className: resolvedClass,
+        className: studentClass,
         uid: user.uid,
         provider: 'password',
         loginAt: new Date().toISOString()
@@ -217,9 +265,9 @@ export default function LoginPage({ onLoginSuccess }) {
     }
 
     const userData = {
-      role: activeRole,
+      role: 'student', // Mode cepat hanya untuk siswa
       name: fullName.trim(),
-      className: activeRole === 'student' ? studentClass : 'Guru Kimia',
+      className: studentClass,
       provider: 'guest',
       loginAt: new Date().toISOString()
     };

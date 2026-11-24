@@ -13,6 +13,8 @@
  * 6. Kunci lama/global dibersihkan otomatis.
  */
 
+import { isTeacherEmail } from '../config/teachers';
+
 const STORAGE_KEYS = {
   AUTH: 'koligatif_auth_user_v1',
   STUDENTS_DATABASE: 'koligatif_students_database_v1',
@@ -306,12 +308,21 @@ export function clearAuthUser() {
 // 7. DATABASE REKAP SISWA (PANEL GURU)
 // ========================================================
 
-export function getAllStudentRecords() {
+/**
+ * Mengambil seluruh data rekapitulasi nilai siswa.
+ * Hak akses dibatasi HANYA untuk akun guru yang terverifikasi.
+ * Siswa atau pihak tidak berwenang akan menerima array kosong ([]).
+ */
+export function getAllStudentRecords(userContext = null) {
+  const active = userContext || getAuthUser();
+  if (!active || active.role !== 'teacher' || !isTeacherEmail(active.email)) {
+    return [];
+  }
   return getStoredData(STORAGE_KEYS.STUDENTS_DATABASE, []);
 }
 
 export function saveStudentRecord(studentData) {
-  const currentList = getAllStudentRecords();
+  const currentList = getStoredData(STORAGE_KEYS.STUDENTS_DATABASE, []);
   const normName = normalizeUsername(studentData.name);
   const existingIndex = currentList.findIndex(
     s => (s.email && studentData.email && s.email.toLowerCase() === studentData.email.toLowerCase()) ||

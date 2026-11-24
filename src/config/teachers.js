@@ -1,26 +1,23 @@
 // src/config/teachers.js
 
 /**
- * Daftar email guru terdaftar.
- * Bisa diisi dengan email guru yang digunakan untuk login Google atau Email.
+ * Daftar email resmi guru yang diizinkan mengakses Mode Guru.
+ * Masukkan email guru di sini (huruf kecil).
  */
 export const TEACHER_EMAILS = [
-  'GANTI_DENGAN_EMAIL_GURU'
+  'poppycahyani213@gmail.com',
+  'guru@kimikoli.sch.id'
 ];
 
 /**
  * Cek apakah sebuah email terdaftar sebagai guru.
- * Jika daftar di atas masih placeholder atau ingin mengizinkan guru saat verifikasi tahap 2,
- * logika ini tetap mengidentifikasi guru.
+ * HANYA mengembalikan true jika email secara eksplisit terdaftar di TEACHER_EMAILS.
+ * Siswa atau email lain SELALU mengembalikan false.
  */
 export const isTeacherEmail = (email) => {
-  if (!email) return false;
+  if (!email || typeof email !== 'string') return false;
   const clean = email.toLowerCase().trim();
-  // Jika masih placeholder atau cocok dengan daftar
-  if (TEACHER_EMAILS.includes('GANTI_DENGAN_EMAIL_GURU')) {
-    return true; // Fleksibel saat pengujian awal guru jika email belum disetel
-  }
-  return TEACHER_EMAILS.includes(clean);
+  return TEACHER_EMAILS.some(t => t.toLowerCase().trim() === clean);
 };
 
 /**

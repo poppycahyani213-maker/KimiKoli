@@ -9,6 +9,8 @@ import {
   saveStudentRecord 
 } from './utils/storage';
 import { isTeacherEmail } from './config/teachers';
+import { signOut } from 'firebase/auth';
+import { auth } from './services/firebase';
 
 // Komponen Halaman
 import LoginPage from './features/auth/LoginPage';
@@ -81,9 +83,10 @@ export default function App() {
 
   // Handler Berhasil Login
   const handleLoginSuccess = (userData) => {
-    // Tentukan role berdasarkan email (sumber tunggal kebenaran)
-    const role = isTeacherEmail(userData?.email) ? 'teacher' : 'student';
-    const enrichedUser = { ...userData, role };
+    // Validasi peran: hanya menjadi 'teacher' jika login dengan data role guru DAN email terdaftar sebagai guru
+    const isTeacher = userData?.role === 'teacher' && isTeacherEmail(userData?.email);
+    const resolvedRole = isTeacher ? 'teacher' : 'student';
+    const enrichedUser = { ...userData, role: resolvedRole };
 
     // 1. Kosongkan state di memori terlebih dahulu agar tidak terbawa dari sesi user sebelumnya
     setCompletedChapters([]);
@@ -112,13 +115,22 @@ export default function App() {
     setIsLabVirtualCompleted(userLabCompleted);
     setDiagnosticAssessment(userDiagnostic);
 
-    // Jangan menyimpan data saat login tanpa ada perubahan dari user
-    setCurrentView('home');
+    // Arahkan ke Dashboard sesuai role masing-masing:
+    // Guru -> Dashboard Guru ('teacher-dashboard')
+    // Siswa -> Dashboard Siswa / Beranda ('home')
+    if (resolvedRole === 'teacher') {
+      setCurrentView('teacher-dashboard');
+    } else {
+      setCurrentView('home');
+    }
   };
 
   // Handler Logout
-  const handleLogout = () => {
+  const handleLogout = async () => {
     if (window.confirm("Apakah Anda yakin ingin keluar dari akun ini?")) {
+      if (auth) {
+        try { await signOut(auth); } catch {}
+      }
       clearAuthUser();
       setCurrentUser(null);
       // Bersihkan state agar tidak terbawa ke akun/username lain yang akan login berikutnya
@@ -308,10 +320,38 @@ export default function App() {
       <main className="content-area" style={{ width: '100%', maxWidth: '1240px', margin: '0 auto', padding: '1.5rem 1.25rem' }}>
         
         {/* Panel Khusus Guru: Rekapitulasi Data Nilai Siswa (Hanya untuk Guru Terverifikasi) */}
-        {currentView === 'teacher-dashboard' && currentUser?.role === 'teacher' && (
-          <TeacherDashboard
-            onBackToLearning={() => setCurrentView('home')}
-          />
+        {currentView === 'teacher-dashboard' && (
+          currentUser?.role === 'teacher' ? (
+            <TeacherDashboard
+              onBackToLearning={() => setCurrentView('home')}
+            />
+          ) : (
+            <div style={{
+              background: '#FEF2F2',
+              border: '1.5px solid #FECACA',
+              borderRadius: '16px',
+              padding: '2.5rem 1.5rem',
+              textAlign: 'center',
+              margin: '2rem auto',
+              maxWidth: '680px'
+            }}>
+              <div style={{ fontSize: '3rem', marginBottom: '0.75rem' }}>⛔</div>
+              <h3 style={{ color: '#991B1B', fontSize: '1.4rem', margin: '0 0 0.6rem 0' }}>
+                Akses Ditolak
+              </h3>
+              <p style={{ color: '#7F1D1D', lineHeight: 1.6, margin: '0 auto 1.5rem' }}>
+                Anda tidak memiliki izin untuk mengakses <strong>Panel Rekap Nilai Siswa</strong>. Halaman ini hanya diperuntukkan bagi Guru Kimia yang telah terverifikasi secara sah.
+              </p>
+              <button
+                type="button"
+                className="btn btn-primary"
+                onClick={() => setCurrentView('home')}
+                style={{ padding: '0.75rem 1.6rem', background: '#0284C7' }}
+              >
+                Kembali ke Beranda Siswa
+              </button>
+            </div>
+          )
         )}
 
         {/* Tampilan 1: Beranda KimiKoli (Peta Misi Dinamis) */}
@@ -445,7 +485,7 @@ export default function App() {
         {/* Tampilan 4: Bab 2 - Penurunan Tekanan Uap & Kenaikan Titik Didih */}
         {currentView === 'chapter2' && (
           <div>
-            {!completedChapters.includes('chapter1') && currentUser?.role !== 'teacher' ? (
+            {!isPretestCompleted && currentUser?.role !== 'teacher' ? (
               <div style={{
                 background: '#FFFBEB',
                 border: '1.5px solid #FDE68A',
@@ -460,18 +500,28 @@ export default function App() {
                   Bab 2 Masih Terkunci
                 </h3>
                 <p style={{ color: '#78350F', lineHeight: 1.6, margin: '0 auto 1.5rem' }}>
-                  Sesuai alur belajar bertahap, kamu wajib menyelesaikan materi di <strong>Bab 1 (Konsentrasi Larutan)</strong> terlebih dahulu sebelum membuka Bab 2.
+                  Harap selesaikan <strong>Pretest Prasyarat</strong> terlebih dahulu sebelum membuka materi Bab 2 dan bab lainnya.
                 </p>
                 <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'center', flexWrap: 'wrap' }}>
                   <button
                     type="button"
                     className="btn btn-primary"
-                    onClick={() => setCurrentView('chapter1')}
+                    onClick={handleStartPretest}
                     style={{ padding: '0.8rem 1.6rem', fontSize: '1rem', background: '#0284C7' }}
                   >
-                    📖 Buka Bab 1 Sekarang →
+                    🚀 Mulai Kerjakan Pretest Sekarang →
                   </button>
                   <button
+                    type="button"
+                    className="btn btn-secondary"
+                    onClick={() => setCurrentView('home')}
+                    style={{ padding: '0.8rem 1.4rem' }}
+                  >
+                    Kembali ke Beranda
+                  </button>
+                </div>
+              </div>
+            ) : (
                     type="button"
                     className="btn btn-secondary"
                     onClick={() => setCurrentView('home')}
@@ -517,7 +567,7 @@ export default function App() {
         {/* Tampilan 5: Bab 3 - Penurunan Titik Beku & Diagram Fase P–T */}
         {currentView === 'chapter3' && (
           <div>
-            {!completedChapters.includes('chapter2') && currentUser?.role !== 'teacher' ? (
+            {!isPretestCompleted && currentUser?.role !== 'teacher' ? (
               <div style={{
                 background: '#FFFBEB',
                 border: '1.5px solid #FDE68A',
@@ -532,16 +582,16 @@ export default function App() {
                   Bab 3 Masih Terkunci
                 </h3>
                 <p style={{ color: '#78350F', lineHeight: 1.6, margin: '0 auto 1.5rem' }}>
-                  Kamu wajib menyelesaikan materi di <strong>Bab 2 (Penurunan Tekanan Uap & Kenaikan Titik Didih)</strong> terlebih dahulu sebelum membuka Bab 3.
+                  Harap selesaikan <strong>Pretest Prasyarat</strong> terlebih dahulu sebelum membuka materi Bab 3 dan bab lainnya.
                 </p>
                 <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'center', flexWrap: 'wrap' }}>
                   <button
                     type="button"
                     className="btn btn-primary"
-                    onClick={() => setCurrentView('chapter2')}
+                    onClick={handleStartPretest}
                     style={{ padding: '0.8rem 1.6rem', fontSize: '1rem', background: '#0284C7' }}
                   >
-                    📖 Buka Bab 2 Sekarang →
+                    🚀 Mulai Kerjakan Pretest Sekarang →
                   </button>
                   <button
                     type="button"

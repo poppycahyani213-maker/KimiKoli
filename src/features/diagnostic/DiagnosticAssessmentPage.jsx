@@ -1319,16 +1319,16 @@ export default function DiagnosticAssessmentPage({
                 fontSize: '0.86rem',
                 border: '1px solid #CBD5E1',
                 borderRadius: '8px',
-                minWidth: '650px'
+                minWidth: '760px'
               }}>
                 <thead>
                   <tr style={{ background: '#F1F5F9', color: '#1E293B', borderBottom: '2px solid #CBD5E1' }}>
-                    <th style={{ padding: '0.75rem 0.8rem', textAlign: 'left', fontWeight: 700 }}>Soal & Topik</th>
-                    <th style={{ padding: '0.75rem 0.8rem', textAlign: 'center', fontWeight: 700 }}>Jawaban + Alasan</th>
-                    <th style={{ padding: '0.75rem 0.8rem', textAlign: 'center', fontWeight: 700 }}>Kategori</th>
-                    <th style={{ padding: '0.75rem 0.8rem', textAlign: 'left', fontWeight: 700 }}>Status Diagnostik</th>
-                    <th style={{ padding: '0.75rem 0.8rem', textAlign: 'center', fontWeight: 700 }}>Keyakinan & Tafsir</th>
-                    <th style={{ padding: '0.75rem 0.8rem', textAlign: 'left', fontWeight: 700 }}>Saran Belajar</th>
+                    <th style={{ padding: '0.75rem 0.8rem', textAlign: 'left', fontWeight: 700, width: '15%' }}>Soal & Topik</th>
+                    <th style={{ padding: '0.75rem 0.8rem', textAlign: 'left', fontWeight: 700, width: '28%', minWidth: '220px' }}>Jawaban & Alasan</th>
+                    <th style={{ padding: '0.75rem 0.8rem', textAlign: 'center', fontWeight: 700, width: '10%' }}>Kategori</th>
+                    <th style={{ padding: '0.75rem 0.8rem', textAlign: 'left', fontWeight: 700, width: '18%' }}>Status Diagnostik</th>
+                    <th style={{ padding: '0.75rem 0.8rem', textAlign: 'center', fontWeight: 700, width: '13%' }}>Keyakinan</th>
+                    <th style={{ padding: '0.75rem 0.8rem', textAlign: 'left', fontWeight: 700, width: '16%' }}>Saran Belajar</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -1338,29 +1338,82 @@ export default function DiagnosticAssessmentPage({
                     const cat = qDetail.category || 'TP';
                     const meta = getCategoryMeta(cat);
 
+                    const t1Val = qDetail.response?.t1 || '-';
+                    const t2Val = qDetail.response?.t2 || '-';
+                    const t1Option = qData?.tingkat1?.opsi?.find(o => o.id === t1Val);
+                    const t2Option = qData?.tingkat2?.opsi?.find(o => o.id === t2Val);
+                    const t1Text = t1Option?.teks || '';
+                    const t2Text = t2Option?.teks || '';
+
                     return (
                       <tr key={`diag-${qNum}`} style={{ borderBottom: '1px solid #E2E8F0', background: meta.cardBg }}>
                         {/* Soal & Topik */}
-                        <td style={{ padding: '0.75rem 0.8rem', fontWeight: 700, color: '#1E293B' }}>
+                        <td style={{ padding: '0.75rem 0.8rem', fontWeight: 700, color: '#1E293B', verticalAlign: 'top' }}>
                           <div>Soal {qNum}</div>
-                          <div style={{ fontSize: '0.78rem', color: '#64748B', fontWeight: 500 }}>
+                          <div style={{ fontSize: '0.78rem', color: '#64748B', fontWeight: 500, marginTop: '0.15rem' }}>
                             {qData?.topik}
                           </div>
                         </td>
 
-                        {/* Jawaban + Alasan */}
-                        <td style={{ padding: '0.75rem 0.8rem', textAlign: 'center' }}>
-                          <span style={{ fontWeight: 700, color: '#0369A1', background: '#E0F2FE', padding: '0.2rem 0.5rem', borderRadius: '4px' }}>
-                            T1: {qDetail.response?.t1 || '-'}
-                          </span>
-                          <span style={{ margin: '0 0.3rem' }}>+</span>
-                          <span style={{ fontWeight: 700, color: '#0369A1', background: '#E0F2FE', padding: '0.2rem 0.5rem', borderRadius: '4px' }}>
-                            T2: {qDetail.response?.t2 || '-'}
-                          </span>
+                        {/* Jawaban & Alasan (Dua baris rapi: Label kiri, Badge kanan, cuplikan teks) */}
+                        <td style={{ padding: '0.65rem 0.8rem', verticalAlign: 'top', minWidth: '210px' }}>
+                          {/* Baris 1: Jawaban (T1) */}
+                          <div style={{ marginBottom: '0.45rem' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '0.5rem', whiteSpace: 'nowrap' }}>
+                              <span style={{ fontSize: '0.78rem', color: '#475569', fontWeight: 600 }}>Jawaban (T1):</span>
+                              <span style={{ fontWeight: 800, color: '#0369A1', background: '#E0F2FE', padding: '0.15rem 0.5rem', borderRadius: '4px', fontSize: '0.8rem' }}>
+                                {t1Val}
+                              </span>
+                            </div>
+                            {t1Text && (
+                              <div
+                                title={t1Text}
+                                style={{
+                                  fontSize: '0.75rem',
+                                  color: '#334155',
+                                  fontStyle: 'italic',
+                                  marginTop: '0.15rem',
+                                  overflow: 'hidden',
+                                  textOverflow: 'ellipsis',
+                                  whiteSpace: 'nowrap',
+                                  maxWidth: '220px'
+                                }}
+                              >
+                                "{t1Text}"
+                              </div>
+                            )}
+                          </div>
+
+                          {/* Baris 2: Alasan (T2) */}
+                          <div>
+                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '0.5rem', whiteSpace: 'nowrap' }}>
+                              <span style={{ fontSize: '0.78rem', color: '#475569', fontWeight: 600 }}>Alasan (T2):</span>
+                              <span style={{ fontWeight: 800, color: '#0369A1', background: '#E0F2FE', padding: '0.15rem 0.5rem', borderRadius: '4px', fontSize: '0.8rem' }}>
+                                {t2Val}
+                              </span>
+                            </div>
+                            {t2Text && (
+                              <div
+                                title={t2Text}
+                                style={{
+                                  fontSize: '0.75rem',
+                                  color: '#334155',
+                                  fontStyle: 'italic',
+                                  marginTop: '0.15rem',
+                                  overflow: 'hidden',
+                                  textOverflow: 'ellipsis',
+                                  whiteSpace: 'nowrap',
+                                  maxWidth: '220px'
+                                }}
+                              >
+                                "{t2Text}"
+                              </div>
+                            )}
+                          </div>
                         </td>
 
                         {/* Kategori */}
-                        <td style={{ padding: '0.75rem 0.8rem', textAlign: 'center' }}>
+                        <td style={{ padding: '0.75rem 0.8rem', textAlign: 'center', verticalAlign: 'top' }}>
                           <span style={{
                             fontWeight: 800,
                             padding: '0.25rem 0.6rem',
@@ -1370,14 +1423,15 @@ export default function DiagnosticAssessmentPage({
                             color: meta.badgeColor,
                             display: 'inline-flex',
                             alignItems: 'center',
-                            gap: '0.25rem'
+                            gap: '0.25rem',
+                            whiteSpace: 'nowrap'
                           }}>
                             {meta.icon} {cat}
                           </span>
                         </td>
 
                         {/* Status Diagnostik */}
-                        <td style={{ padding: '0.75rem 0.8rem' }}>
+                        <td style={{ padding: '0.75rem 0.8rem', verticalAlign: 'top' }}>
                           {cat === 'P' ? (
                             <div style={{ color: '#065F46', fontWeight: 700 }}>
                               ✓ Paham Konsep
@@ -1399,8 +1453,8 @@ export default function DiagnosticAssessmentPage({
                         </td>
 
                         {/* Keyakinan & Tafsir */}
-                        <td style={{ padding: '0.75rem 0.8rem', textAlign: 'center' }}>
-                          <div style={{ fontWeight: 700, color: '#1E293B' }}>
+                        <td style={{ padding: '0.75rem 0.8rem', textAlign: 'center', verticalAlign: 'top' }}>
+                          <div style={{ fontWeight: 700, color: '#1E293B', whiteSpace: 'nowrap' }}>
                             Skala {qDetail.confidence || 1}/5
                           </div>
                           <div style={{
@@ -1414,7 +1468,7 @@ export default function DiagnosticAssessmentPage({
                         </td>
 
                         {/* Saran Belajar */}
-                        <td style={{ padding: '0.75rem 0.8rem', fontSize: '0.82rem', color: '#334155', lineHeight: 1.45 }}>
+                        <td style={{ padding: '0.75rem 0.8rem', fontSize: '0.82rem', color: '#334155', lineHeight: 1.45, verticalAlign: 'top' }}>
                           {cat === 'P' ? (
                             <span style={{ color: '#059669', fontWeight: 600 }}>
                               Pertahankan pemahaman kuat ini!
@@ -1437,6 +1491,13 @@ export default function DiagnosticAssessmentPage({
                 const qDetail = latestEvaluation.evaluation?.details?.[qNum] || {};
                 const cat = qDetail.category || 'TP';
                 const meta = getCategoryMeta(cat);
+
+                const t1Val = qDetail.response?.t1 || '-';
+                const t2Val = qDetail.response?.t2 || '-';
+                const t1Option = qData?.tingkat1?.opsi?.find(o => o.id === t1Val);
+                const t2Option = qData?.tingkat2?.opsi?.find(o => o.id === t2Val);
+                const t1Text = t1Option?.teks || '';
+                const t2Text = t2Option?.teks || '';
 
                 return (
                   <div
@@ -1468,33 +1529,70 @@ export default function DiagnosticAssessmentPage({
                         fontSize: '0.8rem',
                         fontWeight: 800,
                         background: meta.badgeBg,
-                        color: meta.badgeColor
+                        color: meta.badgeColor,
+                        whiteSpace: 'nowrap'
                       }}>
                         {meta.icon} {cat}
                       </span>
                     </div>
 
-                    {/* Info Jawaban & Alasan */}
+                    {/* Info Jawaban & Alasan (Dua baris rapi: Label kiri, Badge kanan, cuplikan teks) */}
                     <div style={{
                       background: '#FFFFFF',
                       borderRadius: '8px',
-                      padding: '0.55rem 0.75rem',
+                      padding: '0.65rem 0.75rem',
                       border: '1px solid #E2E8F0',
-                      marginBottom: '0.6rem',
+                      marginBottom: '0.65rem',
                       fontSize: '0.82rem'
                     }}>
-                      <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', alignItems: 'center' }}>
-                        <span style={{ fontWeight: 700, color: '#0369A1', background: '#E0F2FE', padding: '0.15rem 0.45rem', borderRadius: '4px' }}>
-                          T1: {qDetail.response?.t1 || '-'}
-                        </span>
-                        <span>+</span>
-                        <span style={{ fontWeight: 700, color: '#0369A1', background: '#E0F2FE', padding: '0.15rem 0.45rem', borderRadius: '4px' }}>
-                          T2: {qDetail.response?.t2 || '-'}
-                        </span>
-                        <span style={{ color: '#64748B' }}>•</span>
-                        <span style={{ color: '#1E293B', fontWeight: 600 }}>
-                          Keyakinan: {qDetail.confidence || 1}/5
-                        </span>
+                      {/* Baris 1: Jawaban (T1) */}
+                      <div style={{ marginBottom: '0.45rem' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '0.5rem', whiteSpace: 'nowrap' }}>
+                          <span style={{ fontSize: '0.8rem', color: '#475569', fontWeight: 600 }}>Jawaban (T1):</span>
+                          <span style={{ fontWeight: 800, color: '#0369A1', background: '#E0F2FE', padding: '0.15rem 0.5rem', borderRadius: '4px', fontSize: '0.82rem' }}>
+                            {t1Val}
+                          </span>
+                        </div>
+                        {t1Text && (
+                          <div
+                            style={{
+                              fontSize: '0.76rem',
+                              color: '#334155',
+                              fontStyle: 'italic',
+                              marginTop: '0.15rem',
+                              overflow: 'hidden',
+                              textOverflow: 'ellipsis',
+                              whiteSpace: 'nowrap'
+                            }}
+                          >
+                            "{t1Text}"
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Baris 2: Alasan (T2) */}
+                      <div>
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '0.5rem', whiteSpace: 'nowrap' }}>
+                          <span style={{ fontSize: '0.8rem', color: '#475569', fontWeight: 600 }}>Alasan (T2):</span>
+                          <span style={{ fontWeight: 800, color: '#0369A1', background: '#E0F2FE', padding: '0.15rem 0.5rem', borderRadius: '4px', fontSize: '0.82rem' }}>
+                            {t2Val}
+                          </span>
+                        </div>
+                        {t2Text && (
+                          <div
+                            style={{
+                              fontSize: '0.76rem',
+                              color: '#334155',
+                              fontStyle: 'italic',
+                              marginTop: '0.15rem',
+                              overflow: 'hidden',
+                              textOverflow: 'ellipsis',
+                              whiteSpace: 'nowrap'
+                            }}
+                          >
+                            "{t2Text}"
+                          </div>
+                        )}
                       </div>
                     </div>
 
@@ -1509,7 +1607,7 @@ export default function DiagnosticAssessmentPage({
                         </div>
                       )}
                       <div style={{ fontSize: '0.78rem', color: '#64748B', marginTop: '0.2rem' }}>
-                        Tafsir Keyakinan: <strong>{qDetail.confidenceInterpretation || '-'}</strong>
+                        Tafsir Keyakinan: <strong>Skala {qDetail.confidence || 1}/5 • {qDetail.confidenceInterpretation || '-'}</strong>
                       </div>
                     </div>
 

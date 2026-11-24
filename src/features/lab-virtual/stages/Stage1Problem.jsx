@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import Card from '../../../components/common/Card';
 import Button from '../../../components/common/Button';
-import ParticleCanvas from '../components/ParticleCanvas';
 import gambarGaramSalju from '../../../assets/fenomena-garam-salju.jpg';
 import gambarTitikBeku from '../../../assets/fenomena-titik-beku.jpg';
 
@@ -13,8 +12,7 @@ import gambarTitikBeku from '../../../assets/fenomena-titik-beku.jpg';
  * 2. Stimulus kontekstual (truk garam jalan salju & es krim tradisional) + link video
  * 3. Pertanyaan pemantik menonjol
  * 4. Aktivitas 1.1: Prediksi individu urutan titik beku (1-3 tanpa kembar, alasan, terkunci setelah simpan)
- * 5. Aktivitas 1.2: Pemodelan partikel submikroskopik (2 kanvas: air murni & larutan saat membeku)
- * 6. Aktivitas 1.3: Rumusan masalah & identifikasi variabel + Misi Proyek
+ * 5. Aktivitas 1.2: Rumusan masalah & identifikasi variabel + Misi Proyek
  */
 export default function Stage1Problem({
   data = {},
@@ -51,17 +49,7 @@ export default function Stage1Problem({
     Boolean(data.isPredictionLocked || isCompleted)
   );
 
-  // === 5. Aktivitas 1.2: Gambar Partikel ===
-  const [pureWaterParticles, setPureWaterParticles] = useState(data.pureWaterParticles || []);
-  const [solutionParticles, setSolutionParticles] = useState(data.solutionParticles || []);
-  const [particleDescriptionBackup, setParticleDescriptionBackup] = useState(
-    data.particleDescriptionBackup || ''
-  );
-  const [particleDifferenceAnalysis, setParticleDifferenceAnalysis] = useState(
-    data.particleDifferenceAnalysis || ''
-  );
-
-  // === 6. Aktivitas 1.3: Variabel & Rumusan Masalah ===
+  // === 5. Aktivitas 1.2: Variabel & Rumusan Masalah ===
   const [independentVar, setIndependentVar] = useState(
     data.independentVar || 'Jenis zat terlarut (nonelektrolit vs elektrolit) dan konsentrasi molalitas'
   );
@@ -123,10 +111,6 @@ export default function Stage1Problem({
       roles,
       predictions,
       isPredictionLocked,
-      pureWaterParticles,
-      solutionParticles,
-      particleDescriptionBackup,
-      particleDifferenceAnalysis,
       independentVar,
       dependentVar,
       controlVar,
@@ -147,10 +131,6 @@ export default function Stage1Problem({
       roles,
       predictions,
       isPredictionLocked: true,
-      pureWaterParticles,
-      solutionParticles,
-      particleDescriptionBackup,
-      particleDifferenceAnalysis,
       independentVar,
       dependentVar,
       controlVar,
@@ -168,7 +148,7 @@ export default function Stage1Problem({
     }
     if (!validatePredictions()) return;
     if (!problemStatement.trim()) {
-      alert('⚠️ Mohon lengkapi rumusan masalah penelitian pada Aktivitas 1.3.');
+      alert('⚠️ Mohon lengkapi rumusan masalah penelitian pada Aktivitas 1.2.');
       return;
     }
 
@@ -178,10 +158,6 @@ export default function Stage1Problem({
       roles,
       predictions,
       isPredictionLocked: true,
-      pureWaterParticles,
-      solutionParticles,
-      particleDescriptionBackup,
-      particleDifferenceAnalysis,
       independentVar,
       dependentVar,
       controlVar,
@@ -611,93 +587,7 @@ export default function Stage1Problem({
         </div>
 
         {/* ============================================================== */}
-        {/* BAGIAN 5: Aktivitas 1.2 Gambar Partikel Submikroskopik          */}
-        {/* ============================================================== */}
-        <div style={{
-          background: '#F8FAFC',
-          border: '1.5px solid #CBD5E1',
-          borderRadius: '14px',
-          padding: '1.25rem',
-          marginBottom: '1.5rem'
-        }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
-            <span style={{ fontSize: '1.3rem' }}>🔬</span>
-            <strong style={{ fontSize: '1.05rem', color: '#0F172A' }}>
-              Aktivitas 1.2: Pemodelan Partikel Submikroskopik Saat Membeku
-            </strong>
-          </div>
-          <p style={{ margin: '0 0 1rem 0', fontSize: '0.88rem', color: '#64748B', lineHeight: 1.55 }}>
-            Gunakan kanvas di bawah untuk memodelkan susunan partikel menggunakan stempel <strong>○ (Molekul Air)</strong> dan <strong>● (Zat Terlarut)</strong>.
-            Bayangkan bagaimana partikel-partikel tersebut berinteraksi saat transisi menuju fase padat (es).
-          </p>
-
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1rem', marginBottom: '1rem' }}>
-            {/* Kanvas 1: Air Murni */}
-            <ParticleCanvas
-              title="A. Air Murni Saat Membeku"
-              subtitle="Molekul air membentuk kisi kristal heksagonal teratur"
-              particles={pureWaterParticles}
-              onChange={setPureWaterParticles}
-              height={190}
-            />
-
-            {/* Kanvas 2: Larutan Saat Membeku */}
-            <ParticleCanvas
-              title="B. Larutan (Air + Zat Terlarut) Saat Membeku"
-              subtitle="Partikel terlarut menghalangi penyusunan kisi kristal es"
-              particles={solutionParticles}
-              onChange={setSolutionParticles}
-              height={190}
-            />
-          </div>
-
-          {/* Deskripsi tertulis cadangan */}
-          <div style={{ marginBottom: '1rem' }}>
-            <label style={{ display: 'block', fontWeight: 700, fontSize: '0.86rem', color: '#334155', marginBottom: '0.3rem' }}>
-              Deskripsi Tertulis Model Partikel (Cadangan):
-            </label>
-            <input
-              type="text"
-              placeholder="Contoh: Pada air murni molekul air bebas saling mengikat, sedangkan pada larutan partikel terlarut menyela di antara molekul air..."
-              value={particleDescriptionBackup}
-              onChange={(e) => setParticleDescriptionBackup(e.target.value)}
-              style={{
-                width: '100%',
-                padding: '0.5rem 0.75rem',
-                borderRadius: '8px',
-                border: '1px solid #CBD5E1',
-                fontSize: '0.88rem',
-                fontFamily: "'Times New Roman', Times, serif"
-              }}
-            />
-          </div>
-
-          {/* Pertanyaan analisis partikel */}
-          <div>
-            <label style={{ display: 'block', fontWeight: 700, fontSize: '0.92rem', color: '#0F172A', marginBottom: '0.35rem' }}>
-              Apa yang berbeda pada susunan partikel kedua sistem itu?
-            </label>
-            <textarea
-              rows={3}
-              value={particleDifferenceAnalysis}
-              onChange={(e) => setParticleDifferenceAnalysis(e.target.value)}
-              placeholder="Jelaskan pengaruh kehadiran partikel zat terlarut (●) terhadap kemampuan molekul air (○) untuk saling merapat membentuk kristal es padat..."
-              style={{
-                width: '100%',
-                padding: '0.65rem 0.85rem',
-                borderRadius: '8px',
-                border: '1.5px solid #CBD5E1',
-                fontSize: '0.92rem',
-                fontFamily: "'Times New Roman', Times, serif",
-                resize: 'vertical',
-                boxSizing: 'border-box'
-              }}
-            />
-          </div>
-        </div>
-
-        {/* ============================================================== */}
-        {/* BAGIAN 6: Aktivitas 1.3 Rumusan Masalah & Misi Proyek          */}
+        {/* BAGIAN 5: Aktivitas 1.2 Rumusan Masalah & Misi Proyek          */}
         {/* ============================================================== */}
         <div style={{
           background: '#EFF6FF',
@@ -709,7 +599,7 @@ export default function Stage1Problem({
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.75rem' }}>
             <span style={{ fontSize: '1.3rem' }}>📋</span>
             <strong style={{ fontSize: '1.05rem', color: '#0369A1' }}>
-              Aktivitas 1.3: Identifikasi Variabel Penelitian & Rumusan Masalah
+              Aktivitas 1.2: Identifikasi Variabel Penelitian & Rumusan Masalah
             </strong>
           </div>
 

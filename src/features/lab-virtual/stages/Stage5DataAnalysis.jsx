@@ -59,53 +59,6 @@ export default function Stage5DataAnalysis({
           </p>
         </div>
 
-        {/* Placeholder Visual Tumpukan Grafik */}
-        <div style={{
-          background: '#FFFFFF',
-          border: '1.5px solid #CBD5E1',
-          borderRadius: '14px',
-          padding: '1.25rem',
-          marginBottom: '1.5rem'
-        }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem', flexWrap: 'wrap', gap: '0.5rem' }}>
-            <strong style={{ fontSize: '1rem', color: '#0F172A' }}>
-              Kurva Pendinginan: Data Percobaan Siswa vs Prediksi Teoretis
-            </strong>
-            <div style={{ display: 'flex', gap: '1rem', fontSize: '0.85rem' }}>
-              <span style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
-                <span style={{ width: '12px', height: '12px', borderRadius: '50%', background: '#0284C7' }} />
-                <span>Data Riil Arduino</span>
-              </span>
-              <span style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
-                <span style={{ width: '12px', height: '3px', background: '#EF4444' }} />
-                <span>Simulasi Teoretis</span>
-              </span>
-            </div>
-          </div>
-
-          <div style={{
-            height: '180px',
-            background: '#F8FAFC',
-            borderRadius: '10px',
-            border: '1px dashed #94A3B8',
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            justifyContent: 'center',
-            padding: '1rem',
-            textAlign: 'center'
-          }}>
-            <span style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>📈</span>
-            <strong style={{ color: '#0F172A', fontSize: '0.98rem' }}>
-              Grafik Interaktif Data Siswa & Kurva Simulasi
-            </strong>
-            <p style={{ margin: '0.25rem 0 0 0', fontSize: '0.84rem', color: '#64748B', maxWidth: '480px' }}>
-              Titik beku terbaca pada plateau: <strong>{markedFreezingPoint}°C</strong>.
-              (Visualisasi grafik lengkap dengan fitur klik penandaan titik beku aktif penuh di Tahap 5).
-            </p>
-          </div>
-        </div>
-
         {/* Input & Verifikasi Perhitungan */}
         <div style={{ marginBottom: '1.5rem' }}>
           <h4 style={{ margin: '0 0 0.75rem 0', color: '#0F172A', fontSize: '1.05rem' }}>

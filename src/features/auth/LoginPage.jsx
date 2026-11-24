@@ -10,6 +10,7 @@ import {
 } from '../../services/firebase';
 import { getUserProfile, saveUserProfile } from '../../utils/storage';
 import TeacherLoginForm from './TeacherLoginForm';
+import { verifyTeacherStepTwo } from '../../config/teachers';
 
 /**
  * Komponen LoginPage (KimiKoli)
@@ -34,6 +35,10 @@ export default function LoginPage({ onLoginSuccess }) {
   const [fullName, setFullName] = useState('');
   const [studentClass, setStudentClass] = useState('XI MIPA 1');
 
+  // State Verifikasi 2 Langkah Khusus Guru
+  const [pendingTeacherUser, setPendingTeacherUser] = useState(null);
+  const [teacherStepTwoKey, setTeacherStepTwoKey] = useState('');
+
   // State Notifikasi & Loading
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
@@ -49,20 +54,55 @@ export default function LoginPage({ onLoginSuccess }) {
       const googleUser = await loginWithGoogle();
       const existingProfile = getUserProfile(googleUser.email) || getUserProfile(googleUser.uid);
       const userData = {
-        role: existingProfile?.role || activeRole,
-        name: existingProfile?.name || googleUser.name || 'Siswa KimiKoli',
+        role: activeRole === 'teacher' ? 'teacher' : (existingProfile?.role || 'student'),
+        name: existingProfile?.name || googleUser.name || (activeRole === 'teacher' ? 'Guru Kimia' : 'Siswa KimiKoli'),
         email: googleUser.email,
-        className: existingProfile?.className || (activeRole === 'student' ? studentClass : 'Guru Kimia'),
+        className: activeRole === 'teacher' ? 'Guru Kimia' : (existingProfile?.className || studentClass),
         uid: googleUser.uid,
         provider: 'google.com',
         loginAt: new Date().toISOString()
       };
+
+      // Jika login di Tab Guru, masuk ke Langkah 2: Verifikasi Sandi Guru Khusus
+      if (activeRole === 'teacher') {
+        setPendingTeacherUser(userData);
+        setSuccessMessage('Langkah 1 berhasil (Google). Silakan masukkan kata sandi guru untuk melanjutkan.');
+        setIsLoading(false);
+        return;
+      }
+
       saveUserProfile(userData);
       onLoginSuccess(userData);
     } catch (error) {
       setErrorMessage(error.message || 'Gagal masuk dengan Google. Silakan coba kembali.');
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  // Verifikasi Langkah 2 untuk Guru
+  const handleTeacherStepTwoSubmit = async (e) => {
+    e.preventDefault();
+    setErrorMessage('');
+    setSuccessMessage('');
+
+    if (!teacherStepTwoKey) {
+      setErrorMessage('Harap masukkan kata sandi guru.');
+      return;
+    }
+
+    setIsLoading(true);
+    const isKeyValid = await verifyTeacherStepTwo(teacherStepTwoKey);
+    setIsLoading(false);
+
+    if (!isKeyValid) {
+      setErrorMessage('Kata sandi guru salah. Akses ditolak.');
+      return;
+    }
+
+    if (pendingTeacherUser) {
+      saveUserProfile(pendingTeacherUser);
+      onLoginSuccess(pendingTeacherUser);
     }
   };
 
@@ -287,7 +327,7 @@ export default function LoginPage({ onLoginSuccess }) {
             }}>
               <button
                 type="button"
-                onClick={() => { setActiveRole('student'); setErrorMessage(''); }}
+                onClick={() => { setActiveRole('student'); setErrorMessage(''); setSuccessMessage(''); setPendingTeacherUser(null); }}
                 style={{
                   padding: '0.55rem',
                   border: 'none',
@@ -306,7 +346,7 @@ export default function LoginPage({ onLoginSuccess }) {
               </button>
               <button
                 type="button"
-                onClick={() => { setActiveRole('teacher'); setErrorMessage(''); }}
+                onClick={() => { setActiveRole('teacher'); setErrorMessage(''); setSuccessMessage(''); setPendingTeacherUser(null); }}
                 style={{
                   padding: '0.55rem',
                   border: 'none',
@@ -365,9 +405,9 @@ export default function LoginPage({ onLoginSuccess }) {
           )}
 
           {/* =========================================================
-              BAGIAN 1: TOMBOL MASUK DENGAN GOOGLE (HANYA SISWA)
+              BAGIAN 1: TOMBOL MASUK DENGAN GOOGLE (SISWA & GURU LANGKAH 1)
               ========================================================= */}
-          {authMode !== 'forgot-password' && activeRole !== 'teacher' && (
+          {authMode !== 'forgot-password' && !pendingTeacherUser && (
             <>
               <button
                 type="button"
@@ -401,7 +441,7 @@ export default function LoginPage({ onLoginSuccess }) {
                   <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z" />
                   <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z" />
                 </svg>
-                <span>{isLoading ? 'Menghubungkan...' : 'Masuk dengan Google'}</span>
+                <span>{isLoading ? 'Menghubungkan...' : (activeRole === 'teacher' ? 'Langkah 1: Masuk dengan Google' : 'Masuk dengan Google')}</span>
               </button>
 
               {/* Garis Pembatas (Divider) */}
@@ -419,11 +459,106 @@ export default function LoginPage({ onLoginSuccess }) {
           )}
 
           {/* =========================================================
+              BAGIAN KHUSUS GURU: LANGKAH 2 (VERIFIKASI KATA SANDI GURU)
+              ========================================================= */}
+          {activeRole === 'teacher' && pendingTeacherUser && (
+            <form onSubmit={handleTeacherStepTwoSubmit} style={{ animation: 'fadeIn 0.3s ease' }}>
+              <div style={{
+                background: '#EFF6FF',
+                border: '1px solid #BFDBFE',
+                borderRadius: '10px',
+                padding: '0.85rem 1rem',
+                marginBottom: '1rem',
+                fontSize: '0.86rem',
+                color: '#1E40AF'
+              }}>
+                <div style={{ fontWeight: 700, marginBottom: '0.2rem' }}>
+                  🔐 Verifikasi 2 Langkah Akun Guru
+                </div>
+                <div>
+                  Terhubung: <strong>{pendingTeacherUser.email}</strong>
+                </div>
+                <div style={{ fontSize: '0.8rem', color: '#3B82F6', marginTop: '0.2rem' }}>
+                  Silakan masukkan kata sandi pengajar khusus untuk menyelesaikan autentikasi.
+                </div>
+              </div>
+
+              <div style={{ marginBottom: '1rem' }}>
+                <label style={{ display: 'block', fontSize: '0.88rem', fontWeight: 700, marginBottom: '0.35rem', color: '#0F172A' }}>
+                  Kata Sandi Guru (Langkah 2):
+                </label>
+                <input
+                  type="password"
+                  value={teacherStepTwoKey}
+                  onChange={(e) => setTeacherStepTwoKey(e.target.value)}
+                  placeholder="Masukkan kata sandi guru"
+                  required
+                  autoFocus
+                  style={{
+                    width: '100%',
+                    padding: '0.68rem 0.85rem',
+                    border: '1.5px solid #CBD5E1',
+                    borderRadius: '10px',
+                    fontSize: '0.95rem',
+                    boxSizing: 'border-box',
+                    fontFamily: "'Times New Roman', Times, serif"
+                  }}
+                />
+              </div>
+
+              <button
+                type="submit"
+                disabled={isLoading}
+                className="btn btn-primary"
+                style={{
+                  width: '100%',
+                  padding: '0.78rem',
+                  fontSize: '1rem',
+                  borderRadius: '10px',
+                  background: '#0F172A',
+                  boxShadow: '0 4px 14px rgba(15, 23, 42, 0.25)',
+                  cursor: isLoading ? 'not-allowed' : 'pointer'
+                }}
+              >
+                {isLoading ? 'Memverifikasi...' : 'Selesaikan Masuk sebagai Guru 🔬'}
+              </button>
+
+              <button
+                type="button"
+                onClick={() => { setPendingTeacherUser(null); setTeacherStepTwoKey(''); setErrorMessage(''); setSuccessMessage(''); }}
+                style={{
+                  width: '100%',
+                  marginTop: '0.75rem',
+                  background: 'none',
+                  border: 'none',
+                  color: '#64748B',
+                  fontSize: '0.85rem',
+                  cursor: 'pointer',
+                  textDecoration: 'underline'
+                }}
+              >
+                ← Ganti Akun / Batalkan
+              </button>
+            </form>
+          )}
+
+          {/* =========================================================
               BAGIAN 2: FORM MASUK DENGAN EMAIL (LOGIN)
               ========================================================= */}
-          {authMode === 'login' && activeRole === 'teacher' && (
+          {authMode === 'login' && activeRole === 'teacher' && !pendingTeacherUser && (
             /* ---- Form khusus guru: Firebase Auth + validasi email ---- */
-            <TeacherLoginForm onSuccess={onLoginSuccess} />
+            <TeacherLoginForm onSuccess={(teacherCred) => {
+              setPendingTeacherUser({
+                role: 'teacher',
+                name: teacherCred.displayName || 'Guru Kimia',
+                email: teacherCred.email,
+                className: 'Guru Kimia',
+                uid: teacherCred.uid,
+                provider: 'password',
+                loginAt: new Date().toISOString()
+              });
+              setSuccessMessage('Langkah 1 berhasil (Email). Silakan masukkan kata sandi guru untuk melanjutkan.');
+            }} />
           )}
 
           {authMode === 'login' && activeRole === 'student' && (

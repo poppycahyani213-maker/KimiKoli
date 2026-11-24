@@ -9,6 +9,7 @@ import {
   isFirebaseConfigured 
 } from '../../services/firebase';
 import { getUserProfile, saveUserProfile } from '../../utils/storage';
+import TeacherLoginForm from './TeacherLoginForm';
 
 /**
  * Komponen LoginPage (KimiKoli)
@@ -420,7 +421,12 @@ export default function LoginPage({ onLoginSuccess }) {
           {/* =========================================================
               BAGIAN 2: FORM MASUK DENGAN EMAIL (LOGIN)
               ========================================================= */}
-          {authMode === 'login' && (
+          {authMode === 'login' && activeRole === 'teacher' && (
+            /* ---- Form khusus guru: Firebase Auth + validasi email ---- */
+            <TeacherLoginForm onSuccess={onLoginSuccess} />
+          )}
+
+          {authMode === 'login' && activeRole === 'student' && (
             <form onSubmit={handleEmailLogin}>
               {/* Kelas Siswa (agar data profil otomatis sinkron) */}
               {activeRole === 'student' && (

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { getAllStudentRecords, saveStudentRecord, setStoredData, STORAGE_KEYS } from '../../utils/storage';
+import { exportRekapToExcel } from '../../utils/exportExcel';
 
 /**
  * Komponen TeacherDashboard
@@ -161,7 +162,7 @@ export default function TeacherDashboard({ onBackToLearning }) {
             </select>
           </div>
 
-          <div style={{ display: 'flex', gap: '0.5rem' }}>
+          <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
             {totalStudents === 0 && (
               <button
                 type="button"
@@ -173,14 +174,24 @@ export default function TeacherDashboard({ onBackToLearning }) {
               </button>
             )}
             {totalStudents > 0 && (
-              <button
-                type="button"
-                className="btn btn-secondary"
-                onClick={handleResetData}
-                style={{ fontSize: '0.85rem', padding: '0.5rem 0.9rem', color: '#DC2626', borderColor: '#FECACA' }}
-              >
-                Reset Data Siswa
-              </button>
+              <>
+                <button
+                  type="button"
+                  className="btn btn-secondary"
+                  onClick={() => exportRekapToExcel(filteredStudents)}
+                  style={{ fontSize: '0.85rem', padding: '0.5rem 0.9rem', color: '#065F46', borderColor: '#6EE7B7' }}
+                >
+                  ⬇ Ekspor ke Excel
+                </button>
+                <button
+                  type="button"
+                  className="btn btn-secondary"
+                  onClick={handleResetData}
+                  style={{ fontSize: '0.85rem', padding: '0.5rem 0.9rem', color: '#DC2626', borderColor: '#FECACA' }}
+                >
+                  Reset Data Siswa
+                </button>
+              </>
             )}
           </div>
         </div>

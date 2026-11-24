@@ -47,7 +47,33 @@ export default function DiagnosticAssessmentPage({
   // Soal 2: { [stmtId]: boolean }
   // Soal 3, 7-10: string id
   // Soal 4-6: { t1: string, t2: string, confidence: number }
-  const [userResponses, setUserResponses] = useState({});
+
+  // Kunci draft per user agar jawaban tidak hilang jika browser ditutup/refresh
+  const draftKey = `kimikoli:${currentUser?.uid ?? currentUser?.username ?? 'guest'}:diagnostic-draft`;
+
+  // Muat draft saat mount (jika ada)
+  const [userResponses, setUserResponses] = useState(() => {
+    try {
+      const raw = localStorage.getItem(draftKey);
+      return raw ? JSON.parse(raw) : {};
+    } catch {
+      return {};
+    }
+  });
+
+  // Simpan draft setiap jawaban berubah
+  useEffect(() => {
+    try {
+      localStorage.setItem(draftKey, JSON.stringify(userResponses));
+    } catch {
+      /* abaikan, jangan matikan halaman */
+    }
+  }, [userResponses, draftKey]);
+
+  // Hapus draft setelah submit berhasil (bukan riwayat)
+  const clearDraft = () => {
+    try { localStorage.removeItem(draftKey); } catch {}
+  };
 
   // Simpan hasil evaluasi terakhir
   const [latestEvaluation, setLatestEvaluation] = useState(() => {
@@ -174,6 +200,7 @@ export default function DiagnosticAssessmentPage({
     setLatestEvaluation(newAttemptRecord);
     setMode('result');
     window.scrollTo({ top: 0, behavior: 'smooth' });
+    clearDraft();
 
     // Panggil callback simpan ke App / storage
     if (onSaveResult) {
@@ -195,6 +222,19 @@ export default function DiagnosticAssessmentPage({
 
   return (
     <div style={{ maxWidth: '880px', margin: '0 auto', padding: '1rem', color: '#1E293B', fontFamily: 'system-ui, -apple-system, sans-serif' }}>
+      {/* Aksesibilitas: sembunyikan radio secara visual tapi tetap bisa diakses keyboard */}
+      <style>{`
+        .option input[type="radio"] {
+          position: absolute;
+          opacity: 0;
+          width: 1px;
+          height: 1px;
+        }
+        .option input[type="radio"]:focus-visible + span {
+          outline: 2px solid currentColor;
+          outline-offset: 2px;
+        }
+      `}</style>
       
       {/* 1. Header & Panel Konstanta (Selalu Terlihat) */}
       <div style={{

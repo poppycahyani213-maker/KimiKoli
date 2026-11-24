@@ -8,6 +8,7 @@ import {
   clearAuthUser, 
   saveStudentRecord 
 } from './utils/storage';
+import { isTeacherEmail } from './config/teachers';
 
 // Komponen Halaman
 import LoginPage from './features/auth/LoginPage';
@@ -77,6 +78,10 @@ export default function App() {
 
   // Handler Berhasil Login
   const handleLoginSuccess = (userData) => {
+    // Tentukan role berdasarkan email (sumber tunggal kebenaran)
+    const role = isTeacherEmail(userData?.email) ? 'teacher' : 'student';
+    const enrichedUser = { ...userData, role };
+
     // 1. Kosongkan state di memori terlebih dahulu agar tidak terbawa dari sesi user sebelumnya
     setCompletedChapters([]);
     setIsPretestCompleted(false);
@@ -86,11 +91,11 @@ export default function App() {
     setIsPretestLocked(false);
 
     // 2. Simpan sesi user aktif
-    setAuthUser(userData);
-    setCurrentUser(userData);
+    setAuthUser(enrichedUser);
+    setCurrentUser(enrichedUser);
 
     // 3. Baca progres HANYA dari kunci "kimikoli:v1:<username dinormalisasi>"
-    const saved = getCourseProgress(userData);
+    const saved = getCourseProgress(enrichedUser);
     const userCompletedChapters = saved?.completedChapters || [];
     const userPretestCompleted = Boolean(saved?.pretestCompleted);
     const userPretestAnswers = saved?.pretestAnswers || {};

@@ -57,8 +57,11 @@ export default function App() {
   useEffect(() => {
     const loggedUser = getAuthUser();
     if (loggedUser) {
-      setCurrentUser(loggedUser);
-      const saved = getCourseProgress(loggedUser);
+      // Pastikan peran guru selalu divalidasi ulang dari email (sumber tunggal kebenaran)
+      const validRole = isTeacherEmail(loggedUser.email) ? 'teacher' : 'student';
+      const safeUser = { ...loggedUser, role: validRole };
+      setCurrentUser(safeUser);
+      const saved = getCourseProgress(safeUser);
       if (saved) {
         setCompletedChapters(saved.completedChapters || []);
         setIsPretestCompleted(Boolean(saved.pretestCompleted));
@@ -304,8 +307,8 @@ export default function App() {
       {/* 2. Konten Utama */}
       <main className="content-area" style={{ width: '100%', maxWidth: '1240px', margin: '0 auto', padding: '1.5rem 1.25rem' }}>
         
-        {/* Panel Khusus Guru: Rekapitulasi Data Nilai Siswa */}
-        {currentView === 'teacher-dashboard' && (
+        {/* Panel Khusus Guru: Rekapitulasi Data Nilai Siswa (Hanya untuk Guru Terverifikasi) */}
+        {currentView === 'teacher-dashboard' && currentUser?.role === 'teacher' && (
           <TeacherDashboard
             onBackToLearning={() => setCurrentView('home')}
           />

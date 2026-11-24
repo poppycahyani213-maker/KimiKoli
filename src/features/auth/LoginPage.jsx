@@ -365,9 +365,9 @@ export default function LoginPage({ onLoginSuccess }) {
           )}
 
           {/* =========================================================
-              BAGIAN 1: TOMBOL MASUK DENGAN GOOGLE
+              BAGIAN 1: TOMBOL MASUK DENGAN GOOGLE (HANYA SISWA)
               ========================================================= */}
-          {authMode !== 'forgot-password' && (
+          {authMode !== 'forgot-password' && activeRole !== 'teacher' && (
             <>
               <button
                 type="button"
@@ -908,9 +908,9 @@ export default function LoginPage({ onLoginSuccess }) {
             </form>
           )}
 
-          {/* Footer Card: Link Akses Cepat */}
+          {/* Footer Card: Link Akses Cepat (Hanya Mode Siswa) */}
           <div style={{ marginTop: '1.5rem', textAlign: 'center', borderTop: '1px solid #F1F5F9', paddingTop: '0.9rem' }}>
-            {authMode !== 'quick-guest' && authMode !== 'forgot-password' && (
+            {authMode !== 'quick-guest' && authMode !== 'forgot-password' && activeRole !== 'teacher' && (
               <button
                 type="button"
                 onClick={() => { setAuthMode('quick-guest'); setErrorMessage(''); setSuccessMessage(''); }}

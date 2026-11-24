@@ -27,52 +27,71 @@ function getCh1StorageKey() {
   return 'koligatif_ch1_requirements_v1_guest';
 }
 
-// ─── Data Soal ───────────────────────────────────────────────────────────────
+// ─── Data Soal Numerik (Soal 1 – 6) ──────────────────────────────────────────
 const NUMERIC_QUESTIONS = [
   {
     id: 'q1',
     number: 1,
-    question: 'Sebanyak 12 g urea (Mr = 60) dilarutkan dalam 500 g air murni. Berapakah molalitas (m) larutan tersebut?',
-    target: 0.4,
+    question: 'Sebanyak 3 gram urea (CO(NH₂)₂, Mr = 60) dilarutkan dalam 250 gram air murni. Berapakah molalitas (m) larutan tersebut?',
+    target: 0.2,
     unit: 'm (molal)',
-    hint: 'Ubah gram air ke kg terlebih dahulu (500 g = 0,5 kg).',
-    solution: 'n urea = 12 / 60 = 0,2 mol; massa pelarut = 500 g = 0,5 kg; molalitas m = 0,2 / 0,5 = 0,4 m.'
+    hint: [
+      'Langkah 1: Konversikan massa pelarut air ke satuan kilogram (p = 250 g / 1000).',
+      'Langkah 2: Hitung jumlah mol urea: n = massa / Mr.',
+      'Langkah 3: Hitung molalitas dengan membagi mol terlarut terhadap massa pelarut dalam kg: m = n / p(kg).'
+    ],
+    solution: 'n = 3 g / 60 g/mol = 0,05 mol. p = 250 g = 0,25 kg. Molalitas m = 0,05 / 0,25 = 0,2 m.'
   },
   {
     id: 'q2',
     number: 2,
-    question: 'Sebanyak 18 g glukosa (Mr = 180) dilarutkan ke dalam 400 g air. Berapakah molalitas larutan tersebut?',
-    target: 0.25,
+    question: 'Sebanyak 36 gram glukosa (Mr = 180) dilarutkan ke dalam 500 gram air. Berapakah molalitas larutan tersebut?',
+    target: 0.4,
     unit: 'm (molal)',
-    hint: 'Hitung mol glukosa terlebih dahulu sebelum membagi dengan massa pelarut.',
-    solution: 'n = 18 / 180 = 0,1 mol; massa pelarut = 400 g = 0,4 kg; m = 0,1 / 0,4 = 0,25 m.'
+    hint: [
+      'Langkah 1: Hitung mol glukosa dengan rumus n = massa / Mr.',
+      'Langkah 2: Konversikan massa pelarut air 500 gram ke satuan kilogram (p = 500 / 1000).',
+      'Langkah 3: Masukkan nilai n dan p ke rumus molalitas: m = n / p(kg).'
+    ],
+    solution: 'n = 36 / 180 = 0,2 mol; p = 0,5 kg; m = 0,2 / 0,5 = 0,4 m.'
   },
   {
     id: 'q3',
     number: 3,
-    question: '0,25 mol glukosa dicampurkan dengan 4,75 mol air. Berapakah fraksi mol glukosa (X_glukosa)?',
-    target: 0.05,
-    unit: '(tanpa satuan)',
-    hint: 'Bagi mol glukosa dengan mol total (glukosa + air).',
-    solution: 'n total = 0,25 + 4,75 = 5,0 mol; X glukosa = 0,25 / 5,0 = 0,05.'
+    question: 'Sebuah larutan dibuat dengan mencampurkan 0,5 mol etanol ke dalam 4,5 mol air. Berapakah fraksi mol etanol (X_etanol)?',
+    target: 0.1,
+    unit: 'tanpa satuan',
+    hint: [
+      'Langkah 1: Hitung total mol campuran di dalam larutan: n_total = n_etanol + n_air.',
+      'Langkah 2: Hitung fraksi mol etanol dengan membagi mol zat terhadap total mol: X_etanol = n_etanol / n_total.'
+    ],
+    solution: 'n_total = 0,5 mol + 4,5 mol = 5,0 mol. X_etanol = 0,5 / 5,0 = 0,1.'
   },
   {
     id: 'q4',
     number: 4,
-    question: '4,6 g etanol (Mr = 46) dicampurkan dengan 16,2 g air (Mr = 18). Berapakah fraksi mol etanol?',
-    target: 0.1,
-    unit: '(tanpa satuan)',
-    hint: 'Ubah kedua massa menjadi mol terlebih dahulu, lalu hitung fraksi mol.',
-    solution: 'n etanol = 4,6 / 46 = 0,1 mol; n air = 16,2 / 18 = 0,9 mol; X = 0,1 / (0,1 + 0,9) = 0,1.'
+    question: 'Berapa gram urea (Mr = 60) yang harus dilarutkan ke dalam 400 gram air agar diperoleh larutan dengan konsentrasi 0,25 m?',
+    target: 6.0,
+    unit: 'gram',
+    hint: [
+      'Langkah 1: Ubah massa air ke satuan kg (p = 400 g / 1000).',
+      'Langkah 2: Dari rumus m = n / p(kg), tentukan mol urea yang dibutuhkan: n = m × p(kg).',
+      'Langkah 3: Konversikan jumlah mol ke satuan gram: massa = n × Mr.'
+    ],
+    solution: 'p = 0,4 kg. n = 0,25 m × 0,4 kg = 0,1 mol. Massa urea = 0,1 mol × 60 g/mol = 6 gram.'
   },
   {
     id: 'q5',
     number: 5,
-    question: 'Berapa gram glukosa (Mr = 180) yang harus dilarutkan ke dalam 250 g air agar diperoleh larutan 0,4 m?',
-    target: 18,
-    unit: 'gram',
-    hint: 'Gunakan rumus n = molalitas × massa pelarut (kg) untuk mencari mol, lalu ubah ke gram.',
-    solution: 'n = 0,4 m × 0,25 kg = 0,1 mol; massa = 0,1 × 180 = 18 g.'
+    question: 'Suatu larutan glukosa dalam air memiliki fraksi mol glukosa sebesar 0,1. Berapakah nilai molalitas (m) larutan tersebut?',
+    target: 6.17,
+    unit: 'm (molal)',
+    hint: [
+      'Langkah 1: Asumsikan jumlah mol total campuran = 1 mol, sehingga n_glukosa = 0,1 mol dan n_air = 0,9 mol.',
+      'Langkah 2: Cari massa pelarut air: massa air = n_air × Mr air (Mr H₂O = 18 g/mol), lalu ubah ke kg.',
+      'Langkah 3: Hitung molalitas dengan membagi n_glukosa terhadap massa pelarut air dalam kg: m = n_glukosa / p(kg).'
+    ],
+    solution: 'Basis 1 mol campuran: n_glukosa = 0,1 mol, n_air = 0,9 mol. Massa air = 0,9 mol × 18 g/mol = 16,2 g = 0,0162 kg. Molalitas m = 0,1 / 0,0162 = 6,17 m.'
   },
   {
     id: 'q6',
@@ -80,11 +99,16 @@ const NUMERIC_QUESTIONS = [
     question: 'Larutan urea (Mr = 60) dengan kadar 20% massa. Berapakah molalitasnya?',
     target: 4.17,
     unit: 'm (molal)',
-    hint: 'Misalkan 100 g larutan: 20 g urea dan 80 g air. Hitung mol urea lalu bagi dengan massa air (kg).',
+    hint: [
+      'Langkah 1: Misalkan 100 g larutan, sehingga massa urea = 20 g dan massa air = 80 g.',
+      'Langkah 2: Hitung mol urea: n = 20 / 60.',
+      'Langkah 3: Bagi mol urea dengan massa air dalam kg (0,08 kg).'
+    ],
     solution: 'Basis 100 g larutan: urea = 20 g → n = 20/60 = 0,333 mol; air = 80 g = 0,08 kg; m = 0,333/0,08 = 4,17 m.'
   }
 ];
 
+// ─── Data Soal Pilihan Ganda (Soal 7 – 8) ────────────────────────────────────
 const MC_QUESTIONS = [
   {
     id: 'q7',
@@ -118,49 +142,102 @@ const MC_QUESTIONS = [
   }
 ];
 
+// ─── Kotak kecil: petunjuk & pembahasan ──────────────────────────────────────
+function HintBox({ hint }) {
+  return (
+    <div
+      className="fade-in"
+      style={{
+        marginTop: '0.85rem',
+        background: '#FFFBEB',
+        borderLeft: '4px solid #F59E0B',
+        borderRadius: '8px',
+        padding: '0.85rem 1.1rem',
+        fontSize: '0.9rem',
+        color: '#92400E'
+      }}
+    >
+      <div style={{ fontWeight: 800, color: '#B45309', marginBottom: '0.4rem' }}>
+        🧭 Petunjuk Pengerjaan:
+      </div>
+      {Array.isArray(hint) ? (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.3rem', lineHeight: 1.55 }}>
+          {hint.map((step, i) => (
+            <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: '0.4rem' }}>
+              <span style={{ color: '#D97706', fontWeight: 800 }}>•</span>
+              <span>{step}</span>
+            </div>
+          ))}
+        </div>
+      ) : (
+        <div>{hint}</div>
+      )}
+    </div>
+  );
+}
+
+function SolutionBox({ solution }) {
+  return (
+    <div
+      className="fade-in"
+      style={{
+        marginTop: '0.85rem',
+        background: '#ECFDF5',
+        borderLeft: '4px solid #10B981',
+        borderRadius: '6px',
+        padding: '0.65rem 1rem',
+        fontSize: '0.88rem',
+        color: '#065F46'
+      }}
+    >
+      <strong>📖 Pembahasan:</strong> {solution}
+    </div>
+  );
+}
+
 // ─── Komponen utama ───────────────────────────────────────────────────────────
 export default function LatihanSoal({ onSemuaSelesai }) {
-  // Jawaban: q1–q6 = string angka; q7, q8 = key pilihan ganda (string)
+  // Jawaban: q1–q6 = string angka; q7, q8 = key pilihan ganda
   const initAnswers = () => ({
     q1: '', q2: '', q3: '', q4: '', q5: '', q6: '',
     q7: '', q8: ''
   });
 
-  // Status soal q1–q8: null | 'correct' | 'incorrect'
-  // null = belum dijawab, setelah dijawab pertama kali TERKUNCI
+  // Status soal: null (belum dijawab) | 'correct' | 'incorrect'
+  // Setelah dijawab pertama kali, soal TERKUNCI
   const initStatus = () => ({
     q1: null, q2: null, q3: null, q4: null, q5: null, q6: null,
     q7: null, q8: null
   });
 
-  const [answers, setAnswers]       = useState(initAnswers);
-  const [status, setStatus]         = useState(initStatus);
-  const [refleksi, setRefleksi]     = useState('');
+  const [answers, setAnswers] = useState(initAnswers);
+  const [status, setStatus] = useState(initStatus);
+  const [refleksi, setRefleksi] = useState('');
   const [refleksiSubmitted, setRefleksiSubmitted] = useState(false);
-  const [showSummary, setShowSummary] = useState(false); // tampilkan panel skor
-  const [passed, setPassed]         = useState(false);
+  const [showSummary, setShowSummary] = useState(false);
+  const [passed, setPassed] = useState(false);
 
-  // Hitung skor dari status yang sudah ada (untuk re-render)
+  // Skor dari status yang ada
   const correctCount = Object.values(status).filter(v => v === 'correct').length;
 
-  // Semua 8 soal sudah dijawab (tidak peduli benar/salah)
+  // Semua 8 soal sudah dijawab (benar atau salah)
   const allAnswered = Object.values(status).every(v => v !== null);
 
-  // Siap tampilkan skor: semua 8 dijawab DAN refleksi diisi
+  // Siap tampilkan skor: 8 soal dijawab DAN refleksi diisi
   const readyToShowSummary = allAnswered && refleksiSubmitted;
 
-  // Efek: tampilkan panel skor otomatis saat kondisi terpenuhi
+  // Tampilkan panel skor otomatis saat kondisi terpenuhi
   useEffect(() => {
     if (readyToShowSummary && !showSummary) {
       setShowSummary(true);
     }
-  }, [readyToShowSummary]);
+  }, [readyToShowSummary, showSummary]);
 
-  // Efek: kalau lulus, simpan ke localStorage dan panggil onSemuaSelesai
   useEffect(() => {
     if (showSummary && correctCount >= 6 && !passed) {
       setPassed(true);
-      // Simpan status lulus ke kunci yang sama dengan Chapter1Page
+
+      // Kunci yang sama dengan Chapter1Page
       const key = getCh1StorageKey();
       const saved = getStoredData(key, { isMissionDone: false, isExerciseDone: false });
       setStoredData(key, { ...saved, isExerciseDone: true });
@@ -168,20 +245,22 @@ export default function LatihanSoal({ onSemuaSelesai }) {
       // Sinkronkan ke format kunci standar kimikoli
       const user = getAuthUser();
       if (user) {
-        const norm = typeof user === 'string' ? user.toLowerCase().trim() : (user.name || '').toLowerCase().trim();
+        const norm = typeof user === 'string'
+          ? user.toLowerCase().trim()
+          : (user.name || '').toLowerCase().trim();
         const modernKey = `kimikoli:v1:${norm}:ch1`;
         const modernSaved = getStoredData(modernKey, { isMissionDone: false, isExerciseDone: false });
         setStoredData(modernKey, { ...modernSaved, isExerciseDone: true });
       }
+
       if (typeof onSemuaSelesai === 'function') {
         onSemuaSelesai();
       }
     }
-  }, [showSummary, correctCount]);
+  }, [showSummary, correctCount, passed, onSemuaSelesai]);
 
   // ── Handler numerik ────────────────────────────────────────────────────────
   const handleCheckNumeric = (qId, target) => {
-    // Hanya proses jika belum pernah dijawab
     if (status[qId] !== null) return;
     const raw = (answers[qId] || '').trim().replace(',', '.');
     const val = parseFloat(raw);
@@ -196,7 +275,6 @@ export default function LatihanSoal({ onSemuaSelesai }) {
 
   // ── Handler pilihan ganda ──────────────────────────────────────────────────
   const handleSelectOption = (qId, optKey) => {
-    // Hanya proses jika belum dijawab
     if (status[qId] !== null) return;
     setAnswers(prev => ({ ...prev, [qId]: optKey }));
   };
@@ -215,7 +293,7 @@ export default function LatihanSoal({ onSemuaSelesai }) {
     setRefleksiSubmitted(true);
   };
 
-  // ── Ulangi latihan (reset semua, tidak reset refleksi) ────────────────────
+  // ── Ulangi latihan ─────────────────────────────────────────────────────────
   const handleReset = () => {
     setAnswers(initAnswers());
     setStatus(initStatus());
@@ -225,7 +303,7 @@ export default function LatihanSoal({ onSemuaSelesai }) {
     setPassed(false);
   };
 
-  // ── Nomor soal yang salah (untuk panel gagal) ─────────────────────────────
+  // ── Nomor soal yang salah (untuk panel gagal) ──────────────────────────────
   const wrongNumbers = [
     ...NUMERIC_QUESTIONS.filter(q => status[q.id] === 'incorrect').map(q => q.number),
     ...MC_QUESTIONS.filter(q => status[q.id] === 'incorrect').map(q => q.number)
@@ -239,9 +317,7 @@ export default function LatihanSoal({ onSemuaSelesai }) {
         subtitle="8 soal dinilai (jawaban pertama) + 1 refleksi wajib. Skor ≥ 6/8 untuk lulus."
       >
 
-        {/* ══════════════════════════════════════════════
-            PANEL SKOR (muncul setelah semua selesai)
-            ══════════════════════════════════════════════ */}
+        {/* ══════════ PANEL SKOR ══════════ */}
         {showSummary && (
           <div
             className="fade-in"
@@ -249,30 +325,24 @@ export default function LatihanSoal({ onSemuaSelesai }) {
               marginBottom: '2rem',
               borderRadius: '14px',
               padding: '1.4rem 1.5rem',
-              border: correctCount >= 6
-                ? '2px solid #10B981'
-                : '2px solid #F59E0B',
+              border: correctCount >= 6 ? '2px solid #10B981' : '2px solid #F59E0B',
               background: correctCount >= 6 ? '#ECFDF5' : '#FFFBEB'
             }}
           >
             {correctCount >= 6 ? (
-              <>
-                {/* LULUS */}
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.6rem' }}>
-                  <span style={{ fontSize: '2rem' }}>🎉</span>
-                  <div>
-                    <strong style={{ color: '#065F46', fontSize: '1.1rem', display: 'block' }}>
-                      Lulus! Skor kamu: {correctCount}/8
-                    </strong>
-                    <span style={{ color: '#047857', fontSize: '0.9rem' }}>
-                      Kamu memenuhi KKM (≥ 6/8). Pembahasan lengkap tersedia di bawah setiap soal.
-                    </span>
-                  </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                <span style={{ fontSize: '2rem' }}>🎉</span>
+                <div>
+                  <strong style={{ color: '#065F46', fontSize: '1.1rem', display: 'block' }}>
+                    Lulus! Skor kamu: {correctCount}/8
+                  </strong>
+                  <span style={{ color: '#047857', fontSize: '0.9rem' }}>
+                    Kamu memenuhi KKM (≥ 6/8). Pembahasan lengkap tersedia di bawah setiap soal.
+                  </span>
                 </div>
-              </>
+              </div>
             ) : (
               <>
-                {/* TIDAK LULUS */}
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.75rem' }}>
                   <span style={{ fontSize: '2rem' }}>📋</span>
                   <div>
@@ -306,16 +376,13 @@ export default function LatihanSoal({ onSemuaSelesai }) {
           </div>
         )}
 
-        {/* ══════════════════════════════════════════════
-            SOAL NUMERIK 1 – 6
-            ══════════════════════════════════════════════ */}
+        {/* ══════════ SOAL NUMERIK 1 – 6 ══════════ */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', marginBottom: '2rem' }}>
           {NUMERIC_QUESTIONS.map(q => {
             const st = status[q.id];
-            const locked = st !== null; // sudah dijawab
-            const isCorrect  = st === 'correct';
+            const locked = st !== null;
+            const isCorrect = st === 'correct';
             const isIncorrect = st === 'incorrect';
-            // Tampilkan pembahasan hanya jika lulus
             const showSolution = isCorrect && showSummary && correctCount >= 6;
 
             return (
@@ -344,10 +411,7 @@ export default function LatihanSoal({ onSemuaSelesai }) {
                     Soal {q.number} • Isian Angka
                   </span>
                   {locked && (
-                    <span style={{
-                      fontSize: '0.82rem', fontWeight: 800,
-                      color: isCorrect ? '#16A34A' : '#DC2626'
-                    }}>
+                    <span style={{ fontSize: '0.82rem', fontWeight: 800, color: isCorrect ? '#16A34A' : '#DC2626' }}>
                       {isCorrect ? '✓ Benar' : '✗ Salah'}
                     </span>
                   )}
@@ -358,7 +422,7 @@ export default function LatihanSoal({ onSemuaSelesai }) {
                   <strong>{q.number}.</strong> {q.question}
                 </p>
 
-                {/* Input + Tombol */}
+                {/* Input + tombol */}
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
                   <input
                     type="text"
@@ -394,43 +458,19 @@ export default function LatihanSoal({ onSemuaSelesai }) {
                   )}
                 </div>
 
-                {/* Petunjuk (muncul jika salah) */}
-                {isIncorrect && (
-                  <div className="fade-in" style={{
-                    marginTop: '0.85rem', background: '#FFFBEB',
-                    borderLeft: '4px solid #F59E0B', borderRadius: '8px',
-                    padding: '0.85rem 1.1rem', fontSize: '0.88rem', color: '#92400E'
-                  }}>
-                    <div style={{ fontWeight: 800, color: '#B45309', marginBottom: '0.35rem', display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
-                      <span>🧭</span> Panduan Langkah Pengerjaan:
-                    </div>
-                    <div style={{ lineHeight: 1.5 }}>{q.hint}</div>
-                  </div>
-                )}
-
-                {/* Pembahasan lengkap (hanya jika lulus) */}
-                {showSolution && (
-                  <div className="fade-in" style={{
-                    marginTop: '0.85rem', background: '#ECFDF5',
-                    borderLeft: '4px solid #10B981', borderRadius: '6px',
-                    padding: '0.65rem 1rem', fontSize: '0.88rem', color: '#065F46'
-                  }}>
-                    <strong>📖 Pembahasan:</strong> {q.solution}
-                  </div>
-                )}
+                {isIncorrect && <HintBox hint={q.hint} />}
+                {showSolution && <SolutionBox solution={q.solution} />}
               </div>
             );
           })}
         </div>
 
-        {/* ══════════════════════════════════════════════
-            SOAL PILIHAN GANDA 7 – 8
-            ══════════════════════════════════════════════ */}
+        {/* ══════════ SOAL PILIHAN GANDA 7 – 8 ══════════ */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', marginBottom: '2rem' }}>
           {MC_QUESTIONS.map(q => {
             const st = status[q.id];
             const locked = st !== null;
-            const isCorrect   = st === 'correct';
+            const isCorrect = st === 'correct';
             const isIncorrect = st === 'incorrect';
             const showSolution = isCorrect && showSummary && correctCount >= 6;
 
@@ -460,10 +500,7 @@ export default function LatihanSoal({ onSemuaSelesai }) {
                     Soal {q.number} • Pilihan Ganda
                   </span>
                   {locked && (
-                    <span style={{
-                      fontSize: '0.82rem', fontWeight: 800,
-                      color: isCorrect ? '#16A34A' : '#DC2626'
-                    }}>
+                    <span style={{ fontSize: '0.82rem', fontWeight: 800, color: isCorrect ? '#16A34A' : '#DC2626' }}>
                       {isCorrect ? '✓ Benar' : '✗ Salah'}
                     </span>
                   )}
@@ -478,7 +515,6 @@ export default function LatihanSoal({ onSemuaSelesai }) {
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', marginBottom: '1rem' }}>
                   {q.options.map(opt => {
                     const isSelected = answers[q.id] === opt.key;
-                    // Styling tombol pilihan
                     let optBg = '#F8FAFC';
                     let optBorder = '1.5px solid #E2E8F0';
                     let optColor = '#334155';
@@ -511,19 +547,19 @@ export default function LatihanSoal({ onSemuaSelesai }) {
                           fontWeight: 800, minWidth: '20px',
                           color: locked && isSelected && isCorrect ? '#16A34A'
                             : locked && isSelected && isIncorrect ? '#DC2626'
-                            : 'inherit'
+                              : 'inherit'
                         }}>
                           {opt.key}.
                         </span>
                         <span style={{ flex: 1 }}>{opt.text}</span>
-                        {locked && isSelected && isCorrect  && <span style={{ color: '#16A34A', fontWeight: 800 }}>✓</span>}
+                        {locked && isSelected && isCorrect && <span style={{ color: '#16A34A', fontWeight: 800 }}>✓</span>}
                         {locked && isSelected && isIncorrect && <span style={{ color: '#DC2626', fontWeight: 800 }}>✗</span>}
                       </div>
                     );
                   })}
                 </div>
 
-                {/* Tombol Periksa */}
+                {/* Tombol periksa */}
                 {!locked && (
                   <Button
                     variant="primary"
@@ -535,35 +571,14 @@ export default function LatihanSoal({ onSemuaSelesai }) {
                   </Button>
                 )}
 
-                {/* Petunjuk jika salah */}
-                {isIncorrect && (
-                  <div className="fade-in" style={{
-                    marginTop: '0.85rem', background: '#FFFBEB',
-                    borderLeft: '4px solid #F59E0B', borderRadius: '6px',
-                    padding: '0.75rem 1rem', fontSize: '0.9rem', color: '#92400E'
-                  }}>
-                    <strong>💡 Petunjuk:</strong> {q.hint}
-                  </div>
-                )}
-
-                {/* Pembahasan lengkap (hanya jika lulus) */}
-                {showSolution && (
-                  <div className="fade-in" style={{
-                    marginTop: '0.85rem', background: '#ECFDF5',
-                    borderLeft: '4px solid #10B981', borderRadius: '6px',
-                    padding: '0.65rem 1rem', fontSize: '0.88rem', color: '#065F46'
-                  }}>
-                    <strong>📖 Pembahasan:</strong> {q.solution}
-                  </div>
-                )}
+                {isIncorrect && <HintBox hint={q.hint} />}
+                {showSolution && <SolutionBox solution={q.solution} />}
               </div>
             );
           })}
         </div>
 
-        {/* ══════════════════════════════════════════════
-            SOAL REFLEKSI (tidak dinilai, wajib diisi)
-            ══════════════════════════════════════════════ */}
+        {/* ══════════ SOAL REFLEKSI (tidak dinilai, wajib diisi) ══════════ */}
         <div style={{
           background: '#F8FAFC', border: '1.5px solid #CBD5E1',
           borderRadius: '14px', padding: '1.35rem'
@@ -644,7 +659,7 @@ export default function LatihanSoal({ onSemuaSelesai }) {
           )}
         </div>
 
-        {/* Keterangan progres bawah */}
+        {/* Keterangan progres */}
         {!showSummary && (
           <p style={{ marginTop: '1rem', fontSize: '0.82rem', color: '#94A3B8', textAlign: 'right' }}>
             {Object.values(status).filter(v => v !== null).length}/8 soal dijawab

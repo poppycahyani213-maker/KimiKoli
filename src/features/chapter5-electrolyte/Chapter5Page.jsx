@@ -658,11 +658,11 @@ export default function Chapter5Page({ onComplete, isCompleted }) {
                 {isCompleted
                   ? '✓ Materi Bab 5 Selesai'
                   : isReadyToComplete
-                    ? '🎉 Seluruh Syarat Siklus 5E Terpenuhi! Siap Menuju Praktikum Virtual'
-                    : 'Syarat Kelulusan Membuka Laboratorium Virtual:'}
+                    ? '🎉 Target Lulus Siklus 5E Terpenuhi! Siap Klaim XP'
+                    : 'Target Kelulusan Bab 5 (Klaim +XP & Rekap Guru):'}
               </span>
               <h4 style={{ margin: '0.2rem 0 0', color: '#0F172A', fontSize: '1.15rem', fontWeight: 800 }}>
-                Tahap Selanjutnya: Laboratorium Virtual Sifat Koligatif Larutan
+                Bab 5: Sifat Koligatif Larutan Elektrolit &amp; Faktor van 't Hoff
               </h4>
             </div>
 
@@ -715,9 +715,9 @@ export default function Chapter5Page({ onComplete, isCompleted }) {
                   cursor: isReadyToComplete ? 'pointer' : 'not-allowed',
                   opacity: isReadyToComplete ? 1 : 0.65
                 }}
-                title={!isReadyToComplete ? "Lulus latihan soal minimal 75% dan selesaikan post-test untuk membuka tahap berikutnya" : "Buka Laboratorium Virtual"}
+                title={!isReadyToComplete ? "Lulus latihan soal minimal 75% dan selesaikan post-test untuk klaim kelulusan Bab 5" : "Tandai Selesai Bab 5"}
               >
-                {isReadyToComplete ? 'Selesaikan Bab 5 & Buka Laboratorium Virtual →' : '🔒 Selesaikan Bab 5 & Buka Laboratorium Virtual'}
+                {isCompleted ? '✓ Bab 5 Selesai (Buka Lab Virtual →)' : (isReadyToComplete ? 'Selesaikan Bab 5 (+XP) & Buka Lab Virtual →' : 'Tuntaskan Latihan untuk Klaim XP')}
               </Button>
             </div>
           </div>

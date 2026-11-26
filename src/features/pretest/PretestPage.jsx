@@ -171,7 +171,7 @@ export default function PretestPage({
             marginBottom: '0.85rem'
           }}>
             <span>🔓</span>
-            <span>Pretest Tuntas • Materi & Misi Selanjutnya Terbuka!</span>
+            <span>Pretest Tuntas • Seluruh Bab Materi, Lab Virtual &amp; Evaluasi Akhir Terbuka Bebas!</span>
           </div>
 
           <h2 style={{ fontSize: '1.85rem', fontWeight: 800, margin: '0 0 0.5rem', color: '#0F172A' }}>
@@ -179,7 +179,7 @@ export default function PretestPage({
           </h2>
           
           <p style={{ color: '#64748B', maxWidth: '560px', margin: '0 auto 1.75rem', lineHeight: 1.6, fontSize: '0.98rem' }}>
-            Seluruh jawabanmu telah tersimpan rapi pada akun ini. Kamu dapat meninjau pembahasan lengkap di bawah atau langsung melanjutkan belajar ke <strong>Materi Bab 1: Konsentrasi Larutan</strong>.
+            Seluruh jawabanmu telah tersimpan rapi pada akun ini. Kamu dapat meninjau pembahasan lengkap di bawah atau bebas mempelajari seluruh materi Bab 1 s.d. Bab 5, Laboratorium Virtual, maupun Evaluasi Akhir tanpa urutan.
           </p>
 
           {/* Kotak Hasil Skor */}

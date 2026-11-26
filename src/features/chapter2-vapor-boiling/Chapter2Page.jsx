@@ -459,11 +459,11 @@ export default function Chapter2Page({ onComplete, isCompleted }) {
                 {isCompleted
                   ? '✓ Materi Bab 2 Selesai'
                   : isReadyToProceed
-                    ? '🎉 Seluruh Syarat Terpenuhi! Siap Lanjut'
-                    : 'Syarat Kelulusan Membuka Bab 3:'}
+                    ? '🎉 Target Lulus Terpenuhi! Siap Klaim XP'
+                    : 'Target Kelulusan Bab 2 (Klaim +XP & Rekap Guru):'}
               </span>
               <h4 style={{ margin: '0.2rem 0 0', color: '#0F172A', fontSize: '1.15rem', fontWeight: 800 }}>
-                Bab 3: Penurunan Titik Beku & Diagram Fase P–T
+                Bab 2: Penurunan Tekanan Uap &amp; Kenaikan Titik Didih
               </h4>
             </div>
 
@@ -513,9 +513,11 @@ export default function Chapter2Page({ onComplete, isCompleted }) {
                   cursor: isReadyToProceed ? 'pointer' : 'not-allowed',
                   opacity: isReadyToProceed ? 1 : 0.65
                 }}
-                title={!isReadyToProceed ? "Lakukan simulasi dan selesaikan minimal 80% latihan soal untuk membuka Bab 3" : "Buka Bab 3"}
+                title={!isReadyToProceed ? "Lakukan simulasi dan selesaikan minimal 80% latihan soal untuk klaim kelulusan Bab 2" : "Tandai Selesai Bab 2"}
               >
-                {isReadyToProceed ? 'Selesaikan Bab 2 & Buka Bab 3 →' : '🔒 Selesaikan Bab 2 & Buka Bab 3'}
+                {isCompleted
+                  ? '✓ Bab 2 Selesai (Lanjut Bab 3 →)'
+                  : (isReadyToProceed ? 'Selesaikan Bab 2 (+XP) & Lanjut Bab 3 →' : 'Tuntaskan Latihan untuk Klaim XP')}
               </Button>
             </div>
           </div>

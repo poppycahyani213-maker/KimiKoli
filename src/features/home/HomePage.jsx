@@ -77,23 +77,24 @@ export default function HomePage({
         isAllDone: true 
       };
     }
-    if (!isPretestDone) return { label: 'Mulai Misi 1: Pretest Prasyarat →', action: onStartPretest, isAllDone: false };
-    if (!isCh1Completed) return { label: 'Lanjut Misi: Bab 1 Konsentrasi Larutan →', action: () => onGoToChapter('chapter1'), isAllDone: false };
-    if (!isCh2Completed) return { label: 'Lanjut Misi: Bab 2 Tekanan Uap & Titik Didih →', action: () => onGoToChapter('chapter2'), isAllDone: false };
-    if (!isCh3Completed) return { label: 'Lanjut Misi: Bab 3 Penurunan Titik Beku →', action: () => onGoToChapter('chapter3'), isAllDone: false };
-    if (!isCh4Completed) return { label: 'Lanjut Misi: Bab 4 Tekanan Osmotik →', action: () => onGoToChapter('chapter4'), isAllDone: false };
-    if (!isCh5Completed) return { label: 'Lanjut Misi: Bab 5 Larutan Elektrolit →', action: () => onGoToChapter('chapter5'), isAllDone: false };
-    
-    // Jika Bab 1-5 selesai tapi Lab Virtual belum selesai
-    if (!isLabVirtualCompleted) {
+    if (!isPretestDone) {
       return { 
-        label: '🔬 Masuk ke Laboratorium Virtual →', 
-        action: onGoToLabVirtual || (() => onGoToChapter('lab-virtual')), 
+        label: '🚀 Kerjakan Pretest Terlebih Dahulu →', 
+        action: onStartPretest, 
         isAllDone: false 
       };
     }
+    if (!isCh1Completed) return { label: 'Mulai Belajar: Bab 1 Konsentrasi Larutan →', action: () => onGoToChapter('chapter1'), isAllDone: false };
+    if (!isCh2Completed) return { label: 'Lanjut Belajar: Bab 2 Tekanan Uap & Titik Didih →', action: () => onGoToChapter('chapter2'), isAllDone: false };
+    if (!isCh3Completed) return { label: 'Lanjut Belajar: Bab 3 Penurunan Titik Beku →', action: () => onGoToChapter('chapter3'), isAllDone: false };
+    if (!isCh4Completed) return { label: 'Lanjut Belajar: Bab 4 Tekanan Osmotik →', action: () => onGoToChapter('chapter4'), isAllDone: false };
+    if (!isCh5Completed) return { label: 'Lanjut Belajar: Bab 5 Larutan Elektrolit →', action: () => onGoToChapter('chapter5'), isAllDone: false };
 
-    return { label: '🏆 Masuk ke Evaluasi Akhir →', action: () => onGoToDiagnostic ? onGoToDiagnostic() : onGoToChapter('diagnostik'), isAllDone: true };
+    return { 
+      label: '🏆 Masuk ke Evaluasi Akhir →', 
+      action: () => onGoToDiagnostic ? onGoToDiagnostic() : onGoToChapter('diagnostik'), 
+      isAllDone: true 
+    };
   };
 
   const nextAction = getNextAvailableView();
@@ -242,48 +243,72 @@ export default function HomePage({
                   : "Luar biasa! Seluruh materi teori sifat koligatif larutan (Bab 1 sampai Bab 5) telah tuntas. Sekarang, masuklah ke Laboratorium Virtual untuk mengeksplorasi fenomena larutan secara langsung sebelum membuka Kuis Evaluasi Akhir."
               ) : (
                 !isPretestDone
-                  ? "Selamat datang di KimiKoli! Sebelum mempelajari materi sifat koligatif larutan, kamu wajib menyelesaikan 8 soal Pretest Prasyarat (±10 menit). Begitu pretest tuntas, materi Bab 1 akan langsung terbuka otomatis!"
+                  ? "Selamat datang di KimiKoli! Sebelum mempelajari materi sifat koligatif larutan, kamu wajib menyelesaikan 8 soal Pretest Prasyarat (±10 menit). Begitu pretest tuntas, semua bab materi (Bab 1–5), Lab Virtual, dan Evaluasi Akhir langsung terbuka otomatis!"
                   : (totalMissionsDone > 0 
-                    ? `Progres luar biasa! Kamu telah menuntaskan ${totalMissionsDone} misi belajar. Terus lanjutkan untuk membuka fenomena koligatif berikutnya.`
-                    : "Setiap misi membuka satu fenomena nyata: kenapa es puter butuh garam kasar, kenapa cairan radiator mobil tidak mendidih, hingga desalinasi air laut. Kumpulkan XP dan lencana di setiap langkah.")
+                    ? `Progres luar biasa! Kamu telah menuntaskan ${totalMissionsDone} misi belajar. Seluruh materi dan lab dapat kamu pelajari secara bebas.`
+                    : "Seluruh bab materi dan laboratorium virtual kini telah terbuka bebas untuk kamu pelajari tanpa urutan. Kumpulkan XP dan lencana di setiap langkah!")
               )}
             </p>
 
-            <div className="hero-cta-group">
+            <div className="hero-cta-group" style={{ display: 'flex', gap: '0.65rem', flexWrap: 'wrap' }}>
               <button
                 type="button"
                 className="btn btn-primary"
                 onClick={nextAction.action}
                 style={{
-                  background: isAllMissionsDone ? '#10B981' : (totalMissionsDone > 0 ? '#0284C7' : '#0284C7'),
+                  background: isAllMissionsDone ? '#10B981' : '#0284C7',
                   boxShadow: isAllMissionsDone ? '0 4px 14px rgba(16, 185, 129, 0.35)' : '0 4px 14px rgba(2, 132, 199, 0.3)',
-                  padding: '0.85rem 1.8rem',
-                  fontSize: '1.05rem'
+                  padding: '0.8rem 1.6rem',
+                  fontSize: '1rem'
                 }}
               >
                 {nextAction.label}
               </button>
 
-              {isAllMissionsDone ? (
+              {isPretestDone && (
                 <button
                   type="button"
                   className="btn btn-secondary"
-                  onClick={onStartPretest}
-                  style={{ padding: '0.85rem 1.5rem', fontSize: '1rem' }}
-                  title="Uji kembali pemahaman awal kamu"
+                  onClick={onGoToLabVirtual || (() => onGoToChapter('lab-virtual'))}
+                  style={{
+                    padding: '0.8rem 1.25rem',
+                    fontSize: '0.92rem',
+                    background: '#F0F9FF',
+                    color: '#0284C7',
+                    borderColor: '#BAE6FD'
+                  }}
+                  title="Langsung menuju Laboratorium Virtual"
                 >
-                  🔄 Ulangi Pretest / Kuis
-                </button>
-              ) : (
-                <button
-                  type="button"
-                  className="btn btn-secondary"
-                  onClick={scrollToMissions}
-                  style={{ padding: '0.85rem 1.5rem', fontSize: '1rem' }}
-                >
-                  Lihat peta misi
+                  🔬 Buka Lab Virtual
                 </button>
               )}
+
+              {isPretestDone && (
+                <button
+                  type="button"
+                  className="btn btn-secondary"
+                  onClick={() => onGoToDiagnostic ? onGoToDiagnostic() : onGoToChapter('diagnostik')}
+                  style={{
+                    padding: '0.8rem 1.25rem',
+                    fontSize: '0.92rem',
+                    background: '#FFFBEB',
+                    color: '#B45309',
+                    borderColor: '#FDE68A'
+                  }}
+                  title="Langsung menuju Evaluasi Akhir"
+                >
+                  🏆 Buka Evaluasi Akhir
+                </button>
+              )}
+
+              <button
+                type="button"
+                className="btn btn-secondary"
+                onClick={scrollToMissions}
+                style={{ padding: '0.8rem 1.25rem', fontSize: '0.92rem' }}
+              >
+                Lihat Peta Misi ↓
+              </button>
             </div>
 
             <span className="hero-subinfo">
@@ -543,7 +568,7 @@ export default function HomePage({
               flexDirection: 'column',
               gap: '1rem'
             }}
-            title={isCh1Unlocked ? "Klik untuk menuju Bab 1: Konsentrasi & Hakikat Koligatif" : "🔒 Terkunci: Klik untuk mengerjakan Pretest terlebih dahulu"}
+            title={isCh1Unlocked ? "Klik untuk menuju Bab 1: Konsentrasi & Hakikat Koligatif" : "🔒 Terkunci: Kerjakan pretest terlebih dahulu"}
           >
             <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
               {/* Container gambar rapi dengan object-fit: contain agar utuh */}
@@ -591,20 +616,20 @@ export default function HomePage({
 
           {/* KARTU 2 (Bab 2): Kenaikan Titik Didih (ΔTb) */}
           <div 
-            onClick={isCh2Unlocked ? () => onGoToChapter('chapter2') : undefined}
+            onClick={isCh2Unlocked ? () => onGoToChapter('chapter2') : onStartPretest}
             style={{
               padding: '1.25rem',
               borderRadius: '18px',
               background: 'rgba(255, 255, 255, 0.98)',
               border: isCh2Completed ? '2px solid #10B981' : (isCh2Unlocked ? '2px solid #0284C7' : '1.5px solid #E2E8F0'),
               boxShadow: isCh2Unlocked ? '0 6px 20px rgba(2, 132, 199, 0.08)' : 'none',
-              cursor: isCh2Unlocked ? 'pointer' : 'default',
+              cursor: 'pointer',
               transition: 'all 0.2s ease',
               display: 'flex',
               flexDirection: 'column',
               gap: '1rem'
             }}
-            title={isCh2Unlocked ? "Klik untuk menuju Bab 2: Tekanan Uap & Titik Didih" : "Selesaikan bab sebelumnya untuk membuka"}
+            title={isCh2Unlocked ? "Klik untuk menuju Bab 2: Tekanan Uap & Titik Didih" : "🔒 Terkunci: Kerjakan pretest terlebih dahulu"}
           >
             <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
               {/* A.2: Gambar kartu Kenaikan Titik Didih utuh tanpa terpotong */}
@@ -651,20 +676,20 @@ export default function HomePage({
 
           {/* KARTU 3 (Bab 3): Penurunan Titik Beku (ΔTf) */}
           <div 
-            onClick={isCh3Unlocked ? () => onGoToChapter('chapter3') : undefined}
+            onClick={isCh3Unlocked ? () => onGoToChapter('chapter3') : onStartPretest}
             style={{
               padding: '1.25rem',
               borderRadius: '18px',
               background: 'rgba(255, 255, 255, 0.98)',
               border: isCh3Completed ? '2px solid #10B981' : (isCh3Unlocked ? '2px solid #0284C7' : '1.5px solid #E2E8F0'),
               boxShadow: isCh3Unlocked ? '0 6px 20px rgba(2, 132, 199, 0.08)' : 'none',
-              cursor: isCh3Unlocked ? 'pointer' : 'default',
+              cursor: 'pointer',
               transition: 'all 0.2s ease',
               display: 'flex',
               flexDirection: 'column',
               gap: '1rem'
             }}
-            title={isCh3Unlocked ? "Klik untuk menuju Bab 3: Penurunan Titik Beku" : "Selesaikan bab sebelumnya untuk membuka"}
+            title={isCh3Unlocked ? "Klik untuk menuju Bab 3: Penurunan Titik Beku" : "🔒 Terkunci: Kerjakan pretest terlebih dahulu"}
           >
             <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
               <div style={{
@@ -710,20 +735,20 @@ export default function HomePage({
 
           {/* KARTU 4 (Bab 2 & 3): Cairan Radiator Mobil (A.1: Label HTML Benar Kenaikan Titik Didih & Penurunan Titik Beku) */}
           <div 
-            onClick={isCh2Unlocked ? () => onGoToChapter('chapter2') : undefined}
+            onClick={isCh2Unlocked ? () => onGoToChapter('chapter2') : onStartPretest}
             style={{
               padding: '1.25rem',
               borderRadius: '18px',
               background: 'rgba(255, 255, 255, 0.98)',
               border: (isCh2Completed && isCh3Completed) ? '2px solid #10B981' : (isCh2Unlocked ? '2px solid #0284C7' : '1.5px solid #E2E8F0'),
               boxShadow: isCh2Unlocked ? '0 6px 20px rgba(2, 132, 199, 0.08)' : 'none',
-              cursor: isCh2Unlocked ? 'pointer' : 'default',
+              cursor: 'pointer',
               transition: 'all 0.2s ease',
               display: 'flex',
               flexDirection: 'column',
               gap: '1rem'
             }}
-            title={isCh2Unlocked ? "Klik untuk menuju Bab 2 & 3: Penerapan Didih & Beku" : "Selesaikan bab sebelumnya untuk membuka"}
+            title={isCh2Unlocked ? "Klik untuk menuju Bab 2 & 3: Penerapan Didih & Beku" : "🔒 Terkunci: Kerjakan pretest terlebih dahulu"}
           >
             <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
               <div style={{
@@ -771,20 +796,20 @@ export default function HomePage({
 
           {/* KARTU 5 (Bab 4): Tekanan Osmotik & Osmosis Balik (A.3: Pisahkan & Jelaskan Perbedaan Osmosis vs Reverse Osmosis) */}
           <div 
-            onClick={isCh4Unlocked ? () => onGoToChapter('chapter4') : undefined}
+            onClick={isCh4Unlocked ? () => onGoToChapter('chapter4') : onStartPretest}
             style={{
               padding: '1.25rem',
               borderRadius: '18px',
               background: 'rgba(255, 255, 255, 0.98)',
               border: isCh4Completed ? '2px solid #10B981' : (isCh4Unlocked ? '2px solid #0284C7' : '1.5px solid #E2E8F0'),
               boxShadow: isCh4Unlocked ? '0 6px 20px rgba(2, 132, 199, 0.08)' : 'none',
-              cursor: isCh4Unlocked ? 'pointer' : 'default',
+              cursor: 'pointer',
               transition: 'all 0.2s ease',
               display: 'flex',
               flexDirection: 'column',
               gap: '1rem'
             }}
-            title={isCh4Unlocked ? "Klik untuk menuju Bab 4: Tekanan Osmotik" : "Selesaikan bab sebelumnya untuk membuka"}
+            title={isCh4Unlocked ? "Klik untuk menuju Bab 4: Tekanan Osmotik" : "🔒 Terkunci: Kerjakan pretest terlebih dahulu"}
           >
             <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
               <div style={{
@@ -832,20 +857,20 @@ export default function HomePage({
 
           {/* KARTU 6 (Bab 5): Sifat Koligatif Larutan Elektrolit & van 't Hoff (i) */}
           <div 
-            onClick={isCh5Unlocked ? () => onGoToChapter('chapter5') : undefined}
+            onClick={isCh5Unlocked ? () => onGoToChapter('chapter5') : onStartPretest}
             style={{
               padding: '1.25rem',
               borderRadius: '18px',
               background: 'rgba(255, 255, 255, 0.98)',
               border: isCh5Completed ? '2px solid #10B981' : (isCh5Unlocked ? '2px solid #0284C7' : '1.5px solid #E2E8F0'),
               boxShadow: isCh5Unlocked ? '0 6px 20px rgba(2, 132, 199, 0.08)' : 'none',
-              cursor: isCh5Unlocked ? 'pointer' : 'default',
+              cursor: 'pointer',
               transition: 'all 0.2s ease',
               display: 'flex',
               flexDirection: 'column',
               gap: '1rem'
             }}
-            title={isCh5Unlocked ? "Klik untuk menuju Bab 5: Larutan Elektrolit" : "Selesaikan bab sebelumnya untuk membuka"}
+            title={isCh5Unlocked ? "Klik untuk menuju Bab 5: Larutan Elektrolit" : "🔒 Terkunci: Kerjakan pretest terlebih dahulu"}
           >
             <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
               <div style={{
@@ -905,7 +930,7 @@ export default function HomePage({
               />
               Peta Misi Pembelajaran
             </h2>
-            <p>Materi berikutnya otomatis terbuka setiap kali kamu menyelesaikan materi sebelumnya.</p>
+            <p>Setelah pretest selesai, seluruh bab materi dan laboratorium virtual bebas dipelajari kapan saja tanpa urutan.</p>
           </div>
           <div className="mission-duration-tag">
             Total ±3 JP
@@ -955,13 +980,13 @@ export default function HomePage({
           {/* Misi 2 (Bab 1: Konsentrasi Larutan & Lab Virtual) */}
           <div 
             className={`mission-card ${isCh1Unlocked ? 'active-card' : 'locked-card'}`}
-            onClick={isCh1Unlocked ? () => onGoToChapter('chapter1') : undefined}
+            onClick={isCh1Unlocked ? () => onGoToChapter('chapter1') : onStartPretest}
             style={{ 
               borderColor: isCh1Completed ? '#10B981' : (isCh1Unlocked ? '#0284C7' : '#E2E8F0'),
               cursor: isCh1Unlocked ? 'pointer' : 'default',
               boxShadow: isCh1Unlocked ? '0 4px 16px rgba(2, 132, 199, 0.12)' : 'none'
             }}
-            title={isCh1Unlocked ? "Buka Bab 1: Konsentrasi Larutan" : "Selesaikan Pretest untuk membuka"}
+            title={isCh1Unlocked ? "Buka Bab 1: Konsentrasi Larutan" : "🔒 Terkunci: Kerjakan pretest terlebih dahulu"}
           >
             <div>
               <div className="mission-top-bar">
@@ -994,13 +1019,13 @@ export default function HomePage({
           {/* Misi 3 (Bab 2: Penurunan Tekanan Uap & Kenaikan Titik Didih) */}
           <div 
             className={`mission-card ${isCh2Unlocked ? 'active-card' : 'locked-card'}`}
-            onClick={isCh2Unlocked ? () => onGoToChapter('chapter2') : undefined}
+            onClick={isCh2Unlocked ? () => onGoToChapter('chapter2') : onStartPretest}
             style={{ 
               borderColor: isCh2Completed ? '#10B981' : (isCh2Unlocked ? '#0284C7' : '#E2E8F0'),
               cursor: isCh2Unlocked ? 'pointer' : 'default',
               boxShadow: isCh2Unlocked ? '0 4px 16px rgba(2, 132, 199, 0.12)' : 'none'
             }}
-            title={isCh2Unlocked ? "Buka Bab 2: Tekanan Uap & Titik Didih" : "Selesaikan Bab 1 untuk membuka"}
+            title={isCh2Unlocked ? "Buka Bab 2: Tekanan Uap & Titik Didih" : "🔒 Terkunci: Kerjakan pretest terlebih dahulu"}
           >
             <div>
               <div className="mission-top-bar">
@@ -1033,13 +1058,13 @@ export default function HomePage({
           {/* Misi 4 (Bab 3: Penurunan Titik Beku & Diagram Fase) */}
           <div 
             className={`mission-card ${isCh3Unlocked ? 'active-card' : 'locked-card'}`}
-            onClick={isCh3Unlocked ? () => onGoToChapter('chapter3') : undefined}
+            onClick={isCh3Unlocked ? () => onGoToChapter('chapter3') : onStartPretest}
             style={{ 
               borderColor: isCh3Completed ? '#10B981' : (isCh3Unlocked ? '#0284C7' : '#E2E8F0'),
               cursor: isCh3Unlocked ? 'pointer' : 'default',
               boxShadow: isCh3Unlocked ? '0 4px 16px rgba(2, 132, 199, 0.12)' : 'none'
             }}
-            title={isCh3Unlocked ? "Buka Bab 3: Penurunan Titik Beku" : "Selesaikan Bab 2 untuk membuka"}
+            title={isCh3Unlocked ? "Buka Bab 3: Penurunan Titik Beku" : "🔒 Terkunci: Kerjakan pretest terlebih dahulu"}
           >
             <div>
               <div className="mission-top-bar">
@@ -1072,13 +1097,13 @@ export default function HomePage({
           {/* Misi 5 (Bab 4: Tekanan Osmotik) */}
           <div 
             className={`mission-card ${isCh4Unlocked ? 'active-card' : 'locked-card'}`}
-            onClick={isCh4Unlocked ? () => onGoToChapter('chapter4') : undefined}
+            onClick={isCh4Unlocked ? () => onGoToChapter('chapter4') : onStartPretest}
             style={{ 
               borderColor: isCh4Completed ? '#10B981' : (isCh4Unlocked ? '#0284C7' : '#E2E8F0'),
               cursor: isCh4Unlocked ? 'pointer' : 'default',
               boxShadow: isCh4Unlocked ? '0 4px 16px rgba(2, 132, 199, 0.12)' : 'none'
             }}
-            title={isCh4Unlocked ? "Buka Bab 4: Tekanan Osmotik" : "Selesaikan Bab 3 untuk membuka"}
+            title={isCh4Unlocked ? "Buka Bab 4: Tekanan Osmotik" : "🔒 Terkunci: Kerjakan pretest terlebih dahulu"}
           >
             <div>
               <div className="mission-top-bar">
@@ -1111,13 +1136,13 @@ export default function HomePage({
           {/* Misi 6 (Bab 5: Elektrolit & Evaluasi) */}
           <div 
             className={`mission-card ${isCh5Unlocked ? 'active-card' : 'locked-card'}`}
-            onClick={isCh5Unlocked ? () => onGoToChapter('chapter5') : undefined}
+            onClick={isCh5Unlocked ? () => onGoToChapter('chapter5') : onStartPretest}
             style={{ 
               borderColor: isCh5Completed ? '#10B981' : (isCh5Unlocked ? '#0284C7' : '#E2E8F0'),
               cursor: isCh5Unlocked ? 'pointer' : 'default',
               boxShadow: isCh5Unlocked ? '0 4px 16px rgba(2, 132, 199, 0.12)' : 'none'
             }}
-            title={isCh5Unlocked ? "Buka Bab 5: Larutan Elektrolit" : "Selesaikan Bab 4 untuk membuka"}
+            title={isCh5Unlocked ? "Buka Bab 5: Larutan Elektrolit" : "🔒 Terkunci: Kerjakan pretest terlebih dahulu"}
           >
             <div>
               <div className="mission-top-bar">
@@ -1150,11 +1175,11 @@ export default function HomePage({
 
         {/* Banner Khusus: Evaluasi Akhir Sifat Koligatif */}
         <div 
-          onClick={onGoToDiagnostic}
+          onClick={isPretestDone || isTeacher ? (onGoToDiagnostic ? onGoToDiagnostic : () => onGoToChapter('diagnostik')) : onStartPretest}
           style={{
             marginTop: '1.5rem',
             background: 'linear-gradient(135deg, #F0F9FF 0%, #E0F2FE 100%)',
-            border: '2px dashed #0284C7',
+            border: (isPretestDone || isTeacher) ? '2px dashed #0284C7' : '2px dashed #CBD5E1',
             borderRadius: '16px',
             padding: '1.25rem 1.5rem',
             cursor: 'pointer',
@@ -1166,14 +1191,14 @@ export default function HomePage({
             boxShadow: '0 4px 14px rgba(2, 132, 199, 0.08)',
             transition: 'transform 0.15s ease'
           }}
-          title="Klik untuk membuka Evaluasi Akhir Sifat Koligatif"
+          title={isPretestDone || isTeacher ? "Klik untuk membuka Evaluasi Akhir Sifat Koligatif" : "🔒 Terkunci: Kerjakan pretest terlebih dahulu"}
         >
-          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', flexWrap: 'wrap' }}>
             <div style={{
               width: '48px',
               height: '48px',
               borderRadius: '12px',
-              background: '#0284C7',
+              background: (isPretestDone || isTeacher) ? '#0284C7' : '#94A3B8',
               color: '#FFFFFF',
               display: 'flex',
               alignItems: 'center',
@@ -1181,11 +1206,11 @@ export default function HomePage({
               fontSize: '1.5rem',
               boxShadow: '0 2px 8px rgba(2, 132, 199, 0.3)'
             }}>
-              🏆
+              {isPretestDone || isTeacher ? '🏆' : '🔒'}
             </div>
             <div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', flexWrap: 'wrap' }}>
-                <h4 style={{ margin: 0, fontSize: '1.1rem', color: '#0369A1', fontWeight: 800 }}>
+                <h4 style={{ margin: 0, fontSize: '1.1rem', color: (isPretestDone || isTeacher) ? '#0369A1' : '#64748B', fontWeight: 800 }}>
                   Evaluasi Akhir Sifat Koligatif
                 </h4>
                 {diagnosticAssessment ? (
@@ -1193,8 +1218,15 @@ export default function HomePage({
                     ✓ Skor: {diagnosticAssessment.latestScore?.toFixed(1)}/10 (+{diagnosticAssessment.xpEarned} XP)
                   </span>
                 ) : (
-                  <span style={{ background: '#FEF3C7', color: '#92400E', padding: '0.15rem 0.55rem', borderRadius: '6px', fontSize: '0.75rem', fontWeight: 700 }}>
-                    Tersedia (+Maks 100 XP)
+                  <span style={{
+                    background: (isPretestDone || isTeacher) ? '#ECFDF5' : '#FEF3C7',
+                    color: (isPretestDone || isTeacher) ? '#065F46' : '#92400E',
+                    padding: '0.15rem 0.55rem',
+                    borderRadius: '6px',
+                    fontSize: '0.75rem',
+                    fontWeight: 700
+                  }}>
+                    {(isPretestDone || isTeacher) ? 'Terbuka (+Maks 100 XP)' : '🔒 Kerjakan Pretest Terlebih Dahulu'}
                   </span>
                 )}
               </div>
@@ -1206,9 +1238,17 @@ export default function HomePage({
           <button
             type="button"
             className="btn btn-primary"
-            style={{ padding: '0.65rem 1.3rem', fontSize: '0.9rem', background: '#0284C7', fontWeight: 700, borderRadius: '8px' }}
+            style={{
+              padding: '0.65rem 1.3rem',
+              fontSize: '0.9rem',
+              background: (isPretestDone || isTeacher) ? '#0284C7' : '#94A3B8',
+              fontWeight: 700,
+              borderRadius: '8px'
+            }}
           >
-            {diagnosticAssessment ? 'Tinjau Hasil Evaluasi Akhir →' : 'Mulai Evaluasi Akhir →'}
+            {diagnosticAssessment 
+              ? 'Tinjau Hasil Evaluasi Akhir →' 
+              : ((isPretestDone || isTeacher) ? 'Mulai Evaluasi Akhir →' : 'Kerjakan Pretest Terlebih Dahulu →')}
           </button>
         </div>
       </section>

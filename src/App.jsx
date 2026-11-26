@@ -27,6 +27,166 @@ import TeacherDashboard from './features/teacher/TeacherDashboard';
 import KimiKoliModal from './features/home/KimiKoliModal';
 import DiagnosticAssessmentPage from './features/diagnostic/DiagnosticAssessmentPage';
 
+// Komponen Peringatan Fitur Terkunci karena Belum Pretest
+function LockedPretestNotice({ featureTitle, onStartPretest, onBackHome }) {
+  return (
+    <div style={{
+      background: '#FFFBEB',
+      border: '1.5px solid #FDE68A',
+      borderRadius: '16px',
+      padding: '2.5rem 1.5rem',
+      textAlign: 'center',
+      margin: '2rem auto',
+      maxWidth: '680px',
+      boxSizing: 'border-box'
+    }}>
+      <div style={{ fontSize: '3.2rem', marginBottom: '0.75rem' }}>🔒</div>
+      <h3 style={{ color: '#92400E', fontSize: '1.4rem', margin: '0 0 0.6rem 0' }}>
+        {featureTitle} Masih Terkunci
+      </h3>
+      <p style={{ color: '#78350F', lineHeight: 1.6, margin: '0 auto 1.5rem', maxWidth: '520px', fontSize: '1rem' }}>
+        Kerjakan pretest terlebih dahulu untuk membuka <strong>{featureTitle}</strong> dan seluruh fitur pembelajaran di KimiKoli.
+      </p>
+      <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'center', flexWrap: 'wrap' }}>
+        <button
+          type="button"
+          className="btn btn-primary"
+          onClick={onStartPretest}
+          style={{ padding: '0.75rem 1.6rem', fontSize: '0.95rem', background: '#0284C7' }}
+        >
+          🚀 Kerjakan Pretest Terlebih Dahulu →
+        </button>
+        <button
+          type="button"
+          className="btn btn-secondary"
+          onClick={onBackHome}
+          style={{ padding: '0.75rem 1.4rem', fontSize: '0.95rem' }}
+        >
+          Kembali ke Beranda
+        </button>
+      </div>
+    </div>
+  );
+}
+
+// Komponen Navigasi Pilihan Bab & Fitur Non-Sekuensial yang Responsif
+function ChapterNavBar({ currentView, completedChapters = [], onSelectView }) {
+  const chapters = [
+    { id: 'chapter1', num: 1, label: 'Bab 1' },
+    { id: 'chapter2', num: 2, label: 'Bab 2' },
+    { id: 'chapter3', num: 3, label: 'Bab 3' },
+    { id: 'chapter4', num: 4, label: 'Bab 4' },
+    { id: 'chapter5', num: 5, label: 'Bab 5' },
+  ];
+
+  return (
+    <div style={{
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      flexWrap: 'wrap',
+      gap: '0.5rem',
+      marginBottom: '1.25rem',
+      background: '#FFFFFF',
+      padding: '0.6rem 0.85rem',
+      borderRadius: '14px',
+      border: '1px solid #E2E8F0',
+      boxShadow: '0 2px 8px rgba(15, 23, 42, 0.04)',
+      boxSizing: 'border-box',
+      width: '100%'
+    }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem', flexWrap: 'wrap' }}>
+        <button
+          type="button"
+          onClick={() => onSelectView('home')}
+          className="btn btn-secondary"
+          style={{ padding: '0.35rem 0.75rem', fontSize: '0.82rem' }}
+        >
+          ← Peta Misi
+        </button>
+        <span style={{ fontSize: '0.82rem', color: '#64748B', fontWeight: 700, marginLeft: '0.2rem' }}>
+          Pilih Bab:
+        </span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', flexWrap: 'wrap' }}>
+          {chapters.map((ch) => {
+            const isCurrent = currentView === ch.id;
+            const isDone = completedChapters.includes(ch.id);
+            return (
+              <button
+                key={ch.id}
+                type="button"
+                onClick={() => {
+                  onSelectView(ch.id);
+                  window.scrollTo({ top: 0, behavior: 'smooth' });
+                }}
+                style={{
+                  padding: '0.35rem 0.65rem',
+                  borderRadius: '8px',
+                  fontSize: '0.8rem',
+                  fontWeight: 700,
+                  cursor: 'pointer',
+                  border: isCurrent ? '1.5px solid #0284C7' : (isDone ? '1px solid #A7F3D0' : '1px solid #CBD5E1'),
+                  background: isCurrent ? '#0284C7' : (isDone ? '#ECFDF5' : '#F8FAFC'),
+                  color: isCurrent ? '#FFFFFF' : (isDone ? '#065F46' : '#334155'),
+                  transition: 'all 0.15s ease',
+                  fontFamily: "'Times New Roman', Times, serif"
+                }}
+                title={`Buka ${ch.label}${isDone ? ' (Sudah Selesai)' : ' (Bebas Dipelajari)'}`}
+              >
+                {isDone ? `✓ ${ch.label}` : ch.label}
+              </button>
+            );
+          })}
+        </div>
+      </div>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', flexWrap: 'wrap' }}>
+        <button
+          type="button"
+          onClick={() => {
+            onSelectView('lab-virtual');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+          }}
+          style={{
+            padding: '0.35rem 0.65rem',
+            borderRadius: '8px',
+            fontSize: '0.8rem',
+            fontWeight: 700,
+            cursor: 'pointer',
+            border: currentView === 'lab-virtual' ? '1.5px solid #0284C7' : '1px solid #BAE6FD',
+            background: currentView === 'lab-virtual' ? '#0284C7' : '#F0F9FF',
+            color: currentView === 'lab-virtual' ? '#FFFFFF' : '#0369A1',
+            fontFamily: "'Times New Roman', Times, serif"
+          }}
+          title="Buka Laboratorium Virtual"
+        >
+          🔬 Lab Virtual
+        </button>
+        <button
+          type="button"
+          onClick={() => {
+            onSelectView('diagnostik');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+          }}
+          style={{
+            padding: '0.35rem 0.65rem',
+            borderRadius: '8px',
+            fontSize: '0.8rem',
+            fontWeight: 700,
+            cursor: 'pointer',
+            border: (currentView === 'diagnostik' || currentView === 'chapter6') ? '1.5px solid #0284C7' : '1px solid #FEF3C7',
+            background: (currentView === 'diagnostik' || currentView === 'chapter6') ? '#0284C7' : '#FFFBEB',
+            color: (currentView === 'diagnostik' || currentView === 'chapter6') ? '#FFFFFF' : '#B45309',
+            fontFamily: "'Times New Roman', Times, serif"
+          }}
+          title="Buka Evaluasi Akhir"
+        >
+          🏆 Evaluasi Akhir
+        </button>
+      </div>
+    </div>
+  );
+}
+
 /**
  * Komponen Utama App
  * 
@@ -295,11 +455,11 @@ export default function App() {
         onSelectTab={(tabId) => {
           if (!isPretestLocked || currentUser?.role === 'teacher') {
             if (tabId === 'chapter1' && currentUser?.role !== 'teacher') {
-              const latestChapter = completedChapters.includes('chapter4') ? 'chapter5' :
-                                    completedChapters.includes('chapter3') ? 'chapter4' :
-                                    completedChapters.includes('chapter2') ? 'chapter3' :
-                                    completedChapters.includes('chapter1') ? 'chapter2' : 'chapter1';
-              setCurrentView(latestChapter);
+              if (currentView.startsWith('chapter') && currentView !== 'chapter6') {
+                // Tetap di bab yang sedang dibuka jika siswa klik tab 'Materi' saat membaca bab
+              } else {
+                setCurrentView('chapter1');
+              }
             } else {
               setCurrentView(tabId);
             }
@@ -401,78 +561,22 @@ export default function App() {
           />
         )}
 
-        {/* Tampilan 3: Bab 1 - Konsentrasi Larutan (Wajib Tuntas Pretest Terlebih Dahulu) */}
+        {/* Tampilan 3: Bab 1 - Konsentrasi Larutan */}
         {currentView === 'chapter1' && (
           <div>
             {!isPretestCompleted && currentUser?.role !== 'teacher' ? (
-              <div style={{
-                background: '#FFFBEB',
-                border: '1.5px solid #FDE68A',
-                borderRadius: '16px',
-                padding: '2.5rem 1.5rem',
-                textAlign: 'center',
-                margin: '2rem auto',
-                maxWidth: '680px'
-              }}>
-                <div style={{ fontSize: '3.2rem', marginBottom: '0.75rem' }}>🔒</div>
-                <h3 style={{ color: '#92400E', fontSize: '1.4rem', margin: '0 0 0.6rem 0' }}>
-                  Materi Bab 1 Masih Terkunci
-                </h3>
-                <p style={{ color: '#78350F', lineHeight: 1.6, margin: '0 auto 1.5rem' }}>
-                  Sebagai siswa yang baru bergabung, kamu wajib mengerjakan <strong>Pretest Prasyarat</strong> terlebih dahulu untuk mengukur pemahaman awal sebelum membuka materi Bab 1 dan materi selanjutnya.
-                </p>
-                <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'center', flexWrap: 'wrap' }}>
-                  <button
-                    type="button"
-                    className="btn btn-primary"
-                    onClick={handleStartPretest}
-                    style={{ padding: '0.8rem 1.6rem', fontSize: '1rem', background: '#0284C7' }}
-                  >
-                    🚀 Mulai Kerjakan Pretest Sekarang →
-                  </button>
-                  <button
-                    type="button"
-                    className="btn btn-outline"
-                    onClick={() => {
-                      setIsPretestCompleted(true);
-                      setIsPretestLocked(false);
-                      const saved = getCourseProgress(currentUser) || {};
-                      saveCourseProgress({
-                        ...saved,
-                        pretestCompleted: true,
-                        pretestFinished: true
-                      }, currentUser);
-                    }}
-                    style={{ padding: '0.8rem 1.4rem', borderColor: '#10B981', color: '#047857', background: '#FFFFFF', fontWeight: 700 }}
-                  >
-                    ✓ Saya Sudah Selesai Pretest, Buka Bab 1 Sekarang
-                  </button>
-                  <button
-                    type="button"
-                    className="btn btn-secondary"
-                    onClick={() => setCurrentView('home')}
-                    style={{ padding: '0.8rem 1.4rem' }}
-                  >
-                    Kembali ke Beranda
-                  </button>
-                </div>
-              </div>
+              <LockedPretestNotice
+                featureTitle="Materi Bab 1 (Konsentrasi Larutan)"
+                onStartPretest={handleStartPretest}
+                onBackHome={() => setCurrentView('home')}
+              />
             ) : (
               <div>
-                <div style={{ marginBottom: '1.25rem', display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
-                  <button
-                    type="button"
-                    onClick={() => setCurrentView('home')}
-                    className="btn btn-secondary"
-                    style={{ padding: '0.45rem 1rem', fontSize: '0.85rem' }}
-                  >
-                    ← Kembali ke Peta Misi
-                  </button>
-                  <span style={{ fontSize: '0.85rem', color: '#64748B', fontWeight: 600 }}>
-                    Bab 1 dari 6: Konsentrasi Larutan & Sifat Koligatif
-                  </span>
-                </div>
-
+                <ChapterNavBar
+                  currentView="chapter1"
+                  completedChapters={completedChapters}
+                  onSelectView={(v) => setCurrentView(v)}
+                />
                 <Chapter1Page
                   isCompleted={completedChapters.includes('chapter1')}
                   onComplete={() => handleCompleteAndProceed('chapter1', 'chapter2')}
@@ -486,65 +590,18 @@ export default function App() {
         {currentView === 'chapter2' && (
           <div>
             {!isPretestCompleted && currentUser?.role !== 'teacher' ? (
-              <div style={{
-                background: '#FFFBEB',
-                border: '1.5px solid #FDE68A',
-                borderRadius: '16px',
-                padding: '2.5rem 1.5rem',
-                textAlign: 'center',
-                margin: '2rem auto',
-                maxWidth: '680px'
-              }}>
-                <div style={{ fontSize: '3.2rem', marginBottom: '0.75rem' }}>🔒</div>
-                <h3 style={{ color: '#92400E', fontSize: '1.4rem', margin: '0 0 0.6rem 0' }}>
-                  Bab 2 Masih Terkunci
-                </h3>
-                <p style={{ color: '#78350F', lineHeight: 1.6, margin: '0 auto 1.5rem' }}>
-                  Harap selesaikan <strong>Pretest Prasyarat</strong> terlebih dahulu sebelum membuka materi Bab 2 dan bab lainnya.
-                </p>
-                <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'center', flexWrap: 'wrap' }}>
-                  <button
-                    type="button"
-                    className="btn btn-primary"
-                    onClick={handleStartPretest}
-                    style={{ padding: '0.8rem 1.6rem', fontSize: '1rem', background: '#0284C7' }}
-                  >
-                    🚀 Mulai Kerjakan Pretest Sekarang →
-                  </button>
-                  <button
-                    type="button"
-                    className="btn btn-secondary"
-                    onClick={() => setCurrentView('home')}
-                    style={{ padding: '0.8rem 1.4rem' }}
-                  >
-                    Kembali ke Beranda
-                  </button>
-                </div>
-              </div>
+              <LockedPretestNotice
+                featureTitle="Materi Bab 2 (Tekanan Uap & Titik Didih)"
+                onStartPretest={handleStartPretest}
+                onBackHome={() => setCurrentView('home')}
+              />
             ) : (
               <div>
-                <div style={{ marginBottom: '1.25rem', display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
-                  <button
-                    type="button"
-                    onClick={() => setCurrentView('home')}
-                    className="btn btn-secondary"
-                    style={{ padding: '0.45rem 1rem', fontSize: '0.85rem' }}
-                  >
-                    ← Kembali ke Peta Misi
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setCurrentView('chapter1')}
-                    className="btn btn-outline"
-                    style={{ padding: '0.45rem 1rem', fontSize: '0.85rem' }}
-                  >
-                    ← Bab Sebelumnya (Bab 1)
-                  </button>
-                  <span style={{ fontSize: '0.85rem', color: '#64748B', fontWeight: 600 }}>
-                    Bab 2 dari 6: Penurunan Tekanan Uap & Kenaikan Titik Didih
-                  </span>
-                </div>
-
+                <ChapterNavBar
+                  currentView="chapter2"
+                  completedChapters={completedChapters}
+                  onSelectView={(v) => setCurrentView(v)}
+                />
                 <Chapter2Page
                   isCompleted={completedChapters.includes('chapter2')}
                   onComplete={() => handleCompleteAndProceed('chapter2', 'chapter3')}
@@ -558,65 +615,18 @@ export default function App() {
         {currentView === 'chapter3' && (
           <div>
             {!isPretestCompleted && currentUser?.role !== 'teacher' ? (
-              <div style={{
-                background: '#FFFBEB',
-                border: '1.5px solid #FDE68A',
-                borderRadius: '16px',
-                padding: '2.5rem 1.5rem',
-                textAlign: 'center',
-                margin: '2rem auto',
-                maxWidth: '680px'
-              }}>
-                <div style={{ fontSize: '3.2rem', marginBottom: '0.75rem' }}>🔒</div>
-                <h3 style={{ color: '#92400E', fontSize: '1.4rem', margin: '0 0 0.6rem 0' }}>
-                  Bab 3 Masih Terkunci
-                </h3>
-                <p style={{ color: '#78350F', lineHeight: 1.6, margin: '0 auto 1.5rem' }}>
-                  Harap selesaikan <strong>Pretest Prasyarat</strong> terlebih dahulu sebelum membuka materi Bab 3 dan bab lainnya.
-                </p>
-                <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'center', flexWrap: 'wrap' }}>
-                  <button
-                    type="button"
-                    className="btn btn-primary"
-                    onClick={handleStartPretest}
-                    style={{ padding: '0.8rem 1.6rem', fontSize: '1rem', background: '#0284C7' }}
-                  >
-                    🚀 Mulai Kerjakan Pretest Sekarang →
-                  </button>
-                  <button
-                    type="button"
-                    className="btn btn-secondary"
-                    onClick={() => setCurrentView('home')}
-                    style={{ padding: '0.8rem 1.4rem' }}
-                  >
-                    Kembali ke Beranda
-                  </button>
-                </div>
-              </div>
+              <LockedPretestNotice
+                featureTitle="Materi Bab 3 (Penurunan Titik Beku)"
+                onStartPretest={handleStartPretest}
+                onBackHome={() => setCurrentView('home')}
+              />
             ) : (
               <div>
-                <div style={{ marginBottom: '1.25rem', display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
-                  <button
-                    type="button"
-                    onClick={() => setCurrentView('home')}
-                    className="btn btn-secondary"
-                    style={{ padding: '0.45rem 1rem', fontSize: '0.85rem' }}
-                  >
-                    ← Kembali ke Peta Misi
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setCurrentView('chapter2')}
-                    className="btn btn-outline"
-                    style={{ padding: '0.45rem 1rem', fontSize: '0.85rem' }}
-                  >
-                    ← Bab Sebelumnya (Bab 2)
-                  </button>
-                  <span style={{ fontSize: '0.85rem', color: '#64748B', fontWeight: 600 }}>
-                    Bab 3 dari 6: Penurunan Titik Beku & Diagram Fase P–T
-                  </span>
-                </div>
-
+                <ChapterNavBar
+                  currentView="chapter3"
+                  completedChapters={completedChapters}
+                  onSelectView={(v) => setCurrentView(v)}
+                />
                 <Chapter3Page
                   isCompleted={completedChapters.includes('chapter3')}
                   onComplete={() => handleCompleteAndProceed('chapter3', 'chapter4')}
@@ -630,65 +640,18 @@ export default function App() {
         {currentView === 'chapter4' && (
           <div>
             {!isPretestCompleted && currentUser?.role !== 'teacher' ? (
-              <div style={{
-                background: '#FFFBEB',
-                border: '1.5px solid #FDE68A',
-                borderRadius: '16px',
-                padding: '2.5rem 1.5rem',
-                textAlign: 'center',
-                margin: '2rem auto',
-                maxWidth: '680px'
-              }}>
-                <div style={{ fontSize: '3.2rem', marginBottom: '0.75rem' }}>🔒</div>
-                <h3 style={{ color: '#92400E', fontSize: '1.4rem', margin: '0 0 0.6rem 0' }}>
-                  Bab 4 Masih Terkunci
-                </h3>
-                <p style={{ color: '#78350F', lineHeight: 1.6, margin: '0 auto 1.5rem' }}>
-                  Harap selesaikan <strong>Pretest Prasyarat</strong> terlebih dahulu sebelum membuka materi Bab 4 dan bab lainnya.
-                </p>
-                <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'center', flexWrap: 'wrap' }}>
-                  <button
-                    type="button"
-                    className="btn btn-primary"
-                    onClick={handleStartPretest}
-                    style={{ padding: '0.8rem 1.6rem', fontSize: '1rem', background: '#0284C7' }}
-                  >
-                    🚀 Mulai Kerjakan Pretest Sekarang →
-                  </button>
-                  <button
-                    type="button"
-                    className="btn btn-secondary"
-                    onClick={() => setCurrentView('home')}
-                    style={{ padding: '0.8rem 1.4rem' }}
-                  >
-                    Kembali ke Beranda
-                  </button>
-                </div>
-              </div>
+              <LockedPretestNotice
+                featureTitle="Materi Bab 4 (Tekanan Osmotik)"
+                onStartPretest={handleStartPretest}
+                onBackHome={() => setCurrentView('home')}
+              />
             ) : (
               <div>
-                <div style={{ marginBottom: '1.25rem', display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
-                  <button
-                    type="button"
-                    onClick={() => setCurrentView('home')}
-                    className="btn btn-secondary"
-                    style={{ padding: '0.45rem 1rem', fontSize: '0.85rem' }}
-                  >
-                    ← Kembali ke Peta Misi
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setCurrentView('chapter3')}
-                    className="btn btn-outline"
-                    style={{ padding: '0.45rem 1rem', fontSize: '0.85rem' }}
-                  >
-                    ← Bab Sebelumnya (Bab 3)
-                  </button>
-                  <span style={{ fontSize: '0.85rem', color: '#64748B', fontWeight: 600 }}>
-                    Bab 4 dari 6: Tekanan Osmotik & Membran Semipermeabel
-                  </span>
-                </div>
-
+                <ChapterNavBar
+                  currentView="chapter4"
+                  completedChapters={completedChapters}
+                  onSelectView={(v) => setCurrentView(v)}
+                />
                 <Chapter4Page
                   isCompleted={completedChapters.includes('chapter4')}
                   onComplete={() => handleCompleteAndProceed('chapter4', 'chapter5')}
@@ -702,65 +665,18 @@ export default function App() {
         {currentView === 'chapter5' && (
           <div>
             {!isPretestCompleted && currentUser?.role !== 'teacher' ? (
-              <div style={{
-                background: '#FFFBEB',
-                border: '1.5px solid #FDE68A',
-                borderRadius: '16px',
-                padding: '2.5rem 1.5rem',
-                textAlign: 'center',
-                margin: '2rem auto',
-                maxWidth: '680px'
-              }}>
-                <div style={{ fontSize: '3.2rem', marginBottom: '0.75rem' }}>🔒</div>
-                <h3 style={{ color: '#92400E', fontSize: '1.4rem', margin: '0 0 0.6rem 0' }}>
-                  Bab 5 Masih Terkunci
-                </h3>
-                <p style={{ color: '#78350F', lineHeight: 1.6, margin: '0 auto 1.5rem' }}>
-                  Harap selesaikan <strong>Pretest Prasyarat</strong> terlebih dahulu sebelum membuka materi Bab 5 dan bab lainnya.
-                </p>
-                <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'center', flexWrap: 'wrap' }}>
-                  <button
-                    type="button"
-                    className="btn btn-primary"
-                    onClick={handleStartPretest}
-                    style={{ padding: '0.8rem 1.6rem', fontSize: '1rem', background: '#0284C7' }}
-                  >
-                    🚀 Mulai Kerjakan Pretest Sekarang →
-                  </button>
-                  <button
-                    type="button"
-                    className="btn btn-secondary"
-                    onClick={() => setCurrentView('home')}
-                    style={{ padding: '0.8rem 1.4rem' }}
-                  >
-                    Kembali ke Beranda
-                  </button>
-                </div>
-              </div>
+              <LockedPretestNotice
+                featureTitle="Materi Bab 5 (Larutan Elektrolit)"
+                onStartPretest={handleStartPretest}
+                onBackHome={() => setCurrentView('home')}
+              />
             ) : (
               <div>
-                <div style={{ marginBottom: '1.25rem', display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
-                  <button
-                    type="button"
-                    onClick={() => setCurrentView('home')}
-                    className="btn btn-secondary"
-                    style={{ padding: '0.45rem 1rem', fontSize: '0.85rem' }}
-                  >
-                    ← Kembali ke Peta Misi
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setCurrentView('chapter4')}
-                    className="btn btn-outline"
-                    style={{ padding: '0.45rem 1rem', fontSize: '0.85rem' }}
-                  >
-                    ← Bab Sebelumnya (Bab 4)
-                  </button>
-                  <span style={{ fontSize: '0.85rem', color: '#64748B', fontWeight: 600 }}>
-                    Bab 5 dari 6: Larutan Elektrolit & Faktor van 't Hoff
-                  </span>
-                </div>
-
+                <ChapterNavBar
+                  currentView="chapter5"
+                  completedChapters={completedChapters}
+                  onSelectView={(v) => setCurrentView(v)}
+                />
                 <Chapter5Page
                   isCompleted={completedChapters.includes('chapter5')}
                   onComplete={() => handleCompleteAndProceed('chapter5', 'lab-virtual')}
@@ -770,137 +686,73 @@ export default function App() {
           </div>
         )}
 
-        {/* Tampilan 8: Laboratorium Virtual (Gating: Wajib Selesai Seluruh Teori Bab 1-5) */}
+        {/* Tampilan 8: Laboratorium Virtual */}
         {currentView === 'lab-virtual' && (
           <div>
-            <div style={{ marginBottom: '1.25rem', display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
-              <button
-                type="button"
-                onClick={() => setCurrentView('home')}
-                className="btn btn-secondary"
-                style={{ padding: '0.45rem 1rem', fontSize: '0.85rem' }}
-              >
-                ← Kembali ke Peta Misi
-              </button>
-              <button
-                type="button"
-                onClick={() => setCurrentView('chapter5')}
-                className="btn btn-outline"
-                style={{ padding: '0.45rem 1rem', fontSize: '0.85rem' }}
-              >
-                ← Bab Sebelumnya (Bab 5)
-              </button>
-              <span style={{ fontSize: '0.85rem', color: '#64748B', fontWeight: 600 }}>
-                Tahap 6: Laboratorium Virtual & Eksplorasi Mandiri
-              </span>
-            </div>
-
             {!isPretestCompleted && currentUser?.role !== 'teacher' ? (
-              <div style={{
-                background: '#FFFBEB',
-                border: '1.5px solid #FDE68A',
-                borderRadius: '16px',
-                padding: '2.5rem 1.5rem',
-                textAlign: 'center',
-                margin: '1.5rem 0'
-              }}>
-                <div style={{ fontSize: '3rem', marginBottom: '0.75rem' }}>🔒</div>
-                <h3 style={{ color: '#92400E', margin: '0 0 0.5rem 0', fontSize: '1.4rem' }}>
-                  Laboratorium Virtual Masih Terkunci
-                </h3>
-                <p style={{ color: '#78350F', maxWidth: '620px', margin: '0 auto 1.5rem', lineHeight: 1.6 }}>
-                  Harap selesaikan <strong>Pretest Prasyarat</strong> terlebih dahulu sebelum melakukan eksperimen mandiri di Laboratorium Virtual.
-                </p>
-                <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'center', flexWrap: 'wrap' }}>
-                  <button
-                    type="button"
-                    className="btn btn-primary"
-                    onClick={handleStartPretest}
-                    style={{ padding: '0.65rem 1.25rem', fontSize: '0.95rem', background: '#0284C7' }}
-                  >
-                    🚀 Mulai Kerjakan Pretest Sekarang →
-                  </button>
-                  <button
-                    type="button"
-                    className="btn btn-secondary"
-                    onClick={() => setCurrentView('home')}
-                    style={{ padding: '0.65rem 1.25rem', fontSize: '0.95rem' }}
-                  >
-                    Kembali ke Beranda
-                  </button>
-                </div>
-              </div>
-            ) : (
-              <LabVirtualHub
-                currentUser={currentUser}
-                isCompleted={isLabVirtualCompleted || currentUser?.role === 'teacher'}
-                onCompleteLab={() => {
-                  setIsLabVirtualCompleted(true);
-                  const saved = getCourseProgress(currentUser) || {};
-                  saveCourseProgress({
-                    ...saved,
-                    labVirtualCompleted: true
-                  }, currentUser);
-                  if (currentUser && currentUser.role === 'student') {
-                    saveStudentRecord({
-                      name: currentUser.name,
-                      className: currentUser.className,
-                      progressMissions: '6/6 Misi',
-                      xp: (isPretestCompleted ? 20 : 0) + (completedChapters.length * 30) + 40
-                    });
-                  }
-                  setCurrentView('chapter6');
-                  window.scrollTo({ top: 0, behavior: 'smooth' });
-                }}
-                onBackToHome={() => setCurrentView('home')}
+              <LockedPretestNotice
+                featureTitle="Laboratorium Virtual"
+                onStartPretest={handleStartPretest}
+                onBackHome={() => setCurrentView('home')}
               />
+            ) : (
+              <div>
+                <ChapterNavBar
+                  currentView="lab-virtual"
+                  completedChapters={completedChapters}
+                  onSelectView={(v) => setCurrentView(v)}
+                />
+                <LabVirtualHub
+                  currentUser={currentUser}
+                  isCompleted={isLabVirtualCompleted || currentUser?.role === 'teacher'}
+                  onCompleteLab={() => {
+                    setIsLabVirtualCompleted(true);
+                    const saved = getCourseProgress(currentUser) || {};
+                    saveCourseProgress({
+                      ...saved,
+                      labVirtualCompleted: true
+                    }, currentUser);
+                    if (currentUser && currentUser.role === 'student') {
+                      saveStudentRecord({
+                        name: currentUser.name,
+                        className: currentUser.className,
+                        progressMissions: '6/6 Misi',
+                        xp: (isPretestCompleted ? 20 : 0) + (completedChapters.length * 30) + 40
+                      });
+                    }
+                    setCurrentView('chapter6');
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                  }}
+                  onBackToHome={() => setCurrentView('home')}
+                />
+              </div>
             )}
           </div>
         )}
 
-        {/* Tampilan 9: Evaluasi Akhir Sifat Koligatif (Gating: Wajib Selesai Pretest) */}
+        {/* Tampilan 9: Evaluasi Akhir Sifat Koligatif */}
         {(currentView === 'chapter6' || currentView === 'diagnostik') && (
           <div>
             {!isPretestCompleted && currentUser?.role !== 'teacher' ? (
-              <div style={{
-                background: '#FFFBEB',
-                border: '1.5px solid #FDE68A',
-                borderRadius: '16px',
-                padding: '2.5rem 1.5rem',
-                textAlign: 'center',
-                margin: '1.5rem 0'
-              }}>
-                <div style={{ fontSize: '3rem', marginBottom: '0.75rem' }}>🔒</div>
-                <h3 style={{ color: '#92400E', margin: '0 0 0.5rem 0', fontSize: '1.4rem' }}>
-                  Evaluasi Akhir Masih Terkunci
-                </h3>
-                <p style={{ color: '#78350F', maxWidth: '620px', margin: '0 auto 1.5rem', lineHeight: 1.6 }}>
-                  Harap selesaikan <strong>Pretest Prasyarat</strong> terlebih dahulu sebelum membuka Evaluasi Akhir.
-                </p>
-                <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', flexWrap: 'wrap' }}>
-                  <button
-                    type="button"
-                    className="btn btn-primary"
-                    onClick={handleStartPretest}
-                  >
-                    🚀 Mulai Kerjakan Pretest Sekarang →
-                  </button>
-                  <button
-                    type="button"
-                    className="btn btn-secondary"
-                    onClick={() => setCurrentView('home')}
-                  >
-                    Kembali ke Beranda
-                  </button>
-                </div>
-              </div>
-            ) : (
-              <DiagnosticAssessmentPage
-                currentUser={currentUser}
-                savedProgress={diagnosticAssessment}
-                onSaveResult={handleSaveDiagnosticResult}
-                onBackToHome={() => setCurrentView('home')}
+              <LockedPretestNotice
+                featureTitle="Evaluasi Akhir Sifat Koligatif"
+                onStartPretest={handleStartPretest}
+                onBackHome={() => setCurrentView('home')}
               />
+            ) : (
+              <div>
+                <ChapterNavBar
+                  currentView="diagnostik"
+                  completedChapters={completedChapters}
+                  onSelectView={(v) => setCurrentView(v)}
+                />
+                <DiagnosticAssessmentPage
+                  currentUser={currentUser}
+                  savedProgress={diagnosticAssessment}
+                  onSaveResult={handleSaveDiagnosticResult}
+                  onBackToHome={() => setCurrentView('home')}
+                />
+              </div>
             )}
           </div>
         )}

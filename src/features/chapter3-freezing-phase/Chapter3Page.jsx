@@ -892,11 +892,11 @@ export default function Chapter3Page({ onComplete, isCompleted }) {
                 {isCompleted
                   ? '✓ Materi Bab 3 Selesai'
                   : isReadyToProceed
-                  ? '🎉 Seluruh Syarat Terpenuhi! Siap Lanjut'
-                  : 'Selesaikan Syarat untuk Membuka Bab 4:'}
+                  ? '🎉 Target Lulus Terpenuhi! Siap Klaim XP'
+                  : 'Target Kelulusan Bab 3 (Klaim +XP & Rekap Guru):'}
               </span>
               <h4 style={{ margin: '0.2rem 0 0', color: '#0F172A', fontSize: '1.15rem', fontWeight: 800 }}>
-                Bab 4: Tekanan Osmotik &amp; Membran Semipermeabel
+                Bab 3: Penurunan Titik Beku & Diagram Fase P–T
               </h4>
             </div>
 
@@ -957,9 +957,11 @@ export default function Chapter3Page({ onComplete, isCompleted }) {
                   cursor: isReadyToProceed ? 'pointer' : 'not-allowed',
                   opacity: isReadyToProceed ? 1 : 0.65,
                 }}
-                title={!isReadyToProceed ? 'Lengkapi dugaan Fase 2, data Fase 4, dan lulus KPS untuk membuka Bab 4' : 'Buka Bab 4'}
+                title={!isReadyToProceed ? 'Lengkapi dugaan Fase 2, data Fase 4, dan lulus KPS untuk klaim kelulusan Bab 3' : 'Tandai Selesai Bab 3'}
               >
-                {isReadyToProceed ? 'Selesaikan Bab 3 & Buka Bab 4 →' : '🔒 Selesaikan Bab 3 & Buka Bab 4'}
+                {isCompleted
+                  ? '✓ Bab 3 Selesai (Lanjut Bab 4 →)'
+                  : (isReadyToProceed ? 'Selesaikan Bab 3 (+XP) & Lanjut Bab 4 →' : 'Tuntaskan Latihan untuk Klaim XP')}
               </Button>
             </div>
           </div>

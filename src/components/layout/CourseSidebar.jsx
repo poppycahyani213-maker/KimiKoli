@@ -9,7 +9,13 @@ import ProgressBar from '../common/ProgressBar';
  * @param {Function} onSelectView - Callback saat tombol menu dipilih
  * @param {Array} completedChapters - Daftar id modul yang telah selesai
  */
-export default function CourseSidebar({ currentView, onSelectView, completedChapters = [] }) {
+export default function CourseSidebar({ 
+  currentView, 
+  onSelectView, 
+  completedChapters = [],
+  isPretestCompleted = true,
+  isTeacher = false 
+}) {
   const completedCount = completedChapters.length;
 
   return (
@@ -66,7 +72,7 @@ export default function CourseSidebar({ currentView, onSelectView, completedChap
         {KIMIKOLI_MODULES.map((ch) => {
           const isActive = ch.id === currentView;
           const isCompleted = completedChapters.includes(ch.id);
-          const isLocked = ch.status === 'locked';
+          const isLocked = (!isPretestCompleted && !isTeacher) || ch.status === 'locked';
 
           return (
             <button
@@ -91,7 +97,7 @@ export default function CourseSidebar({ currentView, onSelectView, completedChap
                 opacity: isLocked ? 0.75 : 1,
                 transition: 'all var(--transition-speed)'
               }}
-              title={isLocked ? 'Modul ini belum tersedia' : ch.title}
+              title={isLocked ? '🔒 Kerjakan pretest terlebih dahulu untuk membuka materi' : ch.title}
             >
               <div style={{
                 width: 24,
@@ -113,7 +119,7 @@ export default function CourseSidebar({ currentView, onSelectView, completedChap
                   {ch.shortTitle}
                 </div>
                 <div style={{ fontSize: '0.72rem', color: isLocked ? '#94A3B8' : 'var(--text-muted)', marginTop: '0.15rem' }}>
-                  {isLocked ? 'Belum Tersedia' : `Bab ${ch.number}`}
+                  {isLocked ? 'Terkunci' : `Bab ${ch.number}`}
                 </div>
               </div>
             </button>

@@ -38,9 +38,9 @@ export default function Header({
       return;
     }
 
-    // Jika siswa belum pretest, tab Materi terkunci dan arahkan ke Pretest
+    // Jika siswa belum pretest, fitur terkunci dan arahkan ke Pretest
     if (tabId === 'chapter1' && !isPretestCompleted) {
-      alert("🔒 Materi Masih Terkunci: Harap selesaikan Pretest Prasyarat terlebih dahulu sebelum membuka materi Bab 1.");
+      alert("🔒 Materi Masih Terkunci: Kerjakan pretest terlebih dahulu untuk membuka Materi.");
       if (onStartPretest) {
         onStartPretest();
       } else if (onSelectTab) {
@@ -50,7 +50,7 @@ export default function Header({
     }
 
     if (tabId === 'lab-virtual' && !isPretestCompleted) {
-      alert("🔒 Lab Virtual Masih Terkunci: Harap selesaikan Pretest Prasyarat terlebih dahulu sebelum membuka Laboratorium Virtual.");
+      alert("🔒 Lab Virtual Masih Terkunci: Kerjakan pretest terlebih dahulu untuk membuka Laboratorium Virtual.");
       if (onStartPretest) {
         onStartPretest();
       } else if (onSelectTab) {
@@ -61,7 +61,12 @@ export default function Header({
 
     if (tabId === 'quiz' || tabId === 'chapter6' || tabId === 'diagnostik') {
       if (!isPretestCompleted) {
-        alert("🔒 Evaluasi Akhir Masih Terkunci: Harap selesaikan Pretest Prasyarat terlebih dahulu sebelum membuka Evaluasi Akhir.");
+        alert("🔒 Evaluasi Akhir Masih Terkunci: Kerjakan pretest terlebih dahulu untuk membuka Evaluasi Akhir.");
+        if (onStartPretest) {
+          onStartPretest();
+        } else if (onSelectTab) {
+          onSelectTab('pretest');
+        }
         return;
       }
       tabId = 'diagnostik';
@@ -139,7 +144,7 @@ export default function Header({
               cursor: isExamLocked ? 'not-allowed' : 'pointer',
               color: (!isPretestCompleted && !isTeacher) ? '#94A3B8' : undefined
             }}
-            title={(!isPretestCompleted && !isTeacher) ? "🔒 Selesaikan Pretest terlebih dahulu untuk membuka Materi" : "Menuju Materi"}
+            title={(!isPretestCompleted && !isTeacher) ? "🔒 Kerjakan pretest terlebih dahulu untuk membuka Materi" : "Menuju Materi"}
           >
             {(!isPretestCompleted && !isTeacher) ? '🔒 Materi' : 'Materi'}
           </button>
@@ -151,7 +156,7 @@ export default function Header({
               cursor: isExamLocked ? 'not-allowed' : 'pointer',
               color: (!isPretestCompleted && !isTeacher) ? '#94A3B8' : undefined
             }}
-            title={(isPretestCompleted || isTeacher) ? "Laboratorium Virtual (Terbuka)" : "🔒 Selesaikan Pretest untuk membuka"}
+            title={(isPretestCompleted || isTeacher) ? "Laboratorium Virtual (Terbuka)" : "🔒 Kerjakan pretest terlebih dahulu untuk membuka Lab Virtual"}
           >
             {(!isPretestCompleted && !isTeacher) ? '🔒 Lab Virtual' : '🔬 Lab Virtual'}
           </button>
@@ -161,11 +166,11 @@ export default function Header({
             onClick={() => handleNavClick('diagnostik')}
             style={{ 
               cursor: isExamLocked ? 'not-allowed' : 'pointer',
-              color: (!isLabVirtualCompleted && !isTeacher) ? '#94A3B8' : undefined
+              color: (!isPretestCompleted && !isTeacher) ? '#94A3B8' : undefined
             }}
-            title={(isLabVirtualCompleted || isTeacher) ? "Evaluasi Akhir (Terbuka)" : "🔒 Selesaikan Lab Virtual untuk membuka"}
+            title={(isPretestCompleted || isTeacher) ? "Evaluasi Akhir (Terbuka)" : "🔒 Kerjakan pretest terlebih dahulu untuk membuka Evaluasi Akhir"}
           >
-            {(!isLabVirtualCompleted && !isTeacher) ? '🔒 Evaluasi Akhir' : '🏆 Evaluasi Akhir'}
+            {(!isPretestCompleted && !isTeacher) ? '🔒 Evaluasi Akhir' : '🏆 Evaluasi Akhir'}
           </button>
         </nav>
 

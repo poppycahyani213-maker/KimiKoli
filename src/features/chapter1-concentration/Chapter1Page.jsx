@@ -477,11 +477,11 @@ export default function Chapter1Page({ onComplete, isCompleted }) {
                 {isCompleted
                   ? '✓ Materi Bab 1 Selesai'
                   : isReadyToProceed
-                    ? '🎉 Seluruh Syarat Terpenuhi! Siap Lanjut'
-                    : 'Syarat Kelulusan Membuka Bab 2:'}
+                    ? '🎉 Target Lulus Terpenuhi! Siap Klaim XP'
+                    : 'Target Kelulusan Bab 1 (Klaim +XP & Rekap Guru):'}
               </span>
               <h4 style={{ margin: '0.2rem 0 0', color: '#0F172A', fontSize: '1.15rem', fontWeight: 800 }}>
-                Bab 2: Penurunan Tekanan Uap &amp; Kenaikan Titik Didih
+                Bab 1: Satuan Konsentrasi Larutan
               </h4>
             </div>
 
@@ -531,9 +531,11 @@ export default function Chapter1Page({ onComplete, isCompleted }) {
                   cursor: isReadyToProceed ? 'pointer' : 'not-allowed',
                   opacity: isReadyToProceed ? 1 : 0.65,
                 }}
-                title={!isReadyToProceed ? 'Selesaikan minimal 1 misi simulator dan latihan soal untuk membuka Bab 2' : 'Buka Bab 2'}
+                title={!isReadyToProceed ? 'Selesaikan minimal 1 misi simulator dan latihan soal untuk klaim kelulusan Bab 1' : 'Tandai Selesai Bab 1'}
               >
-                {isReadyToProceed ? 'Selesaikan Bab 1 & Buka Bab 2 →' : '🔒 Selesaikan Bab 1 & Buka Bab 2'}
+                {isCompleted
+                  ? '✓ Bab 1 Selesai (Lanjut Bab 2 →)'
+                  : (isReadyToProceed ? 'Selesaikan Bab 1 (+XP) & Lanjut Bab 2 →' : 'Tuntaskan Latihan untuk Klaim XP')}
               </Button>
             </div>
           </div>

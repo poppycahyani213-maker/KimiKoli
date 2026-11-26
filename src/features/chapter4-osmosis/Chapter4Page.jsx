@@ -830,7 +830,7 @@ export default function Chapter4Page({ onComplete, isCompleted }) {
                   ? '✓ Materi Bab 4 Selesai'
                   : allRequirementsMet
                   ? '🎉 Semua Syarat Terpenuhi — Siap Lanjut!'
-                  : '📋 Syarat Penyelesaian Bab 4'}
+                  : '📋 Target Kelulusan Bab 4 (Klaim +XP & Rekap Guru)'}
               </span>
               <h4 style={{
                 margin: '0.2rem 0 0',
@@ -838,7 +838,7 @@ export default function Chapter4Page({ onComplete, isCompleted }) {
                 fontSize: '1.15rem',
                 fontWeight: 800
               }}>
-                Bab 5: Sifat Koligatif Larutan Elektrolit &amp; van 't Hoff
+                Bab 4: Tekanan Osmotik &amp; Membran Semipermeabel
               </h4>
             </div>
 
@@ -910,8 +910,9 @@ export default function Chapter4Page({ onComplete, isCompleted }) {
                   cursor: (allRequirementsMet || isCompleted) ? 'pointer' : 'not-allowed',
                   opacity: (allRequirementsMet || isCompleted) ? 1 : 0.7,
                 }}
+                title={!allRequirementsMet && !isCompleted ? "Penuhi target latihan untuk klaim kelulusan Bab 4" : "Tandai Selesai Bab 4"}
               >
-                {isCompleted ? '✓ Bab 4 Selesai' : 'Selesaikan Bab 4 & Buka Bab 5 →'}
+                {isCompleted ? '✓ Bab 4 Selesai (Lanjut Bab 5 →)' : (allRequirementsMet ? 'Selesaikan Bab 4 (+XP) & Lanjut Bab 5 →' : 'Tuntaskan Latihan untuk Klaim XP')}
               </Button>
             </div>
           </div>
